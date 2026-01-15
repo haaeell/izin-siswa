@@ -17,18 +17,37 @@ class AcademicYearController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['name' => 'required']);
-        AcademicYear::create($request->only('name', 'is_active'));
+        $request->validate([
+            'name' => 'required'
+        ], [
+            'name.required' => 'Tahun akademik harus diisi'
+        ]);
+
+        AcademicYear::create([
+            'name' => $request->name,
+            'is_active' => $request->is_active == 'on' ? true : false
+        ]);
         return redirect()->back()->with('success', 'Tahun akademik berhasil ditambahkan');
     }
 
 
     public function update(Request $request, $id)
     {
-        if ($request->is_active) {
+        $request->validate([
+            'name' => 'required'
+        ], [
+            'name.required' => 'Tahun akademik harus diisi'
+        ]);
+
+        if ($request->is_active == 'on') {
             AcademicYear::where('id', '!=', $id)->update(['is_active' => false]);
         }
-        AcademicYear::findOrFail($id)->update($request->only('name', 'is_active'));
+
+        AcademicYear::findOrFail($id)->update([
+            'name' => $request->name,
+            'is_active' => $request->is_active == 'on' ? true : false
+        ]);
+
         return redirect()->back()->with('success', 'Tahun akademik diperbarui');
     }
 
