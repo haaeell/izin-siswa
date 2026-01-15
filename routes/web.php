@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\SchoolClassController;
@@ -8,9 +9,16 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\StudentPermissionController;
 use App\Http\Controllers\StudentPermissionApprovalController;
 use App\Http\Controllers\StudentPermissionCheckinController;
+use Illuminate\Support\Facades\Auth;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
 
 Route::middleware(['auth'])->group(function () {
 
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::prefix('master')->group(function () {
 
         Route::prefix('academic-years')->controller(AcademicYearController::class)->group(function () {
@@ -62,3 +70,5 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/checkin/{qr_token}', 'store');
     });
 });
+
+Auth::routes();
