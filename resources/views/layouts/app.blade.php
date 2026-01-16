@@ -128,6 +128,13 @@
                     </span>
                     Permohonan Izin
                 </a>
+                <a href="/permissions/report"
+                    class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('permissions*') }}">
+                    <span class="w-5 text-center">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </span>
+                    Laporan
+                </a>
             </nav>
         </aside>
 
