@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\StudentPermissionController;
 use App\Http\Controllers\StudentPermissionApprovalController;
 use App\Http\Controllers\StudentPermissionCheckinController;
+use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -36,13 +37,15 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::prefix('students')->controller(StudentController::class)->group(function () {
+            Route::get('/template', 'template');
+            Route::post('/import', 'import');
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::put('/{id}', 'update');
             Route::delete('/{id}', 'destroy');
         });
 
-        Route::prefix('users')->controller(UserController::class)->group(function () {
+        Route::prefix('teachers')->controller(TeacherController::class)->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::put('/{id}', 'update');

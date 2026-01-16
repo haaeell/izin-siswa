@@ -69,8 +69,7 @@
             <nav class="flex-1 px-4 py-4 space-y-1">
 
                 {{-- Dashboard --}}
-                <a href="/dashboard"
-                    class="flex items-center gap-3 mb-5 px-4 py-2 rounded-lg {{ isActive('dashboard') }}">
+                <a href="/home" class="flex items-center gap-3 mb-5 px-4 py-2 rounded-lg {{ isActive('dashboard') }}">
                     <span class="w-5 text-center">
                         <i class="fa-solid fa-chart-line"></i>
                     </span>
@@ -108,24 +107,27 @@
                     Guru
                 </a>
 
-                {{-- Wali Kelas --}}
-                <a href="/master/homeroom-teachers"
-                    class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('master/homeroom-teachers*') }}">
-                    <span class="w-5 text-center">
-                        <i class="fa-solid fa-users-gear"></i>
-                    </span>
-                    Wali Kelas
-                </a>
-
                 {{-- Tahun Akademik --}}
-                <a href="/master/academic-years"
+                {{-- <a href="/master/academic-years"
                     class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('master/academic-years*') }}">
                     <span class="w-5 text-center">
                         <i class="fa-solid fa-calendar-days"></i>
                     </span>
                     Tahun Akademik
-                </a>
+                </a> --}}
 
+                <div class="pt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 px-4">
+                    Menu Perizinan
+                </div>
+
+                {{-- Siswa --}}
+                <a href="/permissions"
+                    class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('permissions*') }}">
+                    <span class="w-5 text-center">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </span>
+                    Permohonan Izin
+                </a>
             </nav>
         </aside>
 
@@ -140,9 +142,6 @@
                     <button id="menuBtn" class="p-2 rounded-lg hover:bg-slate-100">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-
-                    <input type="text" placeholder="Search..."
-                        class="hidden sm:block w-56 md:w-72 px-4 py-2 rounded-lg bg-slate-100 focus:outline-none">
                 </div>
 
                 <div class="relative">

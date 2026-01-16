@@ -12,21 +12,27 @@ class SchoolClassController extends Controller
     public function index()
     {
         return view('master.classes.index', [
-            'classes' => SchoolClass::with(['academicYear', 'waliKelas'])->get(),
-            'years'   => AcademicYear::all(),
-            'walas'   => User::where('role', 'wali_kelas')->get(),
+            'classes' => SchoolClass::with(['academicYear', 'waliKelas'])
+                ->latest()
+                ->get(),
+            'waliKelas' => User::where('role', 'wali_kelas')->get(),
         ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name'             => 'required',
-            'academic_year_id' => 'required|exists:academic_years,id',
-            'wali_kelas_id'    => 'required|exists:users,id',
+            'name' => 'required',
+            'wali_kelas_id' => 'required|exists:users,id',
+        ], [
+            'name.required' => 'Nama kelas harus diisi',
+            'wali_kelas_id.required' => 'Wali kelas harus dipilih',
         ]);
 
-        SchoolClass::create($request->all());
+        SchoolClass::create([
+            'name' => $request->name,
+            'wali_kelas_id' => $request->wali_kelas_id,
+        ]);
 
         return redirect()->back()->with('success', 'Kelas berhasil ditambahkan');
     }
@@ -34,12 +40,17 @@ class SchoolClassController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name'             => 'required',
-            'academic_year_id' => 'required|exists:academic_years,id',
-            'wali_kelas_id'    => 'required|exists:users,id',
+            'name' => 'required',
+            'wali_kelas_id' => 'required|exists:users,id',
+        ], [
+            'name.required' => 'Nama kelas harus diisi',
+            'wali_kelas_id.required' => 'Wali kelas harus dipilih',
         ]);
 
-        SchoolClass::findOrFail($id)->update($request->all());
+        SchoolClass::findOrFail($id)->update([
+            'name' => $request->name,
+            'wali_kelas_id' => $request->wali_kelas_id,
+        ]);
 
         return redirect()->back()->with('success', 'Kelas berhasil diperbarui');
     }

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StudentsTemplateExport;
+use App\Imports\StudentsImport;
 use App\Models\Student;
 use App\Models\SchoolClass;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StudentController extends Controller
 {
@@ -46,5 +49,33 @@ class StudentController extends Controller
     {
         Student::findOrFail($id)->delete();
         return redirect()->back()->with('success', 'Siswa berhasil dihapus');
+    }
+
+    public function template()
+    {
+        return Excel::download(
+            new StudentsTemplateExport,
+            'template_import_siswa.xlsx'
+        );
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx'
+        ]);
+
+        try {
+            Excel::import(new StudentsImport, $request->file('file'));
+        } catch (\Throwable $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('import_error', $e->getMessage());
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', 'Data siswa berhasil diimport');
     }
 }

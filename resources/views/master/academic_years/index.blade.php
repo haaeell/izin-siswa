@@ -73,7 +73,8 @@
 
     <div id="yearModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50">
         <div class="bg-white w-full max-w-md rounded-xl p-6">
-            <h2 id="modalTitle" class="text-lg font-semibold mb-4">
+            <h2 id="modalTitle" class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-calendar"></i>
                 Tambah Tahun Akademik
             </h2>
 
@@ -83,14 +84,28 @@
 
                 <div class="mb-3">
                     <label class="text-sm font-medium">Nama Tahun</label>
-                    <input type="text" name="name" id="yearName" required
-                        class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring focus:ring-blue-200">
+
+                    <div class="relative mt-1">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </span>
+
+                        <input type="text" name="name" id="yearName" required
+                            class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-500">
+                    </div>
                 </div>
 
+
                 <div class="mb-4">
-                    <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" name="is_active" id="yearActive" class="rounded text-blue-600">
-                        Jadikan aktif
+                    <label class="flex items-center gap-3 text-sm cursor-pointer">
+                        <span class="text-green-500">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </span>
+
+                        <input type="checkbox" name="is_active" id="yearActive"
+                            class="rounded text-blue-600 focus:ring-blue-500">
+
+                        <span>Jadikan aktif</span>
                     </label>
                 </div>
 
@@ -115,52 +130,80 @@
     @push('scripts')
         <script>
             $(document).ready(function () {
+
                 $('#datatable').DataTable();
-            });
-        </script>
 
-        <script>
-            const modal = document.getElementById("yearModal");
-            const form = document.getElementById("yearForm");
-            const title = document.getElementById("modalTitle");
+                const $modal = $('#yearModal');
+                const $form = $('#yearForm');
+                const $title = $('#modalTitle');
 
-            const nameInput = document.getElementById("yearName");
-            const activeInput = document.getElementById("yearActive");
-            const methodField = document.getElementById("methodField");
+                const $name = $('#yearName');
+                const $active = $('#yearActive');
+                const $method = $('#methodField');
 
-            const btn = document.getElementById("submitBtn");
-            const btnText = document.getElementById("btnText");
-            const loader = document.getElementById("loader");
+                const $btn = $('#submitBtn');
+                const $btnText = $('#btnText');
+                const $loader = $('#loader');
 
-            function openCreateModal() {
-                modal.classList.remove("hidden");
-                title.innerText = "Tambah Tahun Akademik";
-                form.action = "/master/academic-years";
-                methodField.value = "";
-                nameInput.value = "";
-                activeInput.checked = false;
-            }
+                window.openCreateModal = function () {
+                    $modal.removeClass('hidden');
+                    $title.text('Tambah Tahun Akademik');
 
-            function openEditModal(data) {
-                modal.classList.remove("hidden");
-                title.innerText = "Edit Tahun Akademik";
-                form.action = `/master/academic-years/${data.id}`;
-                methodField.value = "PUT";
-                nameInput.value = data.name;
-                activeInput.checked = data.is_active;
-            }
+                    $form.attr('action', '/master/academic-years');
+                    $method.val('');
+                    $name.val('');
+                    $active.prop('checked', false);
+                }
 
-            function closeModal() {
-                modal.classList.add("hidden");
-            }
+                window.openEditModal = function (data) {
+                    $modal.removeClass('hidden');
+                    $title.text('Edit Tahun Akademik');
 
-            form.addEventListener("submit", () => {
-                btn.disabled = true;
-                btn.classList.add("opacity-70", "cursor-not-allowed");
-                btnText.innerText = "Menyimpan...";
-                loader.classList.remove("hidden");
+                    $form.attr('action', `/master/academic-years/${data.id}`);
+                    $method.val('PUT');
+                    $name.val(data.name);
+                    $active.prop('checked', data.is_active);
+                }
+
+                window.closeModal = function () {
+                    $modal.addClass('hidden');
+                }
+
+                $form.on('submit', function () {
+                    $btn.prop('disabled', true)
+                        .addClass('opacity-70 cursor-not-allowed');
+
+                    $btnText.text('Menyimpan...');
+                    $loader.removeClass('hidden');
+                });
+
+                window.deleteYear = function (id) {
+                    Swal.fire({
+                        title: 'Yakin?',
+                        text: 'Data Tahun Akademik akan dihapus!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Ya, hapus'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const form = document.createElement("form");
+                            form.method = "POST";
+                            form.action = `/master/academic-years/${id}`;
+
+                            form.innerHTML = `
+                                                                                                                <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]').content}">
+                                                                                                                <input type="hidden" name="_method" value="DELETE">
+                                                                                                            `;
+                            document.body.appendChild(form);
+                            form.submit();
+                        }
+                    });
+                }
+
             });
         </script>
     @endpush
+
 
 @endsection

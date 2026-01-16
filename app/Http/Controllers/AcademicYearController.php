@@ -13,8 +13,6 @@ class AcademicYearController extends Controller
             'years' => AcademicYear::orderByDesc('is_active')->get()
         ]);
     }
-
-
     public function store(Request $request)
     {
         $request->validate([

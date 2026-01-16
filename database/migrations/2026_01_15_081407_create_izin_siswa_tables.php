@@ -25,7 +25,7 @@ return new class extends Migration {
         Schema::create('classes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('academic_year_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('academic_year_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('wali_kelas_id')->constrained('users');
             $table->timestamps();
         });
