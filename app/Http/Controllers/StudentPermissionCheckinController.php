@@ -47,8 +47,8 @@ class StudentPermissionCheckinController extends Controller
         }
 
         $status = now()->lte($permission->end_at)
-            ? 'tepat_waktu'
-            : 'terlambat';
+            ? 'TEPAT WAKTU'
+            : 'TERLAMBAT';
 
         $checkin = StudentPermissionCheckin::create([
             'student_permission_id' => $permission->id,
