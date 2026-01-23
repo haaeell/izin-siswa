@@ -42,7 +42,7 @@ class StudentPermission extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function checkins()
+    public function checkin()
     {
         return $this->hasMany(StudentPermissionCheckin::class);
     }

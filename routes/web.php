@@ -57,8 +57,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::controller(StudentPermissionController::class)->group(function () {
             Route::get('/', 'index');
-            Route::get('/create', 'create');
-            Route::post('/', 'store');
+            Route::post('/', 'store')->name('permissions.store');
             Route::get('/{id}', 'show');
         });
 
@@ -69,8 +68,9 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::controller(StudentPermissionCheckinController::class)->group(function () {
-        Route::get('/checkin/{qr_token}', 'scan');
-        Route::post('/checkin/{qr_token}', 'store');
+        Route::get('/checkin', 'index');
+        Route::post('/checkin', 'store');
+        Route::post('/checkin-manual', 'manual');
     });
 });
 

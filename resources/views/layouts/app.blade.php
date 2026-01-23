@@ -20,6 +20,10 @@
     <!-- Datatable -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 
     <style>
         body {
@@ -34,6 +38,31 @@
         .sidebar-collapsed {
             width: 0;
             overflow: hidden;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 42px;
+            border-radius: 0.5rem;
+            /* rounded-lg */
+            border: 1px solid #d1d5db;
+            /* border-gray-300 */
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .select2-selection__rendered {
+            padding-left: 0 !important;
+            line-height: normal !important;
+        }
+
+        .select2-selection__arrow {
+            height: 100%;
+        }
+
+        .select2-container--default .select2-selection--single:focus {
+            border-color: #2563eb;
+            outline: none;
         }
     </style>
 </head>
@@ -122,14 +151,24 @@
 
                 {{-- Siswa --}}
                 <a href="/permissions"
-                    class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('permissions*') }}">
+                    class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('permissions') }}">
                     <span class="w-5 text-center">
                         <i class="fa-solid fa-user-graduate"></i>
                     </span>
                     Permohonan Izin
                 </a>
+                <a href="/checkin" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('checkin') }}">
+                    <span class="w-5 text-center">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </span>
+                    Scan QR Siswa
+                </a>
+
+                <div class="pt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 px-4">
+                    Laporan
+                </div>
                 <a href="/permissions/report"
-                    class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('permissions*') }}">
+                    class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('permissions/report') }}">
                     <span class="w-5 text-center">
                         <i class="fa-solid fa-chart-line"></i>
                     </span>
@@ -141,7 +180,6 @@
 
         <!-- Content -->
         <div class="flex-1 flex flex-col">
-
             <!-- Header -->
             <header class="h-16 bg-white border-b flex items-center justify-between px-4 md:px-6">
 
@@ -197,6 +235,10 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
     @stack('scripts')
     <script>
         $(function () {

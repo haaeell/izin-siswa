@@ -65,14 +65,23 @@
                         Password
                     </label>
                     <div class="relative mt-1">
+                        <!-- icon kiri -->
                         <span class="absolute inset-y-0 left-3 flex items-center text-blue-600">
                             <i class="fa-solid fa-lock"></i>
                         </span>
 
-                        <input type="password" name="password" required
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition @error('password') border-red-400 @enderror"
-                            placeholder="••••••••">
+                        <!-- input -->
+                        <input type="password" id="password" name="password" required class="w-full pl-10 pr-12 py-2.5 rounded-xl border border-gray-300 
+                                   focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition
+                                   @error('password') border-red-400 @enderror" placeholder="••••••••">
+
+                        <!-- toggle eye -->
+                        <button type="button" id="togglePassword"
+                            class="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-blue-600 transition">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
                     </div>
+
                     @error('password')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                     @enderror
@@ -115,6 +124,18 @@
         const btn = document.getElementById("loginBtn");
         const btnText = document.getElementById("btnText");
         const btnLoader = document.getElementById("btnLoader");
+
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+        const toggleIcon = togglePassword.querySelector("i");
+
+        togglePassword.addEventListener("click", () => {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+
+            toggleIcon.classList.toggle("fa-eye");
+            toggleIcon.classList.toggle("fa-eye-slash");
+        });
 
         form.addEventListener("submit", function () {
             btn.disabled = true;
