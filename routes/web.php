@@ -10,6 +10,7 @@ use App\Http\Controllers\StudentPermissionController;
 use App\Http\Controllers\StudentPermissionApprovalController;
 use App\Http\Controllers\StudentPermissionCheckinController;
 use App\Http\Controllers\TeacherController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -72,6 +73,19 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/checkin', 'store');
         Route::post('/checkin-manual', 'manual');
     });
+});
+
+Route::get('/dev/reset-system', function () {
+    Artisan::call('optimize:clear');
+    Artisan::call('migrate:fresh', [
+        '--seed' => true,
+        '--force' => true,
+    ]);
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Cache cleared & database migrated fresh with seed'
+    ]);
 });
 
 Auth::routes();
