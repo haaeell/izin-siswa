@@ -44,9 +44,6 @@ class StudentPermission extends Model
 
     public function checkin()
     {
-        return $this->hasOne(
-            StudentPermissionCheckin::class,
-            'student_permission_id'
-        );
+        return $this->hasOne(StudentPermissionCheckin::class, 'student_permission_id')->latestOfMany();
     }
 }

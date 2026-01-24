@@ -75,26 +75,27 @@ class StudentPermissionCheckinController extends Controller
         ]);
 
         $student = Student::with('class')->findOrFail($request->student_id);
-        $already = StudentPermissionCheckin::where('student_permission_id', $student->id)->exists();
 
-        if ($already) {
+        $permission = StudentPermission::where('student_id', $student->id)
+            ->where('status', 'approved')
+            ->whereDoesntHave('checkin')
+            ->latest('start_at')
+            ->first();
+
+        if (!$permission) {
             return response()->json([
                 'success' => false,
-                'message' => 'Siswa sudah check-in'
+                'message' => 'Siswa tidak memiliki izin aktif atau sudah check-in'
             ]);
         }
 
         $now = Carbon::now();
-        $batasMasuk = Carbon::today()->setTime(7, 0);
-
-        $status = $now->lte($batasMasuk)
-            ? 'TEPAT WAKTU'
-            : 'TERLAMBAT';
+        $status = $now->lte($permission->end_at) ? 'TEPAT WAKTU' : 'TERLAMBAT';
 
         $checkin = StudentPermissionCheckin::create([
-            'student_permission_id' => $student->id,
-            'checkin_at' => $now,
-            'status'     => strtolower(str_replace(' ', '_', $status))
+            'student_permission_id' => $permission->id,
+            'checkin_at'           => $now,
+            'status'               => $status
         ]);
 
         return response()->json([
@@ -102,7 +103,7 @@ class StudentPermissionCheckinController extends Controller
             'data' => [
                 'nama'   => $student->name,
                 'kelas'  => $student->class->name,
-                'waktu'  => Carbon::parse($checkin->checkin_at)->format('d M Y H:i'),
+                'waktu'  => $checkin->checkin_at->format('d M Y H:i'),
                 'status' => $status
             ]
         ]);

@@ -3,12 +3,14 @@
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\StudentPermissionController;
 use App\Http\Controllers\StudentPermissionApprovalController;
 use App\Http\Controllers\StudentPermissionCheckinController;
+use App\Http\Controllers\StudentViolationController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -57,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('permissions')->group(function () {
 
         Route::controller(StudentPermissionController::class)->group(function () {
+            Route::get('/check-violation/{student}', 'checkViolation');
             Route::get('/', 'index');
             Route::post('/', 'store')->name('permissions.store');
             Route::get('/{id}', 'show');
@@ -72,6 +75,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/checkin', 'index');
         Route::post('/checkin', 'store');
         Route::post('/checkin-manual', 'manual');
+    });
+
+    Route::prefix('violations')->controller(StudentViolationController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
+    });
+
+    Route::prefix('reports')->controller(ReportController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::get('/pdf', 'exportPdf');
+        Route::get('/excel', 'exportExcel');
     });
 });
 

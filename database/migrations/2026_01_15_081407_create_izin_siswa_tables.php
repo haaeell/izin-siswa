@@ -63,7 +63,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('student_permission_id')->constrained()->cascadeOnDelete();
             $table->dateTime('checkin_at');
-            $table->enum('status', ['tepat_waktu', 'terlambat']);
+            $table->enum('status', ['TEPAT WAKTU', 'TERLAMBAT']);
             $table->timestamps();
         });
     }

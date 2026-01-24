@@ -24,7 +24,7 @@ class StudentPermissionApprovalController extends Controller
         ]);
 
         return redirect()->back()
-            ->with('success', 'Permohonan disetujui & QR berhasil dibuat');
+            ->with('success', 'Permohonan disetujui');
     }
 
     public function reject(Request $request, $id)

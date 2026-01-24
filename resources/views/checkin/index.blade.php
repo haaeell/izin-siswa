@@ -42,7 +42,7 @@
                     <select id="studentSelect" class="w-full">
                         <option value="">-- Cari Nama / NIS --</option>
                         @foreach($students as $p)
-                            <option value="{{ $p->id }}" data-nis="{{ $p->student->nis }}"
+                            <option value="{{ $p->student->id }}" data-nis="{{ $p->student->nis }}"
                                 data-kelas="{{ $p->student->class->name }}" data-type="{{ $p->type }}"
                                 data-start="{{ $p->start_at?->format('d M Y H:i') }}"
                                 data-end="{{ $p->end_at?->format('d M Y H:i') }}" data-reason="{{ $p->reason }}">
@@ -120,7 +120,7 @@
             <tbody>
                 @foreach($checkins as $i => $c)
                     <tr>
-                        <td>{{ $i + 1 }}</td>
+                        <td>{{ $loop->iteration}}</td>
                         <td>{{ $c->permission->student->name }}</td>
                         <td>{{ $c->permission->student->class->name }}</td>
                         <td>{{ \Carbon\Carbon::parse($c->checkin_at)->format('d M Y H:i') }}</td>
@@ -130,11 +130,24 @@
                                     Masuk Tepat Waktu
                                 </span>
                             @else
+                                @php
+                                    $diff = $c->checkin_at->diff($c->permission->end_at);
+
+                                    if ($diff->d > 0) {
+                                        $delay = $diff->d . ' hari ' . $diff->h . ' jam ' . $diff->i . ' menit';
+                                    } elseif ($diff->h > 0) {
+                                        $delay = $diff->h . ' jam ' . $diff->i . ' menit';
+                                    } else {
+                                        $delay = $diff->i . ' menit';
+                                    }
+                                @endphp
                                 <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">
                                     Masuk Terlambat
                                 </span>
+                                <div class="text-xs text-red-700 mt-1">Telat: {{ $delay }}</div>
                             @endif
                         </td>
+
                     </tr>
                 @endforeach
             </tbody>
@@ -171,8 +184,6 @@
 
                 $('#infoSiswa').removeClass('hidden');
             });
-
-
 
             $('#datatable').DataTable();
         });
@@ -285,13 +296,16 @@
                 student_id: studentId
             })
                 .done(handleResponse)
-                .fail(() => {
-                    Swal.fire('Error', 'Gagal menyimpan data', 'error');
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error('AJAX Error:', textStatus, errorThrown);
+                    console.log('Response Text:', jqXHR.responseText);
+                    Swal.fire('Error', 'Gagal menyimpan data: ' + errorThrown, 'error');
                 })
-                .always(() => {
+                .always(function () {
                     setManualLoading(false);
                 });
         });
+
 
 
         function handleResponse(res) {
@@ -306,11 +320,11 @@
                 res.data.kelas,
                 res.data.waktu,
                 `<span class="px-2 py-1 rounded text-xs
-                                                                                    ${res.data.status === 'TEPAT WAKTU'
+                                                                                                            ${res.data.status === 'TEPAT WAKTU'
                     ? 'bg-green-100 text-green-700'
                     : 'bg-red-100 text-red-700'}">
-                                                                                    ${res.data.status}
-                                                                                </span>`
+                                                                                                            ${res.data.status}
+                                                                                                        </span>`
             ]).draw(false);
 
             $('#studentSelect').val(null).trigger('change');

@@ -19,18 +19,20 @@
             </div>
 
             <div>
-                <div class="flex gap-2">
-                    <button onclick="openImportModal()"
-                        class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition flex items-center gap-2">
-                        <i class="fa-solid fa-file-excel"></i>
-                        Import Excel
-                    </button>
+                @if (Auth::user()->role === 'perizinan')
+                    <div class="flex gap-2">
+                        <button onclick="openImportModal()"
+                            class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-excel"></i>
+                            Import Excel
+                        </button>
 
-                    <button onclick="openCreateModal()"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                        + Tambah
-                    </button>
-                </div>
+                        <button onclick="openCreateModal()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            + Tambah
+                        </button>
+                    </div>
+                @endif
             </div>
 
             {{-- MODAL IMPORT EXCEL --}}
@@ -86,7 +88,7 @@
                                     {{-- CUSTOM FILE INPUT --}}
                                     <label for="fileInput"
                                         class="group flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer
-                                                       bg-white hover:bg-blue-50 border-slate-300 hover:border-blue-500 transition">
+                                                                               bg-white hover:bg-blue-50 border-slate-300 hover:border-blue-500 transition">
 
                                         <div class="flex flex-col items-center justify-center text-center">
                                             <i class="fa-solid fa-file-excel text-4xl text-green-600 mb-2"></i>
@@ -167,7 +169,9 @@
                         <th>NIS</th>
                         <th>Nama</th>
                         <th>Kelas</th>
-                        <th>Aksi</th>
+                        @if (Auth::user()->role === 'perizinan')
+                            <th>Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -177,17 +181,19 @@
                             <td>{{ $student->nis }}</td>
                             <td>{{ $student->name }}</td>
                             <td>{{ $student->class->name ?? '-' }}</td>
-                            <td class="text-center space-x-2">
-                                <button onclick='openEditModal(@json($student))'
-                                    class="px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
+                            @if (Auth::user()->role === 'perizinan')
+                                <td class="text-center space-x-2">
+                                    <button onclick='openEditModal(@json($student))'
+                                        class="px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
 
-                                <button onclick="deleteStudent({{ $student->id }})"
-                                    class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </td>
+                                    <button onclick="deleteStudent({{ $student->id }})"
+                                        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>
@@ -309,9 +315,9 @@
                             form.method = 'POST';
                             form.action = `/master/students/${id}`;
                             form.innerHTML = `
-                                                                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                                                                    <input type="hidden" name="_method" value="DELETE">
-                                                                                                `;
+                                                                                                                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                                                                                    <input type="hidden" name="_method" value="DELETE">
+                                                                                                                                                `;
                             document.body.appendChild(form);
                             form.submit();
                         }
