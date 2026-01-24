@@ -274,6 +274,11 @@
                 <i class="fa-solid fa-print"></i>
                 Cetak QR
             </button>
+            <button onclick="downloadQrJpg()"
+                class="w-full mt-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-2 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-download"></i>
+                Download JPG
+            </button>
 
         </div>
     </div>
@@ -366,8 +371,8 @@
                         form.action = `/permissions/${id}/approve`;
 
                         form.innerHTML = `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `;
 
                         document.body.appendChild(form);
                         form.submit();
@@ -392,18 +397,29 @@
                 $('#rejectModal').addClass('hidden');
             }
 
-            let qrUrl = '';
+            let qrToken = '';
 
             function showQr(token) {
-                qrUrl = `${window.location.origin}/permissions/checkin/${token}`;
+                qrToken = token;
 
-                $('#qrImage').attr(
-                    'src',
-                    `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}`
-                );
+                const url = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(token)}`;
 
+                $('#qrImage').attr('src', url);
+                $('#qrText').text(token);
                 $('#qrModal').removeClass('hidden');
             }
+
+            function downloadQrJpg() {
+                const qrUrl = document.getElementById('qrImage').src;
+
+                const link = document.createElement('a');
+                link.href = qrUrl;
+                link.download = `qr-izin-${qrToken}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
 
 
             function closeQrModal() {
@@ -418,79 +434,79 @@
                 const win = window.open('', '_blank', 'width=450,height=600');
 
                 win.document.write(`
-                                                                                                                                                        <!DOCTYPE html>
-                                                                                                                                                        <html>
-                                                                                                                                                        <head>
-                                                                                                                                                            <title>Cetak QR Izin</title>
-                                                                                                                                                            <style>
-                                                                                                                                                                @media print {
-                                                                                                                                                                    body {
-                                                                                                                                                                        margin: 0;
-                                                                                                                                                                        font-family: Arial, Helvetica, sans-serif;
-                                                                                                                                                                        display: flex;
-                                                                                                                                                                        justify-content: center;
-                                                                                                                                                                        align-items: center;
-                                                                                                                                                                        height: 100vh;
-                                                                                                                                                                        background: #fff;
-                                                                                                                                                                    }
+                                                                                                                                                                                                                        <!DOCTYPE html>
+                                                                                                                                                                                                                        <html>
+                                                                                                                                                                                                                        <head>
+                                                                                                                                                                                                                            <title>Cetak QR Izin</title>
+                                                                                                                                                                                                                            <style>
+                                                                                                                                                                                                                                @media print {
+                                                                                                                                                                                                                                    body {
+                                                                                                                                                                                                                                        margin: 0;
+                                                                                                                                                                                                                                        font-family: Arial, Helvetica, sans-serif;
+                                                                                                                                                                                                                                        display: flex;
+                                                                                                                                                                                                                                        justify-content: center;
+                                                                                                                                                                                                                                        align-items: center;
+                                                                                                                                                                                                                                        height: 100vh;
+                                                                                                                                                                                                                                        background: #fff;
+                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                    .card {
-                                                                                                                                                                        width: 340px;
-                                                                                                                                                                        border: 1px solid #000;
-                                                                                                                                                                        padding: 20px;
-                                                                                                                                                                        text-align: center;
-                                                                                                                                                                    }
+                                                                                                                                                                                                                                    .card {
+                                                                                                                                                                                                                                        width: 340px;
+                                                                                                                                                                                                                                        border: 1px solid #000;
+                                                                                                                                                                                                                                        padding: 20px;
+                                                                                                                                                                                                                                        text-align: center;
+                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                    .logo {
-                                                                                                                                                                        width: 80px;
-                                                                                                                                                                        margin-bottom: 10px;
-                                                                                                                                                                    }
+                                                                                                                                                                                                                                    .logo {
+                                                                                                                                                                                                                                        width: 80px;
+                                                                                                                                                                                                                                        margin-bottom: 10px;
+                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                    h1 {
-                                                                                                                                                                        font-size: 14px;
-                                                                                                                                                                        margin: 8px 0 12px;
-                                                                                                                                                                        letter-spacing: 1px;
-                                                                                                                                                                    }
+                                                                                                                                                                                                                                    h1 {
+                                                                                                                                                                                                                                        font-size: 14px;
+                                                                                                                                                                                                                                        margin: 8px 0 12px;
+                                                                                                                                                                                                                                        letter-spacing: 1px;
+                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                    img.qr {
-                                                                                                                                                                        width: 220px;
-                                                                                                                                                                        height: 220px;
-                                                                                                                                                                        margin: 10px 0;
-                                                                                                                                                                    }
+                                                                                                                                                                                                                                    img.qr {
+                                                                                                                                                                                                                                        width: 220px;
+                                                                                                                                                                                                                                        height: 220px;
+                                                                                                                                                                                                                                        margin: 10px 0;
+                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                    p {
-                                                                                                                                                                        font-size: 11px;
-                                                                                                                                                                        margin: 4px 0;
-                                                                                                                                                                        line-height: 1.4;
-                                                                                                                                                                    }
+                                                                                                                                                                                                                                    p {
+                                                                                                                                                                                                                                        font-size: 11px;
+                                                                                                                                                                                                                                        margin: 4px 0;
+                                                                                                                                                                                                                                        line-height: 1.4;
+                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                    .footer {
-                                                                                                                                                                        margin-top: 10px;
-                                                                                                                                                                        font-size: 10px;
-                                                                                                                                                                    }
-                                                                                                                                                                }
-                                                                                                                                                            </style>
-                                                                                                                                                        </head>
-                                                                                                                                                        <body>
-                                                                                                                                                            <div class="card">
-                                                                                                                                                                <img src="${logoSrc}" class="logo" alt="Logo Sekolah">
+                                                                                                                                                                                                                                    .footer {
+                                                                                                                                                                                                                                        margin-top: 10px;
+                                                                                                                                                                                                                                        font-size: 10px;
+                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                            </style>
+                                                                                                                                                                                                                        </head>
+                                                                                                                                                                                                                        <body>
+                                                                                                                                                                                                                            <div class="card">
+                                                                                                                                                                                                                                <img src="${logoSrc}" class="logo" alt="Logo Sekolah">
 
-                                                                                                                                                                <h1>QR IZIN KEPULANGAN SISWA</h1>
+                                                                                                                                                                                                                                <h1>QR IZIN KEPULANGAN SISWA</h1>
 
-                                                                                                                                                                <img src="${qrSrc}" class="qr" alt="QR Izin">
+                                                                                                                                                                                                                                <img src="${qrSrc}" class="qr" alt="QR Izin">
 
-                                                                                                                                                                <p>
-                                                                                                                                                                    Tunjukkan QR ini kepada petugas<br>
-                                                                                                                                                                    saat kembali ke lingkungan sekolah.
-                                                                                                                                                                </p>
+                                                                                                                                                                                                                                <p>
+                                                                                                                                                                                                                                    Tunjukkan QR ini kepada petugas<br>
+                                                                                                                                                                                                                                    saat kembali ke lingkungan sekolah.
+                                                                                                                                                                                                                                </p>
 
-                                                                                                                                                                <div class="footer">
-                                                                                                                                                                    Sistem Perizinan Sekolah
-                                                                                                                                                                </div>
-                                                                                                                                                            </div>
-                                                                                                                                                        </body>
-                                                                                                                                                        </html>
-                                                                                                                                                    `);
+                                                                                                                                                                                                                                <div class="footer">
+                                                                                                                                                                                                                                    Sistem Perizinan Sekolah
+                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                        </body>
+                                                                                                                                                                                                                        </html>
+                                                                                                                                                                                                                    `);
 
                 win.document.close();
                 win.focus();

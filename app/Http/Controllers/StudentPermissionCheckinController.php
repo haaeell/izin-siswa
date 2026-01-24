@@ -7,6 +7,7 @@ use App\Models\StudentPermission;
 use App\Models\StudentPermissionCheckin;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class StudentPermissionCheckinController extends Controller
 {
@@ -28,7 +29,8 @@ class StudentPermissionCheckinController extends Controller
             'qr_token' => 'required'
         ]);
 
-        $permission = StudentPermission::where('qr_token', $request->qr_token)
+        $permission = StudentPermission::with('checkin', 'student.class')
+            ->where('qr_token', $request->qr_token)
             ->where('status', 'approved')
             ->first();
 
@@ -61,12 +63,11 @@ class StudentPermissionCheckinController extends Controller
             'data' => [
                 'nama' => $permission->student->name,
                 'kelas' => $permission->student->class->name,
-                'waktu' => Carbon::parse($checkin->checkin_at)->format('d M Y H:i'),
-                'status' => strtoupper(str_replace('_', ' ', $status))
+                'waktu' => $checkin->checkin_at->format('d M Y H:i'),
+                'status' => $status
             ]
         ]);
     }
-
     public function manual(Request $request)
     {
         $request->validate([

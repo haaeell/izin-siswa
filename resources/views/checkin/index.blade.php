@@ -16,6 +16,13 @@
                 Scan QR
             </button>
 
+            <button id="btnUpload" class="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center gap-2">
+                <i class="fa-solid fa-upload"></i>
+                Upload QR
+            </button>
+
+            <input type="file" id="qrFileInput" accept="image/*" class="hidden">
+
             <button id="btnManual" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg flex items-center gap-2">
                 <i class="fa-solid fa-keyboard"></i>
                 Input Manual
@@ -172,6 +179,40 @@
 
         let scanner;
 
+        const fileScanner = new Html5Qrcode("scanner");
+
+        $('#btnUpload').click(function () {
+            stopScanner();
+            $('#scanSection').addClass('hidden');
+            $('#manualSection').addClass('hidden');
+
+            $('#qrFileInput').click();
+        });
+
+        $('#qrFileInput').on('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            fileScanner.scanFile(file, true)
+                .then(qrCodeMessage => {
+                    $.post('/checkin', {
+                        _token: '{{ csrf_token() }}',
+                        qr_token: qrCodeMessage
+                    }, handleResponse);
+                })
+                .catch(err => {
+                    Swal.fire(
+                        'QR Tidak Terbaca 😵',
+                        'Pastikan gambar QR jelas dan tidak blur',
+                        'error'
+                    );
+                    console.error(err);
+                })
+                .finally(() => {
+                    $('#qrFileInput').val('');
+                });
+        });
+
         function setManualLoading(isLoading) {
             $('#submitManual').prop('disabled', isLoading)
                 .toggleClass('opacity-70 cursor-not-allowed', isLoading);
@@ -265,11 +306,11 @@
                 res.data.kelas,
                 res.data.waktu,
                 `<span class="px-2 py-1 rounded text-xs
-                                                                ${res.data.status === 'TEPAT WAKTU'
+                                                                                    ${res.data.status === 'TEPAT WAKTU'
                     ? 'bg-green-100 text-green-700'
                     : 'bg-red-100 text-red-700'}">
-                                                                ${res.data.status}
-                                                            </span>`
+                                                                                    ${res.data.status}
+                                                                                </span>`
             ]).draw(false);
 
             $('#studentSelect').val(null).trigger('change');

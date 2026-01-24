@@ -44,6 +44,9 @@ class StudentPermission extends Model
 
     public function checkin()
     {
-        return $this->hasMany(StudentPermissionCheckin::class);
+        return $this->hasOne(
+            StudentPermissionCheckin::class,
+            'student_permission_id'
+        );
     }
 }
