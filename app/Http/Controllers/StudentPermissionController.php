@@ -16,6 +16,12 @@ class StudentPermissionController extends Controller
         $query = StudentPermission::with(['student.class']);
 
         if (Auth::user()->role === 'wali_kelas') {
+            $query->whereHas('student.class', function ($q) {
+                $q->where('id', Auth::user()->class->id);
+            });
+        }
+
+        if (Auth::user()->role === 'wali_kelas') {
             $query->where('wali_kelas_id', Auth::user()->id);
         }
 
