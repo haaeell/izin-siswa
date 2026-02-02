@@ -16,10 +16,10 @@
                 Scan QR
             </button>
 
-            <button id="btnUpload" class="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center gap-2">
+            {{-- <button id="btnUpload" class="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center gap-2">
                 <i class="fa-solid fa-upload"></i>
                 Upload QR
-            </button>
+            </button> --}}
 
             <input type="file" id="qrFileInput" accept="image/*" class="hidden">
 
@@ -125,7 +125,7 @@
                         <td>{{ $c->permission->student->class->name }}</td>
                         <td>{{ \Carbon\Carbon::parse($c->checkin_at)->format('d M Y H:i') }}</td>
                         <td>
-                            @if($c->status === 'tepat_waktu')
+                            @if($c->status === 'TEPAT WAKTU')
                                 <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
                                     Masuk Tepat Waktu
                                 </span>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\StudentsTemplateExport;
 use App\Imports\StudentsImport;
+use App\Models\Dormitory;
 use App\Models\Student;
 use App\Models\SchoolClass;
 use Illuminate\Http\Request;
@@ -13,18 +14,30 @@ class StudentController extends Controller
 {
     public function index()
     {
+        if (Auth()->user()->role == 'wali_kelas') {
+            $students = Student::where('class_id', Auth()->user()->class->id)->with('class')->get();
+            $classes = SchoolClass::where('id', Auth()->user()->class->id)->get();
+        } else {
+            $students = Student::with('class')->get();
+            $classes = SchoolClass::all();
+        }
+
+
+        $dormitories = Dormitory::all();
         return view('master.students.index', [
-            'students' => Student::with('class')->get(),
-            'classes'  => SchoolClass::all(),
+            'students' => $students,
+            'classes' => $classes,
+            'dormitories' => $dormitories,
         ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nis'      => 'required|unique:students,nis',
-            'name'     => 'required',
+            'nis' => 'required|unique:students,nis',
+            'name' => 'required',
             'class_id' => 'required|exists:classes,id',
+            'dormitory_id' => 'nullable|exists:dormitories,id',
         ]);
 
         Student::create($request->all());
@@ -35,9 +48,10 @@ class StudentController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nis'      => 'required|unique:students,nis,' . $id,
-            'name'     => 'required',
+            'nis' => 'required|unique:students,nis,' . $id,
+            'name' => 'required',
             'class_id' => 'required|exists:classes,id',
+            'dormitory_id' => 'nullable|exists:dormitories,id',
         ]);
 
         Student::findOrFail($id)->update($request->all());

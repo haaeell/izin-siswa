@@ -35,7 +35,7 @@ class StudentPermissionController extends Controller
             fn($q) => $q->whereHas(
                 'class',
                 fn($c) =>
-                $c->where('wali_kelas_id', Auth::user()->id)
+                $c->where('class_id', Auth::user()->class->id)
             )
         )->get();
 
@@ -62,19 +62,21 @@ class StudentPermissionController extends Controller
 
         $data = $request->validate([
             'student_id' => 'required|exists:students,id',
-            'type'       => 'required|string',
-            'start_at'   => 'required|date',
-            'end_at'     => 'required|date|after_or_equal:start_at',
-            'reason'     => 'required|string',
+            'type' => 'required|string',
+            'start_at' => 'required|date',
+            'end_at' => 'required|date|after_or_equal:start_at',
+            'reason' => 'required|string',
+            'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ], [
             'student_id.required' => 'Siswa wajib dipilih',
-            'type.required'       => 'Jenis izin wajib dipilih',
-            'start_at.required'   => 'Tanggal mulai wajib diisi',
-            'end_at.required'     => 'Tanggal selesai wajib diisi',
-            'reason.required'     => 'Alasan wajib diisi',
+            'type.required' => 'Jenis izin wajib dipilih',
+            'start_at.required' => 'Tanggal mulai wajib diisi',
+            'end_at.required' => 'Tanggal selesai wajib diisi',
+            'reason.required' => 'Alasan wajib diisi',
             'end_at.after_or_equal' => 'Tanggal selesai harus setelah tanggal mulai',
             'start_at.before_or_equal' => 'Tanggal mulai harus sebelum tanggal selesai',
-
+            'file.mimes' => 'File harus berupa PDF, JPG, JPEG, atau PNG',
+            'file.max' => 'Ukuran file maksimal 2MB',
         ]);
 
         $hasActivePermission = StudentPermission::where('student_id', $data['student_id'])
@@ -93,10 +95,15 @@ class StudentPermissionController extends Controller
                 ->withInput();
         }
 
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('permission-files', 'public');
+            $data['file'] = $path;
+        }
+
         StudentPermission::create([
             ...$data,
             'wali_kelas_id' => Auth::user()->id,
-            'status'        => 'pending',
+            'status' => 'pending',
         ]);
 
         return redirect()->back()->with('success', 'Permohonan izin berhasil diajukan');

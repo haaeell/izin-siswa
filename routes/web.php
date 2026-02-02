@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DormitoryController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AcademicYearController;
@@ -49,6 +50,13 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::prefix('teachers')->controller(TeacherController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::put('/{id}', 'update');
+            Route::delete('/{id}', 'destroy');
+        });
+
+        Route::prefix('dormitories')->controller(DormitoryController::class)->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::put('/{id}', 'update');

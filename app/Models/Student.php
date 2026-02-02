@@ -13,7 +13,13 @@ class Student extends Model
         'nis',
         'name',
         'class_id',
+        'dormitory_id',
     ];
+
+    public function dormitory()
+    {
+        return $this->belongsTo(Dormitory::class);
+    }
 
     public function class()
     {

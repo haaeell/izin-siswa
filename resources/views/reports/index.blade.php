@@ -20,21 +20,24 @@
         </div>
 
         {{-- FILTER --}}
-        <form method="GET" class="bg-slate-50 border rounded-xl p-4 mb-6
+        <form method="GET"
+            class="bg-slate-50 border rounded-xl p-4 mb-6
                    grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 
             {{-- TANGGAL MULAI --}}
             <div class="flex flex-col">
                 <label class="text-sm font-medium mb-1">Tanggal Mulai</label>
-                <input type="date" name="start_date" value="{{ request('start_date') }}"
+                <input type="date" name="end_date" value="{{ request('end_date', now()->endOfMonth()->toDateString()) }}"
                     class="h-11 px-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+
             </div>
 
             {{-- TANGGAL AKHIR --}}
             <div class="flex flex-col">
                 <label class="text-sm font-medium mb-1">Tanggal Akhir</label>
-                <input type="date" name="end_date" value="{{ request('end_date') }}"
+                <input type="date" name="end_date" value="{{ request('end_date', now()->endOfMonth()->toDateString()) }}"
                     class="h-11 px-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+
             </div>
 
             {{-- KELAS --}}
@@ -50,9 +53,24 @@
                 </select>
             </div>
 
+            {{-- ASRAMA --}}
+            <div class="flex flex-col">
+                <label class="text-sm font-medium mb-1">Barak</label>
+                <select name="dormitory_id" class="h-11 px-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                    <option value="">Semua Barak</option>
+                    @foreach ($dormitories as $dormitory)
+                        <option value="{{ $dormitory->id }}" @selected(request('dormitory_id') == $dormitory->id)>
+                            {{ $dormitory->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+
             {{-- BUTTON --}}
             <div class="flex">
-                <button class="h-11 w-full bg-blue-600 text-white rounded-lg
+                <button
+                    class="h-11 w-full bg-blue-600 text-white rounded-lg
                            hover:bg-blue-700 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-filter"></i> Tampilkan
                 </button>
@@ -65,7 +83,8 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
 
             {{-- TOTAL IZIN --}}
-            <div class="p-4 rounded-xl flex items-center gap-3 
+            <div
+                class="p-4 rounded-xl flex items-center gap-3
                                                                 bg-blue-50 border border-blue-200">
                 <i class="fa-solid fa-envelope-open-text text-blue-600 text-2xl"></i>
                 <div>
@@ -77,7 +96,8 @@
             </div>
 
             {{-- TERLAMBAT --}}
-            <div class="p-4 rounded-xl flex items-center gap-3 
+            <div
+                class="p-4 rounded-xl flex items-center gap-3
                                                                 bg-red-50 border border-red-200">
                 <i class="fa-solid fa-clock text-red-600 text-2xl"></i>
                 <div>
@@ -89,7 +109,8 @@
             </div>
 
             {{-- TOTAL PELANGGARAN --}}
-            <div class="p-4 rounded-xl flex items-center gap-3 
+            <div
+                class="p-4 rounded-xl flex items-center gap-3
                                                                 bg-yellow-50 border border-yellow-200">
                 <i class="fa-solid fa-triangle-exclamation text-yellow-600 text-2xl"></i>
                 <div>
@@ -101,7 +122,8 @@
             </div>
 
             {{-- PELANGGARAN BERAT --}}
-            <div class="p-4 rounded-xl flex items-center gap-3 
+            <div
+                class="p-4 rounded-xl flex items-center gap-3
                                                                 bg-rose-50 border border-rose-200">
                 <i class="fa-solid fa-skull-crossbones text-rose-600 text-2xl"></i>
                 <div>
@@ -170,11 +192,13 @@
                                         <i class="fa-solid fa-triangle-exclamation"></i> Kritis
                                     </span>
                                 @elseif ($row->medium > 0 || $row->late_count > 0)
-                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs flex items-center gap-1">
+                                    <span
+                                        class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs flex items-center gap-1">
                                         <i class="fa-solid fa-circle-exclamation"></i> Perlu Perhatian
                                     </span>
                                 @else
-                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs flex items-center gap-1">
+                                    <span
+                                        class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs flex items-center gap-1">
                                         <i class="fa-solid fa-check"></i> Aman
                                     </span>
                                 @endif
@@ -199,10 +223,10 @@
                     datasets: [{
                         label: 'Jumlah',
                         data: [
-                                                                            {{ $summary['total_permission'] }},
-                                                                            {{ $summary['late_checkin'] }},
-                                                                            {{ $summary['total_violation'] }},
-                                                                            {{ $summary['heavy_violation'] }},
+                            {{ $summary['total_permission'] }},
+                            {{ $summary['late_checkin'] }},
+                            {{ $summary['total_violation'] }},
+                            {{ $summary['heavy_violation'] }},
                         ],
                         backgroundColor: [
                             '#3b82f6',
@@ -216,7 +240,9 @@
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { display: false }
+                        legend: {
+                            display: false
+                        }
                     },
                     scales: {
                         y: {
@@ -234,9 +260,9 @@
                     labels: ['Ringan', 'Sedang', 'Berat'],
                     datasets: [{
                         data: [
-                                                                            {{ $rows->sum('light') }},
-                                                                            {{ $rows->sum('medium') }},
-                                                                            {{ $rows->sum('heavy') }},
+                            {{ $rows->sum('light') }},
+                            {{ $rows->sum('medium') }},
+                            {{ $rows->sum('heavy') }},
                         ],
                         backgroundColor: [
                             '#fde68a',
@@ -251,10 +277,12 @@
             });
 
             // DATATABLE
-            $(document).ready(function () {
+            $(document).ready(function() {
                 $('#datatable').DataTable({
                     pageLength: 10,
-                    order: [[1, 'asc']],
+                    order: [
+                        [1, 'asc']
+                    ],
                     responsive: true
                 });
             });

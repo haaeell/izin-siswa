@@ -35,6 +35,13 @@
             Guru
         </a>
 
+
+        <a href="/master/dormitories"
+            class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('master/dormitories*') }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-home"></i></span>
+            Barak
+        </a>
+
         <div class="pt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 px-4">
             Pelanggaran
         </div>
@@ -48,10 +55,29 @@
             Menu Perizinan
         </div>
 
-        <a href="/permissions" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('permissions') }}">
-            <span class="w-5 text-center"><i class="fa-solid fa-user-graduate"></i></span>
-            Permohonan Izin
+        @php
+            use App\Models\StudentPermission;
+
+            $pendingPermissionsCount = StudentPermission::where('status', 'pending')->count();
+        @endphp
+
+        <a href="/permissions"
+            class="flex items-center justify-between px-4 py-2 rounded-lg {{ isActive('permissions') }}">
+
+            <div class="flex items-center gap-3">
+                <span class="w-5 text-center">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </span>
+                <span>Permohonan Izin</span>
+            </div>
+
+            @if ($pendingPermissionsCount > 0)
+                <span class="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                    {{ $pendingPermissionsCount }}
+                </span>
+            @endif
         </a>
+
 
         <a href="/checkin" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('checkin') }}">
             <span class="w-5 text-center"><i class="fa-solid fa-qrcode"></i></span>

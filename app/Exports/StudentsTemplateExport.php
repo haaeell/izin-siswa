@@ -20,13 +20,14 @@ class StudentsTemplateExport implements
             'NIS',
             'Nama Siswa',
             'Kelas',
+            'Barak'
         ];
     }
 
     public function array(): array
     {
         return [
-            ['123456', 'Contoh Nama Siswa', 'X IPA 1'],
+            ['123456', 'Contoh Nama Siswa', 'X IPA 1', 'Asrama Putra'],
         ];
     }
 
@@ -66,6 +67,7 @@ class StudentsTemplateExport implements
             'A' => 20,
             'B' => 30,
             'C' => 20,
+            'D' => 25,
         ];
     }
 }

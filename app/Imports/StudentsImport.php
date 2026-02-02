@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Dormitory;
 use App\Models\Student;
 use App\Models\SchoolClass;
 use Illuminate\Support\Collection;
@@ -20,6 +21,7 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 'nis' => 'required',
                 'nama_siswa' => 'required',
                 'kelas' => 'required',
+                'barak' => 'nullable',
             ]);
 
             if ($validator->fails()) {
@@ -38,16 +40,22 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 throw new \Exception('Kelas tidak ditemukan pada baris ' . ($index + 2));
             }
 
+            if ($row['barak'] && !Dormitory::where('name', $row['barak'])->exists()) {
+                throw new \Exception('Barak tidak ditemukan pada baris ' . ($index + 2));
+            }
+
             $nisInFile[] = $row['nis'];
         }
 
         foreach ($rows as $row) {
             $class = SchoolClass::where('name', $row['kelas'])->first();
+            $dormitory = Dormitory::where('name', $row['barak'])->first();
 
             Student::create([
                 'nis' => $row['nis'],
                 'name' => $row['nama_siswa'],
                 'class_id' => $class->id,
+                'dormitory_id' => $dormitory ? $dormitory->id : null,
             ]);
         }
     }

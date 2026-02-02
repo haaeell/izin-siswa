@@ -28,14 +28,6 @@
         <div class="pt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 px-4">
             Menu
         </div>
-        {{-- Pelanggaran --}}
-        <a href="/violations" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('violations') }}">
-            <span class="w-5 text-center">
-                <i class="fa-solid fa-ban"></i>
-            </span>
-            Pelanggaran
-        </a>
-
         {{-- Permohonan Izin --}}
         <a href="/permissions" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('permissions') }}">
             <span class="w-5 text-center">

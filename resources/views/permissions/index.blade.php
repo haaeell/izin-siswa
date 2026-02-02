@@ -20,13 +20,13 @@
                 </nav>
             </div>
 
-            @if(auth()->user()->role === 'wali_kelas')
+            @if (auth()->user()->role === 'wali_kelas')
                 <div class="w-full md:w-auto">
-                    <button onclick="openCreateModal()" @disabled($activePermissionCount >= 3) class="w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition
+                    <button onclick="openCreateModal()" @disabled($activePermissionCount >= 3)
+                        class="w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition
                     {{ $activePermissionCount >= 3
-                ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }}">
+                        ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                         <i class="fa-solid fa-plus"></i>
                         Ajukan Izin
                     </button>
@@ -35,10 +35,10 @@
 
         </div>
 
-        @if($errors->any())
+        @if ($errors->any())
             <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                 <ul class="list-disc pl-5 text-sm">
-                    @foreach($errors->all() as $e)
+                    @foreach ($errors->all() as $e)
                         <li>{{ $e }}</li>
                     @endforeach
                 </ul>
@@ -49,56 +49,58 @@
         <div class="bg-white rounded-xl shadow border overflow-x-auto">
             <div class="p-4 sm:p-6">
 
-                @if(auth()->user()->role === 'wali_kelas')
-                        @php
-                            $limit = 3;
-                            $isFull = $activePermissionCount >= $limit;
-                        @endphp
+                @if (auth()->user()->role === 'wali_kelas')
+                    @php
+                        $limit = 3;
+                        $isFull = $activePermissionCount >= $limit;
+                    @endphp
 
-                        <div class="mb-4 rounded-xl border
-                                                                    {{ $isFull ? 'border-red-300 bg-red-50 text-red-800'
-                    : 'border-blue-300 bg-blue-50 text-blue-800' }}
+                    <div
+                        class="mb-4 rounded-xl border
+                                                                    {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}
                                                                     px-4 py-3 flex gap-3 items-start">
 
-                            <div class="flex-shrink-0">
-                                <div class="w-9 h-9 rounded-full flex items-center justify-center
+                        <div class="flex-shrink-0">
+                            <div
+                                class="w-9 h-9 rounded-full flex items-center justify-center
                                                                             {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
-                                    <i class="fa-solid
-                                                                                {{ $isFull ? 'fa-circle-exclamation text-red-600'
-                    : 'fa-circle-info text-blue-600' }}">
-                                    </i>
-                                </div>
-                            </div>
-
-                            <div class="flex-1">
-                                <h3 class="font-semibold text-sm mb-1">
-                                    Status Izin Siswa Kelas
-                                </h3>
-
-                                <p class="text-sm leading-relaxed">
-                                    Saat ini terdapat
-                                    <span class="font-bold">{{ $activePermissionCount }}</span>
-                                    dari
-                                    <span class="font-bold">{{ $limit }}</span>
-                                    siswa yang sedang izin.
-                                </p>
-
-                                @if($isFull)
-                                    <p class="text-xs mt-2 font-medium text-red-700">
-                                        <i class="fa-solid fa-circle-exclamation"></i> Batas izin tercapai. Tidak dapat mengajukan izin
-                                        baru.
-                                    </p>
-                                @else
-                                    <p class="text-xs mt-2 text-blue-700">
-                                        <i class="fa-solid fa-circle-info"></i> Masih tersedia
-                                        <span class="font-semibold">
-                                            {{ $limit - $activePermissionCount }}
-                                        </span>
-                                        slot izin.
-                                    </p>
-                                @endif
+                                <i
+                                    class="fa-solid
+                                                                                {{ $isFull ? 'fa-circle-exclamation text-red-600' : 'fa-circle-info text-blue-600' }}">
+                                </i>
                             </div>
                         </div>
+
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-sm mb-1">
+                                Status Izin Siswa Kelas
+                            </h3>
+
+                            <p class="text-sm leading-relaxed">
+                                Saat ini terdapat
+                                <span class="font-bold">{{ $activePermissionCount }}</span>
+                                dari
+                                <span class="font-bold">{{ $limit }}</span>
+                                siswa yang sedang izin.
+                            </p>
+
+                            @if ($isFull)
+                                <p class="text-xs mt-2 font-medium text-red-700">
+                                    <i class="fa-solid fa-circle-exclamation"></i> Batas izin tercapai. Tidak dapat
+                                    mengajukan izin
+                                    baru.
+                                </p>
+                            @else
+                                <p class="text-xs mt-2 text-blue-700">
+                                    <i class="fa-solid fa-circle-info"></i> Masih tersedia
+                                    <span class="font-semibold">
+                                        {{ $limit - $activePermissionCount }}
+                                    </span>
+                                    slot izin.
+                                </p>
+                            @endif
+                        </div>
+                    </div>
                 @endif
 
                 <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:flex gap-3 mb-4 items-end">
@@ -109,9 +111,8 @@
                         <label class="block text-sm font-medium text-slate-700 mb-1">Filter Tanggal</label>
                         <input type="text" id="dateRange"
                             class="w-full pl-3 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Pilih rentang tanggal" value="{{ request('start_date') && request('end_date')
-        ? request('start_date') . ' to ' . request('end_date')
-        : '' }}">
+                            placeholder="Pilih rentang tanggal"
+                            value="{{ request('start_date') && request('end_date') ? request('start_date') . ' to ' . request('end_date') : '' }}">
                     </div>
 
                     <input type="hidden" name="start_date" id="startDate">
@@ -137,12 +138,13 @@
                             </span>
 
                             <svg id="filterLoader" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.3" />
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+                                    opacity="0.3" />
                                 <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" />
                             </svg>
                         </button>
 
-                        @if(request()->hasAny(['status', 'start_date']))
+                        @if (request()->hasAny(['status', 'start_date']))
                             <a href="/permissions"
                                 class="flex-1 sm:flex-none px-4 py-2 border rounded-lg text-center hover:bg-slate-50 transition">
                                 <i class="fa-solid fa-xmark mr-1"></i> Reset
@@ -151,8 +153,8 @@
                     </div>
                 </form>
 
-                <div class="overflow-x-auto">
-                    <table id="datatable" class="w-full text-sm min-w-full">
+                <div class="overflow-x-auto w-full">
+                    <table id="datatable" class="w-full text-sm min-w-[700px] md:min-w-full table-auto">
                         <thead class="bg-slate-100 text-slate-700">
                             <tr>
                                 <th class="px-4 py-2 text-left">#</th>
@@ -161,27 +163,27 @@
                                 <th class="px-4 py-2 text-left">Jenis</th>
                                 <th class="px-4 py-2 text-left">Waktu</th>
                                 <th class="px-4 py-2 text-left">Status</th>
-                                @if(auth()->user()->role === 'perizinan')
+                                @if (auth()->user()->role === 'perizinan')
                                     <th class="px-4 py-2 text-center">Aksi</th>
                                 @endif
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($permissions as $i => $p)
+                            @foreach ($permissions as $i => $p)
                                 <tr class="border-b">
-                                    <td class="px-4 py-2">{{ $i + 1 }}</td>
-                                    <td class="px-4 py-2 font-medium">{{ $p->student->name }}</td>
-                                    <td class="px-4 py-2 capitalize">{{ $p->student->class->name }}</td>
-                                    <td class="px-4 py-2 capitalize">{{ $p->type }}</td>
-                                    <td class="px-4 py-2 text-xs text-slate-700 whitespace-nowrap">
+                                    <td class="px-4 py-2 whitespace-nowrap">{{ $i + 1 }}</td>
+                                    <td class="px-4 py-2 font-medium break-words">{{ $p->student->name }}</td>
+                                    <td class="px-4 py-2 capitalize whitespace-nowrap">{{ $p->student->class->name }}</td>
+                                    <td class="px-4 py-2 capitalize whitespace-nowrap">{{ $p->type }}</td>
+                                    <td class="px-4 py-2 text-xs text-slate-700 break-words">
                                         <i class="fa-regular fa-clock text-slate-400 mr-1"></i>
                                         {{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}
                                         <span class="mx-1 text-slate-400">→</span>
                                         {{ \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i') }}
                                     </td>
 
-                                    <td class="px-4 py-2">
-                                        @if($p->status === 'pending')
+                                    <td class="px-4 py-2 whitespace-nowrap">
+                                        @if ($p->status === 'pending')
                                             <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">
                                                 <i class="fa-regular fa-clock mr-1"></i> Pending
                                             </span>
@@ -190,26 +192,35 @@
                                                 <i class="fa-solid fa-check mr-1"></i> Disetujui
                                             </span>
                                         @else
-                                            <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">
-                                                <i class="fa-solid fa-xmark mr-1"></i> Ditolak
-                                            </span>
+                                            <div class="flex flex-col">
+                                                <span
+                                                    class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs inline-flex items-center">
+                                                    <i class="fa-solid fa-xmark mr-1"></i> Ditolak
+                                                </span>
+                                                @if (!empty($p->reject_reason))
+                                                    <span class="text-[10px] text-red-600 mt-1 break-words">
+                                                        Alasan: {{ $p->reject_reason }}
+                                                    </span>
+                                                @endif
+                                            </div>
                                         @endif
                                     </td>
-                                    @if(auth()->user()->role === 'perizinan')
-                                        <td class="px-4 py-2 text-center space-x-2">
-                                            @if($p->status === 'pending')
+
+                                    @if (auth()->user()->role === 'perizinan')
+                                        <td class="px-4 py-2 text-center flex flex-wrap justify-center gap-2">
+                                            @if ($p->status === 'pending')
                                                 <button onclick="approvePermission({{ $p->id }})"
-                                                    class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition text-xs">
+                                                    class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition text-xs whitespace-nowrap">
                                                     <i class="fa-solid fa-check"></i> Setujui
                                                 </button>
 
                                                 <button onclick="openRejectModal({{ $p->id }})"
-                                                    class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-xs">
+                                                    class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-xs whitespace-nowrap">
                                                     <i class="fa-solid fa-xmark"></i> Tolak
                                                 </button>
                                             @elseif($p->status === 'approved' && $p->qr_token)
                                                 <button onclick="showQr('{{ $p->qr_token }}')"
-                                                    class="px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition text-xs">
+                                                    class="px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition text-xs whitespace-nowrap">
                                                     <i class="fa-solid fa-qrcode"></i> Lihat QR
                                                 </button>
                                             @endif
@@ -220,15 +231,24 @@
                         </tbody>
                     </table>
                 </div>
+
             </div>
         </div>
     </div>
 
     {{-- ================= MODAL CREATE ================= --}}
-    <div id="createModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50 p-4">
+    <div id="createModal" class="fixed inset-0 hidden bg-black/40 z-50 flex items-center justify-center p-2 sm:p-4">
+
+        <!-- MODAL CARD -->
         <div
-            class="bg-white w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] rounded-xl shadow-lg relative overflow-y-auto">
-            <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b sticky top-0 bg-white">
+            class="bg-white w-full max-w-4xl h-full sm:h-auto sm:max-h-[90vh]
+               rounded-xl shadow-lg flex flex-col overflow-hidden">
+
+            <!-- HEADER (STICKY) -->
+            <div
+                class="flex items-center justify-between px-4 sm:px-6 py-4
+                   border-b bg-white sticky top-0 z-20">
+
                 <h2 class="text-lg font-semibold flex items-center gap-2">
                     <i class="fa-solid fa-file-circle-plus text-blue-600"></i>
                     Ajukan Izin
@@ -239,46 +259,40 @@
                 </button>
             </div>
 
-            <form action="/permissions" method="POST" class="p-4 sm:p-6" id="createForm">
+
+            <form action="/permissions" method="POST" enctype="multipart/form-data" id="createForm"
+                class="flex-1 overflow-y-auto p-4 sm:p-6">
                 @csrf
 
                 <div id="violationAlert"
                     class="hidden mb-4 rounded-2xl border border-red-400
-                                                                                                       bg-gradient-to-br from-red-500 via-red-400 to-rose-500
-                                                                                                       text-white shadow-lg relative overflow-hidden">
+                       bg-gradient-to-br from-red-500 via-red-400 to-rose-500
+                       text-white shadow-lg relative overflow-hidden">
 
-                    <!-- SOFT PATTERN -->
                     <div
                         class="absolute inset-0 opacity-10
-                                                                                                           bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)]
-                                                                                                           [background-size:16px_16px]">
+                            bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)]
+                            [background-size:16px_16px]">
                     </div>
 
                     <div class="relative flex flex-col sm:flex-row gap-4 p-4 sm:p-5">
-                        <!-- ICON -->
                         <div class="flex-shrink-0">
                             <div class="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center backdrop-blur">
                                 <i class="fa-solid fa-ban text-white text-lg"></i>
                             </div>
                         </div>
 
-                        <!-- CONTENT -->
                         <div class="flex-1">
                             <div class="flex flex-wrap items-center gap-2 mb-2">
                                 <h3 class="font-semibold text-sm tracking-wide">
                                     Tidak Bisa Mengajukan Izin
                                 </h3>
-
-                                <span
-                                    class="px-2 py-0.5 text-xs rounded-full
-                                                                                                                       bg-white/20 backdrop-blur font-medium">
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-white/20">
                                     Pelanggaran Aktif
                                 </span>
                             </div>
 
-                            <div id="violationDetail" class="text-sm text-white/90 space-y-1 leading-relaxed">
-                                <!-- injected by JS -->
-                            </div>
+                            <div id="violationDetail" class="text-sm text-white/90 space-y-1 leading-relaxed"></div>
 
                             <div class="mt-3 flex items-center gap-2 text-xs text-white/80 border-t border-white/20 pt-2">
                                 <i class="fa-regular fa-clock"></i>
@@ -288,26 +302,26 @@
                     </div>
                 </div>
 
+                <!-- SISWA -->
                 <div class="mb-4">
-                    <label class="text-sm font-medium block mb-1">Siswa</label>
+                    <label class="text-sm font-medium mb-1 block">Siswa</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <select name="student_id" required
-                            class="select2 w-full border rounded-lg py-2 pl-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <select name="student_id" required class="select2 w-full border rounded-lg py-2 pl-10">
                             <option value="">-- Pilih Siswa --</option>
-                            @foreach($students as $s)
+                            @foreach ($students as $s)
                                 <option value="{{ $s->id }}">{{ $s->name }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
 
+                <!-- JENIS -->
                 <div class="mb-4" id="typeField">
-                    <label class="text-sm font-medium block mb-1">Jenis Izin</label>
+                    <label class="text-sm font-medium mb-1">Jenis Izin</label>
                     <div class="relative">
                         <i class="fa-solid fa-tags absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <select name="type"
-                            class="select2 w-full border rounded-lg py-2 pl-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <select name="type" class="select2 w-full border rounded-lg py-2 pl-10">
                             <option value="pulang">Pulang</option>
                             <option value="sakit">Sakit</option>
                             <option value="lainnya">Lainnya</option>
@@ -315,6 +329,7 @@
                     </div>
                 </div>
 
+                <!-- WAKTU -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4" id="timeFields">
                     <div>
                         <label class="text-sm font-medium mb-1 block">
@@ -326,7 +341,6 @@
                                 class="border rounded-lg py-2 pl-10 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                     </div>
-
                     <div>
                         <label class="text-sm font-medium mb-1 block">
                             Sampai
@@ -339,34 +353,61 @@
                     </div>
                 </div>
 
-                <div class="mb-5" id="reasonField">
-                    <label class="text-sm font-medium block mb-1">Alasan</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-pen absolute left-3 top-3 text-slate-400"></i>
-                        <textarea name="reason" rows="4"
-                            class="w-full border rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                <!-- ALASAN -->
+                <div class="mb-5">
+                    <label class="text-sm font-medium mb-1">Alasan</label>
+                    <textarea name="reason" rows="4" class="w-full border rounded-lg py-2"></textarea>
+                </div>
+
+                <!-- FILE -->
+                <div class="mb-6">
+                    <label class="text-sm font-medium mb-2 block">Lampiran (Opsional)</label>
+
+                    <label
+                        class="flex flex-col items-center justify-center border-2 border-dashed
+                           rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:bg-blue-50">
+
+                        <i class="fa-solid fa-cloud-arrow-up text-blue-600 text-2xl mb-2"></i>
+                        <p class="text-sm text-slate-600">
+                            <span class="font-semibold text-blue-600">Klik upload</span> atau drag file
+                        </p>
+                        <p class="text-xs text-slate-400">PDF / JPG / PNG (Max 2MB)</p>
+
+                        <input type="file" name="file" id="permissionFile" class="hidden"
+                            onchange="previewPermissionFile(this)">
+                    </label>
+
+                    <div id="filePreview" class="hidden mt-3 flex justify-between items-center p-3 border rounded-lg">
+                        <span id="fileName" class="text-sm truncate"></span>
+                        <button type="button" onclick="removePermissionFile()"
+                            class="text-red-500 text-sm">Hapus</button>
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row justify-end gap-3 border-t pt-4">
-                    <button type="button" onclick="closeCreateModal()"
-                        class="w-full sm:w-auto px-4 py-2 border rounded-lg hover:bg-slate-100 transition">
-                        Batal
-                    </button>
 
-                    <button type="submit" id="submitCreateBtn"
-                        class="w-full sm:w-auto px-5 py-2 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition">
-                        <span id="submitCreateText">Kirim</span>
+                <!-- FOOTER (STICKY) -->
+                <div class="border-t p-4 bg-white sticky bottom-0 z-20">
+                    <div class="flex flex-col sm:flex-row justify-end gap-3">
+                        <button onclick="closeCreateModal()" class="px-4 py-2 border rounded-lg">
+                            Batal
+                        </button>
+                        <button type="submit" id="submitCreateBtn"
+                            class="w-full sm:w-auto px-5 py-2 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition">
+                            <span id="submitCreateText">Kirim</span>
 
-                        <svg id="submitCreateLoader" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.3" />
-                            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" />
-                        </svg>
-                    </button>
+                            <svg id="submitCreateLoader" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24"
+                                fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+                                    opacity="0.3" />
+                                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
+
 
     {{-- ================= MODAL QR ================= --}}
     <div id="qrModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50 p-4">
@@ -392,11 +433,6 @@
                 <i class="fa-solid fa-print"></i>
                 Cetak QR
             </button>
-            <button onclick="downloadQrJpg()"
-                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-2 flex items-center justify-center gap-2 transition">
-                <i class="fa-solid fa-download"></i>
-                Download JPG
-            </button>
 
         </div>
     </div>
@@ -421,7 +457,8 @@
                         class="w-full sm:w-auto px-4 py-2 border rounded-lg hover:bg-slate-100 transition">
                         Batal
                     </button>
-                    <button class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                    <button
+                        class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
                         Tolak
                     </button>
                 </div>
@@ -431,10 +468,24 @@
 
     @push('scripts')
         <script>
+            function previewPermissionFile(input) {
+                if (!input.files || !input.files[0]) return;
+
+                const file = input.files[0];
+                document.getElementById('fileName').innerText = file.name;
+                document.getElementById('filePreview').classList.remove('hidden');
+            }
+
+            function removePermissionFile() {
+                const input = document.getElementById('permissionFile');
+                input.value = '';
+                document.getElementById('filePreview').classList.add('hidden');
+            }
+
             flatpickr("#dateRange", {
                 mode: "range",
                 dateFormat: "Y-m-d",
-                onClose: function (dates) {
+                onClose: function(dates) {
                     if (dates.length === 2) {
                         $('#startDate').val(dates[0].toISOString().slice(0, 10));
                         $('#endDate').val(dates[1].toISOString().slice(0, 10));
@@ -442,7 +493,7 @@
                 }
             });
 
-            $('form[method="GET"]').on('submit', function () {
+            $('form[method="GET"]').on('submit', function() {
                 const $btn = $('#filterBtn');
                 const $text = $('#filterText');
                 const $loader = $('#filterLoader');
@@ -454,7 +505,7 @@
                 $loader.removeClass('hidden');
             });
 
-            $('select[name="student_id"]').on('change', function () {
+            $('select[name="student_id"]').on('change', function() {
                 const studentId = $(this).val();
 
                 $('#violationAlert').addClass('hidden');
@@ -466,7 +517,7 @@
 
                 if (!studentId) return;
 
-                $.get(`/permissions/check-violation/${studentId}`, function (res) {
+                $.get(`/permissions/check-violation/${studentId}`, function(res) {
 
                     if (!res.has_violation) {
                         $('#violationAlert').addClass('hidden');
@@ -511,7 +562,7 @@
             });
 
 
-            $('#createModal form').on('submit', function () {
+            $('#createModal form').on('submit', function() {
                 $('#submitCreateBtn')
                     .prop('disabled', true)
                     .addClass('opacity-70 cursor-not-allowed');
@@ -520,7 +571,7 @@
                 $('#submitCreateLoader').removeClass('hidden');
             });
 
-            $(document).ready(function () {
+            $(document).ready(function() {
                 $('#datatable').DataTable({
                     responsive: true,
                     scrollX: true,
@@ -586,17 +637,6 @@
                 $('#qrModal').removeClass('hidden');
             }
 
-            function downloadQrJpg() {
-                const qrUrl = document.getElementById('qrImage').src;
-
-                const link = document.createElement('a');
-                link.href = qrUrl;
-                link.download = `qr-izin-${qrToken}.jpg`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-
             function closeQrModal() {
                 $('#qrModal').addClass('hidden');
                 $('#waNumber').val('');
@@ -604,7 +644,8 @@
 
             function printQr() {
                 const qrSrc = document.getElementById('qrImage').src;
-                const logoSrc = 'https://yt3.googleusercontent.com/aqwnd_6PPBpG0PqWP1QMcBjJZX0GwVYQCmJ0_r0pdJPrAgiqjH3TaxhHCF9a-oHRbhk90Bpz=s900-c-k-c0x00ffffff-no-rj';
+                const logoSrc =
+                    'https://yt3.googleusercontent.com/aqwnd_6PPBpG0PqWP1QMcBjJZX0GwVYQCmJ0_r0pdJPrAgiqjH3TaxhHCF9a-oHRbhk90Bpz=s900-c-k-c0x00ffffff-no-rj';
 
                 const win = window.open('', '_blank', 'width=450,height=600');
 
@@ -614,53 +655,57 @@
                                                                                     <head>
                                                                                         <title>Cetak QR Izin</title>
                                                                                         <style>
-                                                                                            @media print {
-                                                                                                body {
-                                                                                                    margin: 0;
-                                                                                                    font-family: Arial, Helvetica, sans-serif;
-                                                                                                    display: flex;
-                                                                                                    justify-content: center;
-                                                                                                    align-items: center;
-                                                                                                    height: 100vh;
-                                                                                                    background: #fff;
-                                                                                                }
+    @page {
+        size: A4;
+        margin: 0;
+    }
 
-                                                                                                .card {
-                                                                                                    width: 340px;
-                                                                                                    border: 1px solid #000;
-                                                                                                    padding: 20px;
-                                                                                                    text-align: center;
-                                                                                                }
+    @media print {
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-                                                                                                .logo {
-                                                                                                    width: 80px;
-                                                                                                    margin-bottom: 10px;
-                                                                                                }
+        .card {
+            width: 600px; /* ⬅️ LEBIH BESAR */
+            border: 2px solid #000;
+            padding: 30px;
+            text-align: center;
+        }
 
-                                                                                                h1 {
-                                                                                                    font-size: 14px;
-                                                                                                    margin: 8px 0 12px;
-                                                                                                    letter-spacing: 1px;
-                                                                                                }
+        .logo {
+            width: 120px;
+            margin-bottom: 16px;
+        }
 
-                                                                                                img.qr {
-                                                                                                    width: 220px;
-                                                                                                    height: 220px;
-                                                                                                    margin: 10px 0;
-                                                                                                }
+        h1 {
+            font-size: 20px;
+            margin: 12px 0 18px;
+            letter-spacing: 1px;
+        }
 
-                                                                                                p {
-                                                                                                    font-size: 11px;
-                                                                                                    margin: 4px 0;
-                                                                                                    line-height: 1.4;
-                                                                                                }
+        img.qr {
+            width: 380px;   /* ⬅️ QR JADI GEDE */
+            height: 380px;
+            margin: 20px 0;
+        }
 
-                                                                                                .footer {
-                                                                                                    margin-top: 10px;
-                                                                                                    font-size: 10px;
-                                                                                                }
-                                                                                            }
-                                                                                        </style>
+        p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            margin-top: 16px;
+            font-size: 12px;
+        }
+    }
+</style>
+
                                                                                     </head>
                                                                                     <body>
                                                                                         <div class="card">
@@ -689,7 +734,7 @@
                 setTimeout(() => {
                     win.print();
                     win.close();
-                }, 300);
+                }, 500);
             }
         </script>
     @endpush

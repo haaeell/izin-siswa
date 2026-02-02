@@ -20,6 +20,7 @@ class StudentPermission extends Model
         'status',
         'reject_reason',
         'qr_token',
+        'file',
     ];
 
     protected $casts = [
