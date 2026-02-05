@@ -67,11 +67,11 @@
                             </td>
 
                             <td>
-                                @if($item->checkout_at)
+                                @if($item->checkin_at)
                                     <span class="px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
                                         Selesai
                                     </span>
-                                @elseif($item->checkin_at)
+                                @elseif($item->checkout_at)
                                     <span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
                                         Pulang
                                     </span>
