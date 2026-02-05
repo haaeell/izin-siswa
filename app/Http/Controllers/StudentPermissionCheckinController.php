@@ -2,110 +2,147 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
 use App\Models\StudentPermission;
 use App\Models\StudentPermissionCheckin;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class StudentPermissionCheckinController extends Controller
 {
-    public function index()
+    /* ===================== VIEW ===================== */
+
+    public function checkinView()
     {
-        $checkins = StudentPermissionCheckin::with([
-            'permission.student',
-            'permission.student.class'
-        ])->latest()->get();
+        // Sudah kembali (check-in)
+        $checkins = StudentPermissionCheckin::with('permission.student.class')
+            ->whereNotNull('checkin_at')
+            ->latest('checkin_at')
+            ->get();
 
-        $students = StudentPermission::with('student')->where('status', 'approved')->whereDoesntHave('checkin')->get();
-
-        return view('checkin.index', compact('checkins', 'students'));
+        return view('checkin.checkin', compact('checkins'));
     }
 
-    public function store(Request $request)
+    public function checkoutView()
+    {
+        // Masih di luar
+        $checkins = StudentPermissionCheckin::with('permission.student.class')
+            ->whereNotNull('checkout_at')
+            ->whereNull('checkin_at')
+            ->latest('checkout_at')
+            ->get();
+
+        return view('checkin.checkout', compact('checkins'));
+    }
+
+    /* ===================== CHECK-OUT ===================== */
+    // SISWA KELUAR SEKOLAH
+
+    public function checkout(Request $request)
     {
         $request->validate([
-            'qr_token' => 'required'
+            'code' => 'required'
         ]);
 
-        $permission = StudentPermission::with('checkin', 'student.class')
-            ->where('qr_token', $request->qr_token)
-            ->where('status', 'approved')
-            ->first();
+        $permission = $this->findPermission($request->code);
 
         if (!$permission) {
-            return response()->json([
-                'success' => false,
-                'message' => 'QR tidak valid atau izin belum disetujui'
-            ]);
+            return $this->error('Data siswa / izin tidak ditemukan');
         }
 
-        if ($permission->checkin) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Siswa sudah melakukan check-in'
-            ]);
+        // Sudah checkout
+        if ($permission->checkin && $permission->checkin->checkout_at) {
+            return $this->error('Siswa sudah keluar');
         }
 
-        $status = now()->lte($permission->end_at)
+        // Create / Update record keluar
+        StudentPermissionCheckin::updateOrCreate(
+            ['student_permission_id' => $permission->id],
+            [
+                'checkout_at' => now(),
+                'checkin_at'  => null,
+                'status'      => 'DI LUAR'
+            ]
+        );
+
+        return $this->success(
+            'Check-out berhasil',
+            $permission
+        );
+    }
+
+    /* ===================== CHECK-IN ===================== */
+    // SISWA KEMBALI KE SEKOLAH
+
+    public function checkin(Request $request)
+    {
+        $request->validate([
+            'code' => 'required'
+        ]);
+
+        $permission = $this->findPermission($request->code);
+
+        if (!$permission || !$permission->checkin) {
+            return $this->error('Siswa belum melakukan check-out');
+        }
+
+        // Sudah check-in
+        if ($permission->checkin->checkin_at) {
+            return $this->error('Siswa sudah check-in');
+        }
+
+        $now = now();
+
+        $status = $now->lte($permission->end_at)
             ? 'TEPAT WAKTU'
             : 'TERLAMBAT';
 
-        $checkin = StudentPermissionCheckin::create([
-            'student_permission_id' => $permission->id,
-            'checkin_at' => now(),
-            'status' => $status
+        $permission->checkin->update([
+            'checkin_at' => $now,
+            'status'     => $status
         ]);
 
+        return $this->success(
+            'Check-in berhasil',
+            $permission,
+            $status
+        );
+    }
+
+    /* ===================== HELPER ===================== */
+
+    private function findPermission(string $code): ?StudentPermission
+    {
+        return StudentPermission::with(['student.class', 'checkin'])
+            ->where('status', 'approved')
+            ->where(function ($q) use ($code) {
+                $q->where('qr_token', $code)
+                    ->orWhereHas(
+                        'student',
+                        fn($s) =>
+                        $s->where('nis', $code)
+                    );
+            })
+            ->first();
+    }
+
+    private function success(string $message, StudentPermission $permission, string $status = null)
+    {
         return response()->json([
             'success' => true,
+            'message' => $message,
             'data' => [
-                'nama' => $permission->student->name,
-                'kelas' => $permission->student->class->name,
-                'waktu' => $checkin->checkin_at->format('d M Y H:i'),
+                'nama'   => $permission->student->name,
+                'kelas'  => $permission->student->class->name,
+                'waktu'  => now()->format('d M Y H:i'),
                 'status' => $status
             ]
         ]);
     }
-    public function manual(Request $request)
+
+    private function error(string $message)
     {
-        $request->validate([
-            'student_id' => 'required|exists:students,id'
-        ]);
-
-        $student = Student::with('class')->findOrFail($request->student_id);
-
-        $permission = StudentPermission::where('student_id', $student->id)
-            ->where('status', 'approved')
-            ->whereDoesntHave('checkin')
-            ->latest('start_at')
-            ->first();
-
-        if (!$permission) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Siswa tidak memiliki izin aktif atau sudah check-in'
-            ]);
-        }
-
-        $now = Carbon::now();
-        $status = $now->lte($permission->end_at) ? 'TEPAT WAKTU' : 'TERLAMBAT';
-
-        $checkin = StudentPermissionCheckin::create([
-            'student_permission_id' => $permission->id,
-            'checkin_at'           => $now,
-            'status'               => $status
-        ]);
-
         return response()->json([
-            'success' => true,
-            'data' => [
-                'nama'   => $student->name,
-                'kelas'  => $student->class->name,
-                'waktu'  => $checkin->checkin_at->format('d M Y H:i'),
-                'status' => $status
-            ]
+            'success' => false,
+            'message' => $message
         ]);
     }
 }

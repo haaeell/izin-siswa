@@ -30,12 +30,20 @@ return new class extends Migration {
             $table->timestamps();
         });
 
+        Schema::create('dormitories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->timestamps();
+        });
+
         /* SISWA */
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->string('nis')->unique();
             $table->string('name');
-            $table->foreignId('class_id')->constrained('classes')->cascadeOnDelete();
+            $table->foreignId('class_id')->nullable()->constrained('classes')->nullOnDelete();
+            $table->foreignId('dormitory_id')->nullable()->constrained('dormitories')->nullOnDelete();
             $table->timestamps();
         });
 
@@ -52,6 +60,10 @@ return new class extends Migration {
             $table->text('reason');
 
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->string('surat_walas')->nullable();
+            $table->string('surat_ortu')->nullable();
+            $table->string('surat_dokter')->nullable();
+
             $table->text('reject_reason')->nullable();
 
             $table->string('qr_token')->nullable()->unique();
@@ -62,8 +74,30 @@ return new class extends Migration {
         Schema::create('student_permission_checkins', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_permission_id')->constrained()->cascadeOnDelete();
-            $table->dateTime('checkin_at');
-            $table->enum('status', ['TEPAT WAKTU', 'TERLAMBAT']);
+            $table->dateTime('checkin_at')->nullable();
+            $table->dateTime('checkout_at')->nullable();
+            $table->enum('status', ['TEPAT WAKTU', 'TERLAMBAT', 'DI LUAR']);
+            $table->timestamps();
+        });
+
+        Schema::create('student_violations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_id')->constrained()->cascadeOnDelete();
+            $table->enum('type', ['ringan', 'sedang', 'berat']);
+            $table->enum('handling_type', [
+                'pengasuhan',
+                'pengajaran',
+                'pelatihan'
+            ]);
+            $table->text('description');
+            $table->boolean('no_phone')->default(false);
+            $table->boolean('no_permission')->default(false);
+            $table->date('no_phone_until')->nullable();
+            $table->date('no_permission_until')->nullable();
+            $table->date('occurred_at');
+            $table->foreignId('reported_by')->nullable()->constrained('users');
+            $table->unsignedTinyInteger('attendance_percentage')->nullable();
+            $table->date('attendance_until')->nullable();
             $table->timestamps();
         });
     }

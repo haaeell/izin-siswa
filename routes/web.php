@@ -80,9 +80,11 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::controller(StudentPermissionCheckinController::class)->group(function () {
-        Route::get('/checkin', 'index');
-        Route::post('/checkin', 'store');
-        Route::post('/checkin-manual', 'manual');
+        Route::get('/checkin',  [StudentPermissionCheckinController::class, 'checkinView']);
+        Route::post('/checkin', [StudentPermissionCheckinController::class, 'checkin']);
+
+        Route::get('/checkout',  [StudentPermissionCheckinController::class, 'checkoutView']);
+        Route::post('/checkout', [StudentPermissionCheckinController::class, 'checkout']);
     });
 
     Route::prefix('violations')->controller(StudentViolationController::class)->group(function () {

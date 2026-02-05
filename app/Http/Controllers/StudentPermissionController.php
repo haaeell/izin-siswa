@@ -8,12 +8,13 @@ use App\Models\StudentViolation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class StudentPermissionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = StudentPermission::with(['student.class']);
+        $query = StudentPermission::with(['student.class', 'checkin']);
 
         if (Auth::user()->role === 'wali_kelas') {
             $query->whereHas('student.class', function ($q) {
@@ -72,7 +73,9 @@ class StudentPermissionController extends Controller
             'start_at' => 'required|date',
             'end_at' => 'required|date|after_or_equal:start_at',
             'reason' => 'required|string',
-            'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'surat_walas'  => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'surat_ortu'   => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'surat_dokter' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
         ], [
             'student_id.required' => 'Siswa wajib dipilih',
             'type.required' => 'Jenis izin wajib dipilih',
@@ -81,8 +84,15 @@ class StudentPermissionController extends Controller
             'reason.required' => 'Alasan wajib diisi',
             'end_at.after_or_equal' => 'Tanggal selesai harus setelah tanggal mulai',
             'start_at.before_or_equal' => 'Tanggal mulai harus sebelum tanggal selesai',
-            'file.mimes' => 'File harus berupa PDF, JPG, JPEG, atau PNG',
-            'file.max' => 'Ukuran file maksimal 2MB',
+            'surat_walas.file' => 'Surat walas harus berupa file PDF, JPG, atau PNG',
+            'surat_ortu.file' => 'Surat ortu harus berupa file PDF, JPG, atau PNG',
+            'surat_dokter.file' => 'Surat dokter harus berupa file PDF, JPG, atau PNG',
+            'surat_walas.mimes' => 'Surat walas harus berupa file PDF, JPG, atau PNG',
+            'surat_ortu.mimes' => 'Surat ortu harus berupa file PDF, JPG, atau PNG',
+            'surat_dokter.mimes' => 'Surat dokter harus berupa file PDF, JPG, atau PNG',
+            'surat_walas.max' => 'Surat walas maksimal berukuran 2MB',
+            'surat_ortu.max' => 'Surat ortu maksimal berukuran 2MB',
+            'surat_dokter.max' => 'Surat dokter maksimal berukuran 2MB',
         ]);
 
         $hasActivePermission = StudentPermission::where('student_id', $data['student_id'])
@@ -101,9 +111,37 @@ class StudentPermissionController extends Controller
                 ->withInput();
         }
 
-        if ($request->hasFile('file')) {
-            $path = $request->file('file')->store('permission-files', 'public');
-            $data['file'] = $path;
+        if ($request->hasFile('surat_walas')) {
+            $file = $request->file('surat_walas');
+            $filename = 'walas_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+
+            $data['surat_walas'] = $file->storeAs(
+                'permissions/surat-walas',
+                $filename,
+                'public'
+            );
+        }
+
+        if ($request->hasFile('surat_ortu')) {
+            $file = $request->file('surat_ortu');
+            $filename = 'ortu_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+
+            $data['surat_ortu'] = $file->storeAs(
+                'permissions/surat-ortu',
+                $filename,
+                'public'
+            );
+        }
+
+        if ($request->hasFile('surat_dokter')) {
+            $file = $request->file('surat_dokter');
+            $filename = 'dokter_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+
+            $data['surat_dokter'] = $file->storeAs(
+                'permissions/surat-dokter',
+                $filename,
+                'public'
+            );
         }
 
         StudentPermission::create([

@@ -12,11 +12,13 @@ class StudentPermissionCheckin extends Model
     protected $fillable = [
         'student_permission_id',
         'checkin_at',
+        'checkout_at',
         'status',
     ];
 
     protected $casts = [
         'checkin_at' => 'datetime',
+        'checkout_at' => 'datetime',
     ];
 
     public function permission()

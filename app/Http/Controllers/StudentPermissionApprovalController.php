@@ -20,7 +20,7 @@ class StudentPermissionApprovalController extends Controller
         $permission->update([
             'status'      => 'approved',
             'approved_by' => Auth::user()->id,
-            'qr_token'    => Str::uuid(),
+            'qr_token' => now()->format('ymdHis') . Str::random(4),
         ]);
 
         return redirect()->back()
