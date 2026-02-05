@@ -83,21 +83,18 @@ return new class extends Migration {
         Schema::create('student_violations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
-            $table->enum('type', ['ringan', 'sedang', 'berat']);
-            $table->enum('handling_type', [
-                'pengasuhan',
-                'pengajaran',
-                'pelatihan'
-            ]);
-            $table->text('description');
+            $table->enum('type', ['ringan', 'sedang', 'berat'])->nullable();
+            $table->enum('handling_type', ['pengasuhan', 'pengajaran', 'pelatihan'])->nullable();
+            $table->text('description')->nullable();
             $table->boolean('no_phone')->default(false);
             $table->boolean('no_permission')->default(false);
             $table->date('no_phone_until')->nullable();
             $table->date('no_permission_until')->nullable();
-            $table->date('occurred_at');
+            $table->date('occurred_at')->nullable();
             $table->foreignId('reported_by')->nullable()->constrained('users');
             $table->unsignedTinyInteger('attendance_percentage')->nullable();
             $table->date('attendance_until')->nullable();
+
             $table->timestamps();
         });
     }

@@ -24,14 +24,6 @@ class StudentViolation extends Model
         'reported_by',
     ];
 
-    protected $casts = [
-        'no_phone'        => 'boolean',
-        'no_permission'   => 'boolean',
-        'occurred_at'     => 'date',
-        'no_phone_until'  => 'date',
-        'no_permission_until' => 'date',
-        'attendance_until' => 'date',
-    ];
 
     public function student()
     {

@@ -8,14 +8,12 @@ use App\Http\Controllers\PermissionVerifyController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\StudentController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\StudentPermissionController;
 use App\Http\Controllers\StudentPermissionApprovalController;
 use App\Http\Controllers\StudentPermissionCheckinController;
 use App\Http\Controllers\StudentPermissionLetterController;
 use App\Http\Controllers\StudentViolationController;
 use App\Http\Controllers\TeacherController;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {

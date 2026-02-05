@@ -46,23 +46,10 @@
             Pelanggaran
         </div>
 
-        {{-- Submenu Pelanggaran --}}
-        <a href="/violations/pengasuhan"
-            class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('violations/pengasuhan*') }}">
-            <span class="w-5 text-center"><i class="fa-solid fa-hand-holding-heart"></i></span>
-            Pengasuhan
-        </a>
-
-        <a href="/violations/pengajaran"
-            class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('violations/pengajaran*') }}">
-            <span class="w-5 text-center"><i class="fa-solid fa-chalkboard-user"></i></span>
-            Pengajaran
-        </a>
-
-        <a href="/violations/pelatihan"
-            class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('violations/pelatihan*') }}">
-            <span class="w-5 text-center"><i class="fa-solid fa-graduation-cap"></i></span>
-            Pelatihan
+        <a href="{{ url('/violations?handling_type=pengasuhan') }}"
+            class="flex items-center gap-3 px-4 py-2 rounded-lg {{ request('handling_type', 'pengasuhan') ? 'bg-blue-600 text-white' : '' }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-ban"></i></span>
+            Data Pelanggaran
         </a>
 
 

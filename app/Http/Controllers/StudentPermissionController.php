@@ -208,20 +208,52 @@ class StudentPermissionController extends Controller
 
     public function checkViolation($studentId)
     {
-        $violation = StudentViolation::where('student_id', $studentId)->where('until', '>=', now())->latest()->first();
+        $now = now();
 
-        if (!$violation) {
-            return response()->json([
-                'has_violation' => false
-            ]);
+        $violations = StudentViolation::where('student_id', $studentId)
+            ->where(function ($q) use ($now) {
+                $q->where('no_phone_until', '>=', $now)
+                    ->orWhere('no_permission_until', '>=', $now)
+                    ->orWhere('attendance_until', '>=', $now);
+            })
+            ->get();
+
+        $response = [
+            'has_violation' => false,
+            'details' => [],
+        ];
+
+        foreach ($violations as $v) {
+            $handlingType = $v->handling_type;
+
+            if ($handlingType === 'pengasuhan') {
+                $untils = [];
+                if ($v->no_phone && $v->no_phone_until) {
+                    $untils[] = 'HP sampai ' . Carbon::parse($v->no_phone_until)->format('d M Y');
+                }
+                if ($v->no_permission && $v->no_permission_until) {
+                    $untils[] = 'Izin sampai ' . Carbon::parse($v->no_permission_until)->format('d M Y');
+                }
+
+                $response['has_violation'] = true;
+                $response['details'][$handlingType] = [
+                    'type' => ucfirst($v->type),
+                    'description' => $v->description,
+                    'until' => implode(', ', $untils),
+                    'can_apply_at' => $v->no_phone_until ? Carbon::parse($v->no_phone_until)->addDay()->format('d M Y') : null,
+                ];
+            } else {
+                if ($v->attendance_percentage < 80) {
+                    $response['has_violation'] = true;
+                    $response['details'][$handlingType] = [
+                        'attendance_percentage' => $v->attendance_percentage,
+                        'handling_type' => $handlingType,
+                        'until' => $v->attendance_until ? Carbon::parse($v->attendance_until)->format('d M Y') : '-',
+                    ];
+                }
+            }
         }
 
-        return response()->json([
-            'has_violation' => true,
-            'type' => ucfirst($violation->type),
-            'description' => $violation->description,
-            'until' => Carbon::parse($violation->until)->format('d M Y'),
-            'can_apply_at' => Carbon::parse($violation->until)->addDay()->format('d M Y'),
-        ]);
+        return response()->json($response);
     }
 }

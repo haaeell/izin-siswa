@@ -12,29 +12,21 @@ class StudentViolationController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::user();
-
         $classes = SchoolClass::orderBy('name')->get();
 
         $violations = StudentViolation::with(['student.class'])
-            ->when($user->role === 'wali_kelas', function ($q) use ($user) {
-                $q->whereHas('student', function ($s) use ($user) {
-                    $s->where('class_id', $user->class->id);
-                });
-            })
-            ->when($request->class_id && $user->role !== 'wali_kelas', function ($q) use ($request) {
+            ->when($request->class_id, function ($q) use ($request) {
                 $q->whereHas('student', function ($s) use ($request) {
                     $s->where('class_id', $request->class_id);
                 });
             })
+            ->when($request->handling_type, function ($q) use ($request) {
+                $q->where('handling_type', $request->handling_type);
+            })
             ->latest()
             ->get();
 
-        $students = Student::when($user->role === 'wali_kelas', function ($q) use ($user) {
-            $q->where('class_id', $user->class->id);
-        })
-            ->orderBy('name')
-            ->get();
+        $students = Student::orderBy('name')->get();
 
         return view('violations.index', compact(
             'violations',
@@ -47,28 +39,39 @@ class StudentViolationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'student_id'   => 'required|exists:students,id',
-            'type'         => 'required|in:ringan,sedang,berat',
-            'description'  => 'required',
-            'occurred_at' => 'required|date',
-            'until'        => 'required|date',
-        ], [
-            'student_id.required' => 'Siswa wajib dipilih',
-            'type.required'       => 'Jenis pelanggaran wajib dipilih',
-            'description.required' => 'Deskripsi wajib diisi',
-            'until.required'      => 'Durasi hukuman wajib diisi',
-            'occurred_at.required' => 'Tanggal pelanggaran wajib diisi',
+            'student_id'            => 'required|exists:students,id',
+            'category'         => 'nullable|in:pengasuhan,pengajaran,pelatihan',
+            'type'                  => 'nullable|in:ringan,sedang,berat',
+            'description'           => 'nullable|string',
+            'occurred_at'           => 'nullable|date',
+
+            'no_phone'              => 'nullable',
+            'no_phone_until'        => 'nullable|date',
+
+            'no_permission'         => 'nullable',
+            'no_permission_until'   => 'nullable|date',
+
+            'attendance_percentage' => 'nullable|integer|min:1|max:100',
+            'attendance_until'      => 'nullable|date',
         ]);
 
         StudentViolation::create([
-            'student_id'    => $request->student_id,
-            'type'          => $request->type,
-            'description'   => $request->description,
-            'occurred_at'   => $request->occurred_at,
-            'no_phone'      => $request->has('no_phone'),
-            'no_permission' => $request->has('no_permission'),
-            'until'         => $request->until,
-            'reported_by'   => Auth::id(),
+            'student_id'            => $request->student_id,
+            'handling_type'         => $request->category,
+            'type'                  => $request->type,
+            'description'           => $request->description,
+            'occurred_at'           => $request->occurred_at,
+
+            'no_phone'              => $request->no_phone == "on" ? true : false,
+            'no_phone_until'        => $request->no_phone_until,
+
+            'no_permission'         => $request->no_permission == "on" ? true : false,
+            'no_permission_until'   => $request->no_permission_until,
+
+            'attendance_percentage' => $request->attendance_percentage,
+            'attendance_until'      => $request->attendance_until,
+
+            'reported_by'           => Auth::id(),
         ]);
 
         return redirect()->back()->with('success', 'Pelanggaran berhasil ditambahkan');
@@ -79,21 +82,37 @@ class StudentViolationController extends Controller
         $violation = StudentViolation::findOrFail($id);
 
         $request->validate([
-            'student_id'  => 'required|exists:students,id',
-            'type'        => 'required|in:ringan,sedang,berat',
-            'description' => 'required',
-            'occurred_at'   => 'required|date',
-            'until'       => 'required|date',
+            'student_id'            => 'required|exists:students,id',
+            'handling_type'         => 'nullable|in:pengasuhan,pengajaran,pelatihan',
+            'type'                  => 'nullable|in:ringan,sedang,berat',
+            'description'           => 'nullable|string',
+            'occurred_at'           => 'nullable|date',
+
+            'no_phone'              => 'nullable',
+            'no_phone_until'        => 'nullable|date',
+
+            'no_permission'         => 'nullable',
+            'no_permission_until'   => 'nullable|date',
+
+            'attendance_percentage' => 'nullable|integer|min:1|max:100',
+            'attendance_until'      => 'nullable|date',
         ]);
 
         $violation->update([
-            'student_id'    => $request->student_id,
-            'type'          => $request->type,
-            'description'   => $request->description,
-            'occurred_at'   => $request->occurred_at,
-            'no_phone'      => $request->has('no_phone'),
-            'no_permission' => $request->has('no_permission'),
-            'until'         => $request->until,
+            'student_id'            => $request->student_id,
+            'handling_type'         => $request->category,
+            'type'                  => $request->type,
+            'description'           => $request->description,
+            'occurred_at'           => $request->occurred_at,
+
+            'no_phone'              => $request->no_phone == "on" ? true : false,
+            'no_phone_until'        => $request->no_phone_until,
+
+            'no_permission'         => $request->no_permission == "on" ? true : false,
+            'no_permission_until'   => $request->no_permission_until,
+
+            'attendance_percentage' => $request->attendance_percentage,
+            'attendance_until'      => $request->attendance_until,
         ]);
 
         return redirect()->back()->with('success', 'Pelanggaran berhasil diperbarui');
@@ -102,6 +121,7 @@ class StudentViolationController extends Controller
     public function destroy($id)
     {
         StudentViolation::findOrFail($id)->delete();
+
         return redirect()->back()->with('success', 'Pelanggaran berhasil dihapus');
     }
 }
