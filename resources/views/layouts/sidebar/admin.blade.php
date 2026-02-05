@@ -46,10 +46,25 @@
             Pelanggaran
         </div>
 
-        <a href="/violations" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('violations') }}">
-            <span class="w-5 text-center"><i class="fa-solid fa-ban"></i></span>
-            Data Pelanggaran
+        {{-- Submenu Pelanggaran --}}
+        <a href="/violations/pengasuhan"
+            class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('violations/pengasuhan*') }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-hand-holding-heart"></i></span>
+            Pengasuhan
         </a>
+
+        <a href="/violations/pengajaran"
+            class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('violations/pengajaran*') }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-chalkboard-user"></i></span>
+            Pengajaran
+        </a>
+
+        <a href="/violations/pelatihan"
+            class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('violations/pelatihan*') }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-graduation-cap"></i></span>
+            Pelatihan
+        </a>
+
 
         <div class="pt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 px-4">
             Menu Perizinan
