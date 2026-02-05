@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\StudentPermission;
 use App\Models\StudentViolation;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class StudentPermissionController extends Controller
 {
@@ -73,7 +76,6 @@ class StudentPermissionController extends Controller
             'start_at' => 'required|date',
             'end_at' => 'required|date|after_or_equal:start_at',
             'reason' => 'required|string',
-            'surat_walas'  => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'surat_ortu'   => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'surat_dokter' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
         ], [
@@ -84,13 +86,10 @@ class StudentPermissionController extends Controller
             'reason.required' => 'Alasan wajib diisi',
             'end_at.after_or_equal' => 'Tanggal selesai harus setelah tanggal mulai',
             'start_at.before_or_equal' => 'Tanggal mulai harus sebelum tanggal selesai',
-            'surat_walas.file' => 'Surat walas harus berupa file PDF, JPG, atau PNG',
             'surat_ortu.file' => 'Surat ortu harus berupa file PDF, JPG, atau PNG',
             'surat_dokter.file' => 'Surat dokter harus berupa file PDF, JPG, atau PNG',
-            'surat_walas.mimes' => 'Surat walas harus berupa file PDF, JPG, atau PNG',
             'surat_ortu.mimes' => 'Surat ortu harus berupa file PDF, JPG, atau PNG',
             'surat_dokter.mimes' => 'Surat dokter harus berupa file PDF, JPG, atau PNG',
-            'surat_walas.max' => 'Surat walas maksimal berukuran 2MB',
             'surat_ortu.max' => 'Surat ortu maksimal berukuran 2MB',
             'surat_dokter.max' => 'Surat dokter maksimal berukuran 2MB',
         ]);
@@ -111,38 +110,71 @@ class StudentPermissionController extends Controller
                 ->withInput();
         }
 
-        if ($request->hasFile('surat_walas')) {
-            $file = $request->file('surat_walas');
-            $filename = 'walas_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+        foreach (['surat_ortu', 'surat_dokter'] as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
 
-            $data['surat_walas'] = $file->storeAs(
-                'permissions/surat-walas',
-                $filename,
-                'public'
-            );
+                $data[$field] = $file->storeAs(
+                    "permissions/{$field}",
+                    $field . '_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension(),
+                    'public'
+                );
+            }
         }
 
-        if ($request->hasFile('surat_ortu')) {
-            $file = $request->file('surat_ortu');
-            $filename = 'ortu_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+        /* ================= NOMOR SURAT OTOMATIS ================= */
+        $year = now()->year;
 
-            $data['surat_ortu'] = $file->storeAs(
-                'permissions/surat-ortu',
-                $filename,
-                'public'
-            );
-        }
+        $urut = StudentPermission::whereYear('created_at', $year)->count() + 1;
 
-        if ($request->hasFile('surat_dokter')) {
-            $file = $request->file('surat_dokter');
-            $filename = 'dokter_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+        $nomorSurat = sprintf(
+            '421.5/%03d/WK-%s/%d',
+            $urut,
+            strtoupper(config('school.code', 'SMP')),
+            $year
+        );
 
-            $data['surat_dokter'] = $file->storeAs(
-                'permissions/surat-dokter',
-                $filename,
-                'public'
-            );
-        }
+        /* ================= QR CODE (PUBLIC API) ================= */
+        $qrContent =
+            "SURAT IZIN WALI KELAS\n" .
+            "Nomor: {$nomorSurat}\n" .
+            "Wali Kelas: " . Auth::user()->name . "\n" .
+            "Tanggal: " . now()->format('d-m-Y H:i');
+
+        $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?' . http_build_query([
+            'size' => '200x200',
+            'data' => $qrContent,
+        ]);
+
+        $qrImage = @file_get_contents($qrUrl);
+        $qrBase64 = $qrImage
+            ? 'data:image/png;base64,' . base64_encode($qrImage)
+            : null;
+
+        /* ================= GENERATE PDF ================= */
+        $student = Student::findOrFail($data['student_id']);
+
+        $pdf = Pdf::loadView('pdf.surat-walas', [
+            'student' => $student,
+            'wali'    => Auth::user(),
+            'type'    => $data['type'],
+            'start'   => $data['start_at'],
+            'end'     => $data['end_at'],
+            'nomor'   => $nomorSurat,
+            'qrCode'  => $qrBase64,
+            'city'    => 'Yogyakarta',
+            'school'  => [
+                'name'    => 'SMP NEGERI 1 CONTOH',
+                'address' => 'Jl. Pendidikan No. 1, Yogyakarta',
+                'phone'   => '(0274) 123456',
+                'email'   => 'smp1@example.sch.id',
+            ],
+        ]);
+
+        $path = 'permissions/surat-walas/surat-walas-' . now()->format('YmdHis') . '.pdf';
+        Storage::disk('public')->put($path, $pdf->output());
+
+        $data['surat_walas'] = $path;
 
         StudentPermission::create([
             ...$data,

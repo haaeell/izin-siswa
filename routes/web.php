@@ -4,6 +4,7 @@ use App\Http\Controllers\DormitoryController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\PermissionVerifyController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\StudentController;
@@ -103,6 +104,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/permissions/{id}/surat', [StudentPermissionLetterController::class, 'show'])->name('permissions.surat');
 });
+
+Route::get('/verify/permission/{token}', PermissionVerifyController::class)->name('permissions.verify');
+
 
 Route::get('/dev/reset-system', function () {
     Artisan::call('optimize:clear');
