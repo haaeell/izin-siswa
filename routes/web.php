@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\StudentPermissionController;
 use App\Http\Controllers\StudentPermissionApprovalController;
 use App\Http\Controllers\StudentPermissionCheckinController;
+use App\Http\Controllers\StudentPermissionLetterController;
 use App\Http\Controllers\StudentViolationController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Artisan;
@@ -99,6 +100,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pdf', 'exportPdf');
         Route::get('/excel', 'exportExcel');
     });
+
+    Route::get('/permissions/{id}/surat', [StudentPermissionLetterController::class, 'show'])->name('permissions.surat');
 });
 
 Route::get('/dev/reset-system', function () {

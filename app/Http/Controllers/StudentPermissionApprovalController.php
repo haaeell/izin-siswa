@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\StudentPermission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 
 class StudentPermissionApprovalController extends Controller
@@ -22,6 +23,8 @@ class StudentPermissionApprovalController extends Controller
             'approved_by' => Auth::user()->id,
             'qr_token' => now()->format('ymdHis') . Str::random(4),
         ]);
+
+        $surat = View::make('letters.permission-approved', compact('permission'))->render();
 
         return redirect()->back()
             ->with('success', 'Permohonan disetujui');
@@ -44,6 +47,8 @@ class StudentPermissionApprovalController extends Controller
             'reject_reason' => $data['reject_reason'],
             'approved_by'   => Auth::user()->id,
         ]);
+
+        $surat = View::make('letters.permission-rejected', compact('permission'))->render();
 
         return redirect()->back()->with('success', 'Permohonan izin ditolak');
     }

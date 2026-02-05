@@ -152,7 +152,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
 
     @stack('scripts')
@@ -209,26 +208,9 @@
                 pageLength: 10
             })
 
-            const violationsToggle = $('.violations-toggle');
-            const violationsSubmenu = $('.violations-submenu');
-            const violationsIcon = violationsToggle.find('.rotate-icon');
-
-            if (window.location.pathname.startsWith('/violations/')) {
-                violationsSubmenu.removeClass('hidden');
-                violationsIcon.css('transform', 'rotate(90deg)');
-            }
-
-            violationsToggle.on('click', function () {
-                violationsSubmenu.toggleClass('hidden');
-                if (violationsSubmenu.hasClass('hidden')) {
-                    violationsIcon.css('transform', 'rotate(0deg)');
-                } else {
-                    violationsIcon.css('transform', 'rotate(90deg)');
-                }
-            })
-
         })
     </script>
+
 
 
     @if ($errors->any())

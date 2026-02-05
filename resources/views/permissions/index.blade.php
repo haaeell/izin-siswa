@@ -23,7 +23,7 @@
             @if (auth()->user()->role === 'wali_kelas')
                 <div class="w-full md:w-auto">
                     <button onclick="openCreateModal()" @disabled($activePermissionCount >= 3) class="w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    {{ $activePermissionCount >= 3
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {{ $activePermissionCount >= 3
                 ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                         <i class="fa-solid fa-plus"></i>
@@ -56,16 +56,16 @@
 
                     <div
                         class="mb-4 rounded-xl border
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    px-4 py-3 flex gap-3 items-start">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            px-4 py-3 flex gap-3 items-start">
 
                         <div class="flex-shrink-0">
                             <div
                                 class="w-9 h-9 rounded-full flex items-center justify-center
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
                                 <i
                                     class="fa-solid
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {{ $isFull ? 'fa-circle-exclamation text-red-600' : 'fa-circle-info text-blue-600' }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {{ $isFull ? 'fa-circle-exclamation text-red-600' : 'fa-circle-info text-blue-600' }}">
                                 </i>
                             </div>
                         </div>
@@ -162,6 +162,9 @@
                                 <th class="px-4 py-2 text-left">Waktu</th>
                                 <th class="px-4 py-2 text-left">File</th>
                                 <th class="px-4 py-2 text-left">Status</th>
+                                @if (auth()->user()->role === 'wali_kelas')
+                                    <th class="px-4 py-2 text-center">Surat</th>
+                                @endif
                                 @if (auth()->user()->role === 'perizinan')
                                     <th class="px-4 py-2 text-center">Aksi</th>
                                 @endif
@@ -232,6 +235,21 @@
                                         @endif
                                     </td>
 
+                                    @if (auth()->user()->role === 'wali_kelas')
+                                        <td class="px-4 py-2 text-center">
+                                            @if (in_array($p->status, ['approved', 'rejected']))
+                                                            <a href="{{ route('permissions.surat', $p->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2 py-1
+                                                  text-xs rounded bg-indigo-100 text-indigo-700
+                                                  hover:bg-indigo-200 transition">
+                                                                <i class="fa-solid fa-file-lines"></i>
+                                                                Lihat Surat
+                                                            </a>
+                                            @else
+                                                <span class="text-xs text-slate-400">Belum tersedia</span>
+                                            @endif
+                                        </td>
+                                    @endif
+
                                     @if (auth()->user()->role === 'perizinan')
                                         <td class="px-4 py-2 text-center flex flex-wrap justify-center gap-2">
 
@@ -255,15 +273,15 @@
                                             @elseif ($p->status === 'approved' && $p->qr_token)
                                                 <button
                                                     onclick="showBarcode(
-                                                                                                                                                                                                                                                                                '{{ $p->qr_token }}',
-                                                                                                                                                                                                                                                                                '{{ $p->student->name }}',
-                                                                                                                                                                                                                                                                                '{{ $p->student->nis }}',
-                                                                                                                                                                                                                                                                                '{{ $p->student->class->name }}',
-                                                                                                                                                                                                                                                                                '{{ $p->student->dormitory->name ?? '-' }}',
-                                                                                                                                                                                                                                                                                '{{ ucfirst($p->type) }}',
-                                                                                                                                                                                                                                                                                '{{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}',
-                                                                                                                                                                                                                                                                                '{{ \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i') }}'
-                                                                                                                                                                                                                                                                            )"
+                                                                                                                                                                                                                                                                                                                                '{{ $p->qr_token }}',
+                                                                                                                                                                                                                                                                                                                                '{{ $p->student->name }}',
+                                                                                                                                                                                                                                                                                                                                '{{ $p->student->nis }}',
+                                                                                                                                                                                                                                                                                                                                '{{ $p->student->class->name }}',
+                                                                                                                                                                                                                                                                                                                                '{{ $p->student->dormitory->name ?? '-' }}',
+                                                                                                                                                                                                                                                                                                                                '{{ ucfirst($p->type) }}',
+                                                                                                                                                                                                                                                                                                                                '{{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}',
+                                                                                                                                                                                                                                                                                                                                '{{ \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i') }}'
+                                                                                                                                                                                                                                                                                                                            )"
                                                     class="px-2 py-1 bg-indigo-600 text-white rounded text-xs">
                                                     <i class="fa-solid fa-barcode"></i> Lihat Barcode
                                                 </button>
@@ -319,7 +337,7 @@
             <!-- HEADER (STICKY) -->
             <div
                 class="flex items-center justify-between px-4 sm:px-6 py-4
-                                                                                                                                                                                                                                   border-b bg-white sticky top-0 z-20">
+                                                                                                                                                                                                                                               border-b bg-white sticky top-0 z-20">
 
                 <h2 class="text-lg font-semibold flex items-center gap-2">
                     <i class="fa-solid fa-file-circle-plus text-blue-600"></i>
@@ -338,13 +356,13 @@
 
                 <div id="violationAlert"
                     class="hidden mb-4 rounded-2xl border border-red-400
-                                                                                                                                                                                                                                       bg-gradient-to-br from-red-500 via-red-400 to-rose-500
-                                                                                                                                                                                                                                       text-white shadow-lg relative overflow-hidden">
+                                                                                                                                                                                                                                                   bg-gradient-to-br from-red-500 via-red-400 to-rose-500
+                                                                                                                                                                                                                                                   text-white shadow-lg relative overflow-hidden">
 
                     <div
                         class="absolute inset-0 opacity-10
-                                                                                                                                                                                                                                            bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)]
-                                                                                                                                                                                                                                            [background-size:16px_16px]">
+                                                                                                                                                                                                                                                        bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)]
+                                                                                                                                                                                                                                                        [background-size:16px_16px]">
                     </div>
 
                     <div class="relative flex flex-col sm:flex-row gap-4 p-4 sm:p-5">
@@ -442,7 +460,7 @@
 
                         <label
                             class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl
-                                                                   cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+                                                                               cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
 
                             <i class="fa-solid fa-file-signature text-blue-600 text-xl"></i>
 
@@ -466,7 +484,7 @@
 
                         <label
                             class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl
-                                                                   cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+                                                                               cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
 
                             <i class="fa-solid fa-people-roof text-blue-600 text-xl"></i>
 
@@ -490,7 +508,7 @@
 
                         <label
                             class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl
-                                                                   cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+                                                                               cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
 
                             <i class="fa-solid fa-user-doctor text-blue-600 text-xl"></i>
 
@@ -599,15 +617,15 @@
 
     <div id="global-tooltip"
         class="fixed z-[99999] hidden
-                                                                                                                                                                            bg-slate-900 text-white text-xs rounded-lg
-                                                                                                                                                                            px-3 py-2 shadow-xl whitespace-nowrap
-                                                                                                                                                                            pointer-events-none transition-all duration-150">
+                                                                                                                                                                                        bg-slate-900 text-white text-xs rounded-lg
+                                                                                                                                                                                        px-3 py-2 shadow-xl whitespace-nowrap
+                                                                                                                                                                                        pointer-events-none transition-all duration-150">
         <div id="tooltip-title" class="font-medium"></div>
         <div id="tooltip-desc" class="text-slate-300 text-[11px] mt-0.5"></div>
 
         <div
             class="absolute -bottom-1 left-1/2 -translate-x-1/2
-                                                                                                                                                                                w-2 h-2 bg-slate-900 rotate-45">
+                                                                                                                                                                                            w-2 h-2 bg-slate-900 rotate-45">
         </div>
     </div>
 
@@ -727,17 +745,17 @@
                     $('#typeField, #timeFields, #reasonField').addClass('hidden');
 
                     $('#violationDetail').html(`
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="text-white">Jenis</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="font-medium capitalize">: ${res.type}</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="text-white">Jenis</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="font-medium capitalize">: ${res.type}</div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="text-white">Deskripsi</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div>: ${res.description}</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="text-white">Deskripsi</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div>: ${res.description}</div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="text-white">Berlaku sampai</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="font-bold text-white">: ${res.until}</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="text-white">Berlaku sampai</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="font-bold text-white">: ${res.until}</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `);
 
                     $('#violationTime').text(
                         `Izin dapat diajukan kembali mulai ${res.can_apply_at}`
@@ -793,8 +811,8 @@
                         form.action = `/permissions/${id}/approve`;
 
                         form.innerHTML = `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `;
 
                         document.body.appendChild(form);
                         form.submit();
@@ -896,112 +914,112 @@
                 const win = window.open('', '_blank', 'width=360,height=520');
 
                 win.document.write(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                        <title>Tiket Izin</title>
-                        <style>
-                        @page {
-                            size: 80mm auto;
-                            margin: 4mm;
-                        }
+                                                <!DOCTYPE html>
+                                                <html>
+                                                <head>
+                                                <title>Tiket Izin</title>
+                                                <style>
+                                                @page {
+                                                    size: 80mm auto;
+                                                    margin: 4mm;
+                                                }
 
-                        body {
-                            margin: 0;
-                            font-family: Arial, sans-serif;
-                             padding: 6mm 0; 
-                        }
+                                                body {
+                                                    margin: 0;
+                                                    font-family: Arial, sans-serif;
+                                                     padding: 6mm 0; 
+                                                }
 
-                        .ticket {
-                            border: 2px solid #000;
-                            padding: 6px 8px;
+                                                .ticket {
+                                                    border: 2px solid #000;
+                                                    padding: 6px 8px;
 
-                            max-width: 70mm;
-                            margin: 0 auto; 
+                                                    max-width: 70mm;
+                                                    margin: 0 auto; 
 
-                            font-size: 9px;
-                        }
+                                                    font-size: 9px;
+                                                }
 
-                        .title {
-                            text-align: center;
-                            font-weight: bold;
-                            font-size: 11px;
-                            letter-spacing: 1px;
-                            border-bottom: 1px solid #000;
-                            padding-bottom: 3px;
-                            margin-bottom: 4px;
-                        }
+                                                .title {
+                                                    text-align: center;
+                                                    font-weight: bold;
+                                                    font-size: 11px;
+                                                    letter-spacing: 1px;
+                                                    border-bottom: 1px solid #000;
+                                                    padding-bottom: 3px;
+                                                    margin-bottom: 4px;
+                                                }
 
-                        /* BIODATA */
-                        .info {
-                            display: grid;
-                            grid-template-columns: 55px auto;
-                            row-gap: 2px;
-                            margin-bottom: 6px;
-                        }
+                                                /* BIODATA */
+                                                .info {
+                                                    display: grid;
+                                                    grid-template-columns: 55px auto;
+                                                    row-gap: 2px;
+                                                    margin-bottom: 6px;
+                                                }
 
-                        .label {
-                            font-weight: bold;
-                        }
+                                                .label {
+                                                    font-weight: bold;
+                                                }
 
-                        /* BARCODE */
-                        .barcode {
-                            text-align: center;
-                            border-top: 1px dashed #000;
-                            padding-top: 6px;
-                        }
+                                                /* BARCODE */
+                                                .barcode {
+                                                    text-align: center;
+                                                    border-top: 1px dashed #000;
+                                                    padding-top: 6px;
+                                                }
 
-                        .barcode img {
-                            width: 180px;
-                        }
+                                                .barcode img {
+                                                    width: 180px;
+                                                }
 
-                        .barcode small {
-                            display: block;
-                            font-size: 7px;
-                            margin-top: 2px;
-                        }
+                                                .barcode small {
+                                                    display: block;
+                                                    font-size: 7px;
+                                                    margin-top: 2px;
+                                                }
 
-                        /* WAKTU */
-                        .time {
-                            display: flex;
-                            justify-content: space-between;
-                            font-size: 8px;
-                            border-top: 1px dashed #000;
-                            margin-top: 4px;
-                            padding-top: 4px;
-                        }
-                        </style>
-                        </head>
+                                                /* WAKTU */
+                                                .time {
+                                                    display: flex;
+                                                    justify-content: space-between;
+                                                    font-size: 8px;
+                                                    border-top: 1px dashed #000;
+                                                    margin-top: 4px;
+                                                    padding-top: 4px;
+                                                }
+                                                </style>
+                                                </head>
 
-                        <body>
-                        <div class="ticket">
-                            <div class="title">IZIN KEPULANGAN</div>
+                                                <body>
+                                                <div class="ticket">
+                                                    <div class="title">IZIN KEPULANGAN</div>
 
-                            <div class="info">
-                                <div class="label">Nama</div><div>: ${d.nama}</div>
-                                <div class="label">NIS</div><div>: ${d.nis}</div>
-                                <div class="label">Kelas</div><div>: ${d.kelas}</div>
-                                <div class="label">Asrama</div><div>: ${d.asrama}</div>
-                                <div class="label">Jenis</div><div>: ${d.izin}</div>
-                            </div>
+                                                    <div class="info">
+                                                        <div class="label">Nama</div><div>: ${d.nama}</div>
+                                                        <div class="label">NIS</div><div>: ${d.nis}</div>
+                                                        <div class="label">Kelas</div><div>: ${d.kelas}</div>
+                                                        <div class="label">Asrama</div><div>: ${d.asrama}</div>
+                                                        <div class="label">Jenis</div><div>: ${d.izin}</div>
+                                                    </div>
 
-                            <div class="barcode">
-                                <img src="${barcodeSrc}">
-                                <small>Scan saat keluar & masuk</small>
-                            </div>
+                                                    <div class="barcode">
+                                                        <img src="${barcodeSrc}">
+                                                        <small>Scan saat keluar & masuk</small>
+                                                    </div>
 
-                            <div class="time">
-                                <div>
-                                    <b>Mulai</b><br>${d.startAt}
-                                </div>
-                                <div style="text-align:right">
-                                    <b>Sampai</b><br>${d.endAt}
-                                </div>
-                            </div>
-                        </div>
-                        </body>
-                        </html>
-                            `);
+                                                    <div class="time">
+                                                        <div>
+                                                            <b>Mulai</b><br>${d.startAt}
+                                                        </div>
+                                                        <div style="text-align:right">
+                                                            <b>Sampai</b><br>${d.endAt}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </body>
+                                                </html>
+                                                    `);
 
                 win.document.close();
                 win.focus();
