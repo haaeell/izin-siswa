@@ -24,8 +24,6 @@ class StudentPermissionApprovalController extends Controller
             'qr_token' => now()->format('ymdHis') . Str::random(4),
         ]);
 
-        $surat = View::make('letters.permission-approved', compact('permission'))->render();
-
         return redirect()->back()
             ->with('success', 'Permohonan disetujui');
     }
@@ -47,8 +45,6 @@ class StudentPermissionApprovalController extends Controller
             'reject_reason' => $data['reject_reason'],
             'approved_by'   => Auth::user()->id,
         ]);
-
-        $surat = View::make('letters.permission-rejected', compact('permission'))->render();
 
         return redirect()->back()->with('success', 'Permohonan izin ditolak');
     }

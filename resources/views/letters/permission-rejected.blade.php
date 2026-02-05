@@ -191,7 +191,7 @@
             <p>Petugas Perizinan</p>
 
             <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode(route('permissions.verify', $permission->qr_token)) }}">
+                src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode(route('verify.permission', $permission->qr_token)) }}">
 
             <p><strong>{{ $permission->approver->name }}</strong></p>
         </div>

@@ -185,7 +185,7 @@
             <p>{{ now()->translatedFormat('d F Y') }}</p>
             <p>Petugas Perizinan</p>
 
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode(route('permissions.verify', $permission->qr_token)) }}"
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode(route('verify.permission', $permission->qr_token)) }}"
                 alt="QR Verifikasi">
 
             <p><strong>{{ $permission->approver->name }}</strong></p>
