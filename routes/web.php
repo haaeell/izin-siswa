@@ -107,18 +107,4 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/verify/permission/{token}', PermissionVerifyController::class)->name('permissions.verify');
 
-
-Route::get('/dev/reset-system', function () {
-    Artisan::call('optimize:clear');
-    Artisan::call('migrate:fresh', [
-        '--seed' => true,
-        '--force' => true,
-    ]);
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Cache cleared & database migrated fresh with seed'
-    ]);
-});
-
 Auth::routes();
