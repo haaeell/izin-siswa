@@ -122,9 +122,8 @@ class StudentPermissionController extends Controller
             }
         }
 
-        /* ================= NOMOR SURAT OTOMATIS ================= */
+        /* ================= NOMOR SURAT ================= */
         $year = now()->year;
-
         $urut = StudentPermission::whereYear('created_at', $year)->count() + 1;
 
         $nomorSurat = sprintf(
@@ -134,22 +133,39 @@ class StudentPermissionController extends Controller
             $year
         );
 
-        /* ================= QR CODE (PUBLIC API) ================= */
-        $qrContent =
-            "SURAT IZIN WALI KELAS\n" .
-            "Nomor: {$nomorSurat}\n" .
-            "Wali Kelas: " . Auth::user()->name . "\n" .
-            "Tanggal: " . now()->format('d-m-Y H:i');
-
-        $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?' . http_build_query([
-            'size' => '200x200',
-            'data' => $qrContent,
+        /* ================= SIMPAN PERMISSION DULU ================= */
+        $permission = StudentPermission::create([
+            ...$data,
+            'wali_kelas_id' => Auth::id(),
+            'status' => 'pending',
         ]);
 
-        $qrImage = @file_get_contents($qrUrl);
-        $qrBase64 = $qrImage
-            ? 'data:image/png;base64,' . base64_encode($qrImage)
-            : null;
+        /* ================= GENERATE QR ================= */
+        $guruId = Auth::id();
+        $timestamp = now()->format('YmdHi');
+
+        $signature = sha1(
+            $permission->id . '|' .
+                $guruId . '|' .
+                $timestamp . '|' .
+                config('app.key')
+        );
+
+        $verifyUrl = route('verify.walas', [
+            'p' => $permission->id,
+            'g' => $guruId,
+            't' => $timestamp,
+            's' => $signature,
+        ]);
+
+        $qrCode = 'data:image/png;base64,' . base64_encode(
+            file_get_contents(
+                'https://api.qrserver.com/v1/create-qr-code/?' . http_build_query([
+                    'size' => '200x200',
+                    'data' => $verifyUrl,
+                ])
+            )
+        );
 
         /* ================= GENERATE PDF ================= */
         $student = Student::findOrFail($data['student_id']);
@@ -161,8 +177,9 @@ class StudentPermissionController extends Controller
             'start'   => $data['start_at'],
             'end'     => $data['end_at'],
             'nomor'   => $nomorSurat,
-            'qrCode'  => $qrBase64,
+            'qrCode'  => $qrCode,
             'city'    => 'Yogyakarta',
+            'verify'  => $verifyUrl,
             'school'  => [
                 'name'    => 'SMP NEGERI 1 CONTOH',
                 'address' => 'Jl. Pendidikan No. 1, Yogyakarta',
@@ -174,12 +191,8 @@ class StudentPermissionController extends Controller
         $path = 'permissions/surat-walas/surat-walas-' . now()->format('YmdHis') . '.pdf';
         Storage::disk('public')->put($path, $pdf->output());
 
-        $data['surat_walas'] = $path;
-
-        StudentPermission::create([
-            ...$data,
-            'wali_kelas_id' => Auth::user()->id,
-            'status' => 'pending',
+        $permission->update([
+            'surat_walas' => $path,
         ]);
 
         return redirect()->back()->with('success', 'Permohonan izin berhasil diajukan');

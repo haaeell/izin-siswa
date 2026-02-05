@@ -105,6 +105,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/permissions/{id}/surat', [StudentPermissionLetterController::class, 'show'])->name('permissions.surat');
 });
 
-Route::get('/verify/permission/{token}', PermissionVerifyController::class)->name('permissions.verify');
+Route::get('/verify/permission', [PermissionVerifyController::class, 'permission'])
+    ->name('verify.permission');
+
+Route::get('/verify/walas', [PermissionVerifyController::class, 'walas'])
+    ->name('verify.walas');
+
 
 Auth::routes();
