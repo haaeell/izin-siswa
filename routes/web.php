@@ -15,6 +15,7 @@ use App\Http\Controllers\StudentPermissionLetterController;
 use App\Http\Controllers\StudentTrackingController;
 use App\Http\Controllers\StudentViolationController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -43,6 +44,13 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::prefix('classes')->controller(SchoolClassController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::put('/{id}', 'update');
+            Route::delete('/{id}', 'destroy');
+        });
+
+        Route::prefix('users')->controller(UserController::class)->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::put('/{id}', 'update');

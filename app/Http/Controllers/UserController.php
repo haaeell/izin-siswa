@@ -10,25 +10,24 @@ class UserController extends Controller
 {
     public function index()
     {
-        return view('master.users.index', [
-            'users' => User::all()
-        ]);
+        $users = User::where('role', '!=', 'wali_kelas')->latest()->get();
+        return view('master.users.index', compact('users'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'role'     => 'required|in:wali_kelas,perizinan',
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'role' => 'required|in:security,perizinan',
+            'password' => 'required|min:4',
         ]);
 
         User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
             'password' => Hash::make($request->password),
-            'role'     => $request->role,
         ]);
 
         return redirect()->back()->with('success', 'User berhasil ditambahkan');
@@ -36,15 +35,19 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name'  => 'required',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'role'  => 'required|in:wali_kelas,perizinan',
-        ]);
-
         $user = User::findOrFail($id);
 
-        $data = $request->only('name', 'email', 'role');
+        $request->validate([
+            'name' => 'required',
+            'email' => "required|email|unique:users,email,$id",
+            'role' => 'required|in:security,perizinan',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+        ];
 
         if ($request->password) {
             $data['password'] = Hash::make($request->password);
