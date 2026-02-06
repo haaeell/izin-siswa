@@ -145,4 +145,42 @@ class StudentPermissionCheckinController extends Controller
             'message' => $message
         ]);
     }
+
+    public function tracking(Request $request)
+    {
+        $request->validate([
+            'nis' => 'required', // bisa juga ganti 'nis' dengan 'student_id' sesuai kebutuhan
+        ]);
+
+        $studentNis = $request->nis;
+
+        $checkins = StudentPermissionCheckin::with('permission.student.class')
+            ->whereHas('permission.student', function ($q) use ($studentNis) {
+                $q->where('nis', $studentNis);
+            })
+            ->orderBy('checkout_at', 'desc')
+            ->get();
+
+        if ($checkins->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data riwayat siswa tidak ditemukan'
+            ]);
+        }
+
+        $history = $checkins->map(function ($checkin) {
+            return [
+                'nama'         => $checkin->permission->student->name,
+                'kelas'        => $checkin->permission->student->class->name,
+                'checkout_at'  => $checkin->checkout_at ? $checkin->checkout_at->format('d M Y H:i') : null,
+                'checkin_at'   => $checkin->checkin_at ? $checkin->checkin_at->format('d M Y H:i') : null,
+                'status'       => $checkin->status,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data'    => $history
+        ]);
+    }
 }

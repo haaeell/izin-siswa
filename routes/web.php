@@ -12,9 +12,18 @@ use App\Http\Controllers\StudentPermissionController;
 use App\Http\Controllers\StudentPermissionApprovalController;
 use App\Http\Controllers\StudentPermissionCheckinController;
 use App\Http\Controllers\StudentPermissionLetterController;
+use App\Http\Controllers\StudentTrackingController;
 use App\Http\Controllers\StudentViolationController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Auth;
+
+
+Route::get('/tracking', [StudentTrackingController::class, 'index'])->name('tracking.index');
+Route::get('/student/tracking', [StudentTrackingController::class, 'tracking']);
+
+
+Route::get('/verify/permission', [PermissionVerifyController::class, 'permission'])->name('verify.permission');
+Route::get('/verify/walas', [PermissionVerifyController::class, 'walas'])->name('verify.walas');
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -102,12 +111,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/permissions/{id}/surat', [StudentPermissionLetterController::class, 'show'])->name('permissions.surat');
 });
-
-Route::get('/verify/permission', [PermissionVerifyController::class, 'permission'])
-    ->name('verify.permission');
-
-Route::get('/verify/walas', [PermissionVerifyController::class, 'walas'])
-    ->name('verify.walas');
 
 
 Auth::routes();
