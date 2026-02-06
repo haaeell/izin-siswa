@@ -85,6 +85,16 @@
             @endif
         </a>
 
+        <a href="/checkout" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('checkout') }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-arrow-right"></i></span>
+            Check-Out
+        </a>
+
+        <a href="/checkin" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('checkin') }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-arrow-left"></i></span>
+            Check-In
+        </a>
+
         <div class="pt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 px-4">
             Laporan
         </div>

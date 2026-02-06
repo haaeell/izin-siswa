@@ -98,7 +98,7 @@
                                 {{ $item->checkin_at?->translatedFormat('l, d F Y H:i') ?? '-' }}</td>
                             <td class="text-blue-600 font-medium">
                                 {{ $item->checkout_at?->translatedFormat('l, d F Y H:i') ?? '-' }}</td>
-                            <td>
+                            <td class="text-nowrap">
                                 @if($item->status === 'TERLAMBAT')
                                     @php
                                         $checkin = \Carbon\Carbon::parse($item->checkin_at);
