@@ -14,10 +14,7 @@ class StudentTrackingController extends Controller
 
     public function tracking(Request $request)
     {
-        $request->validate([
-            'nis' => 'required'
-        ]);
-
+        $request->validate(['nis' => 'required']);
         $nis = $request->nis;
 
         $checkins = StudentPermissionCheckin::with('permission.student.class')
@@ -28,28 +25,28 @@ class StudentTrackingController extends Controller
             ->get();
 
         if ($checkins->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data riwayat siswa tidak ditemukan'
-            ]);
+            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan']);
         }
 
         $history = $checkins->map(function ($checkin) {
+            $permission = $checkin->permission;
+            $duration = $permission->start_at->diffInDays($permission->end_at) + 1;
+
             return [
-                'nama'        => $checkin->permission->student->name,
-                'kelas'       => $checkin->permission->student->class->name,
+                'nama'        => $permission->student->name,
+                'nis'         => $permission->student->nis,
+                'kelas'       => $permission->student->class->name,
                 'checkout_at' => $checkin->checkout_at ? $checkin->checkout_at->format('d M Y H:i') : null,
                 'checkin_at'  => $checkin->checkin_at ? $checkin->checkin_at->format('d M Y H:i') : null,
+                'start_at'    => $permission->start_at->format('d M Y'),
+                'end_at'      => $permission->end_at->format('d M Y'),
+                'duration'    => $duration,
                 'status'      => $checkin->status,
-                'type'        => $checkin->permission->type,
-                'reason'      => $checkin->permission->reason,
-                'nis'         => $checkin->permission->student->nis,
+                'type'        => $permission->type,
+                'reason'      => $permission->reason,
             ];
         });
 
-        return response()->json([
-            'success' => true,
-            'data'    => $history
-        ]);
+        return response()->json(['success' => true, 'data' => $history]);
     }
 }

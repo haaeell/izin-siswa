@@ -97,7 +97,7 @@
             resultDiv.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-12">
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                    <p class="mt-4 text-gray-500 font-medium animate-pulse">Menghubungkan ke database...</p>
+                    <p class="mt-4 text-gray-500 font-medium animate-pulse">Loading...</p>
                 </div>
             `;
 
@@ -125,74 +125,84 @@
 
         function renderResults(history) {
             resultDiv.innerHTML = history.map(item => {
+                const isTerlambat = item.status === 'TERLAMBAT';
+                const statusColor = isTerlambat ? 'bg-red-500 text-white' : 'bg-emerald-500 text-white';
 
                 return `
-                    <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100 card-anim">
-                        <div class="p-6 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-indigo-200 shadow-lg">
-                                    <i class="fas fa-user text-xl"></i>
-                                </div>
-                                <div>
-                                    <h2 class="text-xl font-bold text-gray-800">${item.nama}</h2>
-                                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1">
-                                        <span class="text-sm text-indigo-600 font-semibold uppercase tracking-tight">
-                                            <i class="fas fa-id-card mr-1"></i> ${item.nis || '-'}
-                                        </span>
-                                        <span class="text-sm text-gray-500">
-                                            <i class="fas fa-graduation-cap mr-1"></i> ${item.kelas}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100 card-anim">
+                <div class="p-6 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-indigo-200 shadow-lg">
+                            <i class="fas fa-user text-xl"></i>
                         </div>
-
-                        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                            <div class="space-y-2">
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Waktu Keluar</p>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
-                                        <i class="fas fa-sign-out-alt text-orange-500 text-sm"></i>
-                                    </div>
-                                    <span class="font-bold text-gray-700">${item.checkout_at || '--:--'}</span>
-                                </div>
-                            </div>
-
-                            <div class="space-y-2">
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Waktu Kembali</p>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                                        <i class="fas fa-sign-in-alt text-emerald-500 text-sm"></i>
-                                    </div>
-                                    <span class="font-bold text-gray-700">${item.checkin_at || '<span class="text-gray-300 font-normal italic">On Going</span>'}</span>
-                                </div>
-                            </div>
-
-                            <div class="space-y-2">
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Durasi Izin</p>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                                        <i class="fas fa-calendar-day text-blue-500 text-sm"></i>
-                                    </div>
-                                    <span class="font-bold text-gray-700">${item.duration || '1'} Hari</span>
-                                </div>
-                            </div>
-
-                            <div class="space-y-2">
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Jenis & Alasan</p>
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-file-signature text-purple-500 text-sm"></i>
-                                    </div>
-                                    <div class="overflow-hidden">
-                                        <p class="font-bold text-gray-700 leading-tight truncate">${item.type || '-'}</p>
-                                        <p class="text-xs text-gray-400 italic mt-0.5 truncate">${item.reason || 'Tanpa alasan'}</p>
-                                    </div>
-                                </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">${item.nama}</h2>
+                            <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                                <span class="text-sm text-indigo-600 font-semibold uppercase tracking-tight">
+                                    <i class="fas fa-id-card mr-1"></i> ${item.nis || '-'}
+                                </span>
+                                <span class="text-sm text-gray-500">
+                                    <i class="fas fa-graduation-cap mr-1"></i> ${item.kelas}
+                                </span>
+                                <span class="text-sm text-orange-600 font-medium">
+                                    <i class="fas fa-calendar-range mr-1"></i> ${item.start_at} s/d ${item.end_at}
+                                </span>
                             </div>
                         </div>
                     </div>
-                `;
+                    <div>
+                        <span class="text-[11px] font-black px-4 py-2 rounded-lg shadow-sm tracking-widest uppercase ${statusColor}">
+                            ${item.status}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="space-y-2">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Absen Keluar</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                                <i class="fas fa-door-open text-orange-500 text-sm"></i>
+                            </div>
+                            <span class="font-bold text-gray-700">${item.checkout_at || '--:--'}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Absen Kembali</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                                <i class="fas fa-door-closed text-emerald-500 text-sm"></i>
+                            </div>
+                            <span class="font-bold text-gray-700">${item.checkin_at || '<span class="text-gray-300 font-normal italic">Diluar</span>'}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Total Durasi</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                                <i class="fas fa-hourglass-half text-blue-500 text-sm"></i>
+                            </div>
+                            <span class="font-bold text-gray-700">${item.duration} Hari</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Keterangan</p>
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-file-alt text-purple-500 text-sm"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <p class="font-bold text-gray-700 leading-tight truncate">${item.type}</p>
+                                <p class="text-xs text-gray-400 italic mt-0.5 truncate">${item.reason || 'Tanpa alasan'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
             }).join('');
         }
 
