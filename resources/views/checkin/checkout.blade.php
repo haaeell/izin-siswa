@@ -37,6 +37,7 @@
                 <thead class="bg-slate-100 text-slate-700">
                     <tr>
                         <th>#</th>
+                        <th>NIS</th>
                         <th>Nama</th>
                         <th>Kelas</th>
                         <th>Keperluan</th>
@@ -49,6 +50,7 @@
                     @foreach($checkins as $item)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
+                            <td>{{ $item->permission->student->nis }}</td>
                             <td class="font-medium">
                                 {{ $item->permission->student->name }}
                             </td>
