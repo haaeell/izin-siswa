@@ -51,10 +51,12 @@ class ReportController extends Controller
             ->join('classes', 'classes.id', '=', 'students.class_id')
             ->select(
                 'students.name',
+                'students.nis',
                 'classes.name as class_name',
                 'student_violations.handling_type',
                 'student_violations.occurred_at',
-                'student_violations.description'
+                'student_violations.description',
+                'student_violations.attendance_percentage'
             )
             ->whereBetween('student_violations.created_at', [$startDate, $endDate])
             ->orderBy('student_violations.occurred_at', 'desc')

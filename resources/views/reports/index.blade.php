@@ -117,6 +117,7 @@
                     <thead class="bg-slate-50 text-slate-700">
                         <tr>
                             <th class="py-3 px-4 text-left">No</th>
+                            <th class="py-3 px-4 text-left">NIS</th>
                             <th class="py-3 px-4 text-left">Nama</th>
                             <th class="py-3 px-4 text-left">Kelas</th>
                             <th class="py-3 px-4 text-left">Waktu Datang</th>
@@ -127,6 +128,7 @@
                         @foreach ($latePermissions as $i => $item)
                             <tr class="hover:bg-slate-50">
                                 <td class="py-3 px-4">{{ $loop->iteration }}</td>
+                                <td class="py-3 px-4 font-medium text-slate-900">{{ $item->student->nis }}</td>
                                 <td class="py-3 px-4 font-medium text-slate-900">{{ $item->student->name }}</td>
                                 <td class="py-3 px-4">{{ $item->student->class->name }}</td>
                                 <td class="py-3 px-4 text-rose-600 font-medium">
@@ -164,6 +166,7 @@
                     <thead class="bg-slate-50 text-slate-700">
                         <tr>
                             <th class="py-3 px-4 text-left">No</th>
+                            <th class="py-3 px-4 text-left">NIS</th>
                             <th class="py-3 px-4 text-left">Nama</th>
                             <th class="py-3 px-4 text-left">Kelas</th>
                             <th class="py-3 px-4 text-left">Jenis</th>
@@ -174,7 +177,8 @@
                     <tbody class="divide-y">
                         @foreach ($violations as $i => $v)
                             <tr class="hover:bg-slate-50">
-                                <td class="py-3 px-4">{{ $i + 1 }}</td>
+                                <td class="py-3 px-4">{{ $loop->iteration }}</td>
+                                <td class="py-3 px-4 font-medium text-slate-900">{{ $v->nis }}</td>
                                 <td class="py-3 px-4 font-medium text-slate-900">{{ $v->name }}</td>
                                 <td class="py-3 px-4">{{ $v->class_name }}</td>
                                 <td class="py-3 px-4">
@@ -183,7 +187,9 @@
                                         {{ $v->handling_type }}
                                     </span>
                                 </td>
-                                <td class="py-3 px-4 text-slate-600">{{ $v->description ?? '-' }}</td>
+                                <td class="py-3 px-4 text-slate-600">
+                                    {{ $v->description ?: 'Absensi ' . $v->attendance_percentage . '%' }}
+                                </td>
                                 <td class="py-3 px-4 text-slate-600">
                                     {{ \Carbon\Carbon::parse($v->occurred_at)->format('d/m/Y') }}
                                 </td>
@@ -301,7 +307,7 @@
                         orientation: 'portrait',
                         pageSize: 'A4',
                         customize: function (doc) {
-                            pdfCustomize(doc, ['6%', '26%', '14%', '24%', '30%']);
+                            pdfCustomize(doc, ['5%', '15%', '25%', '15%', '25%', '15%']);
                         }
                     }
                 ]
@@ -323,7 +329,7 @@
                         orientation: 'portrait',
                         pageSize: 'A4',
                         customize: function (doc) {
-                            pdfCustomize(doc, ['5%', '20%', '15%', '15%', '30%', '15%']);
+                            pdfCustomize(doc, ['5%', '12%', '18%', '10%', '15%', '25%', '15%']);
                         }
                     }
                 ],
