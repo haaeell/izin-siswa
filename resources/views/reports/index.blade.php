@@ -1,291 +1,208 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan')
+@section('title', 'Laporan Bulanan')
+
+{{-- Tambahkan CSS DataTables di Head --}}
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <style>
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #2563eb !important;
+            color: white !important;
+            border: 1px solid #2563eb !important;
+        }
+
+        .dt-buttons {
+            margin-bottom: 15px;
+        }
+
+        button.dt-button {
+            background: #ef4444 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 6px !important;
+            font-size: 12px !important;
+            padding: 6px 12px !important;
+        }
+    </style>
+@endpush
 
 @section('content')
-    <div class="mx-auto p-6 bg-white rounded-xl shadow-md">
+    <div class="mx-auto p-6 bg-white rounded-xl shadow">
 
         {{-- HEADER --}}
-        <div class="mb-6">
-            <h1 class="text-2xl font-semibold text-slate-800 flex items-center gap-2">
-                <i class="fa-solid fa-file-chart-line text-blue-600"></i> Laporan
-            </h1>
-            <nav class="text-sm text-slate-500 mt-1">
-                <ol class="flex items-center gap-2">
-                    <li><a href="/home" class="hover:text-blue-600"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-                    <li>/</li>
-                    <li class="text-slate-700 font-medium">Laporan</li>
-                </ol>
-            </nav>
+        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-semibold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-file-chart-line text-blue-600"></i>
+                    Laporan Bulanan
+                </h1>
+                <p class="text-sm text-slate-500">
+                    Periode {{ $startDate->format('d M Y') }} - {{ $endDate->format('d M Y') }}
+                </p>
+            </div>
         </div>
 
         {{-- FILTER --}}
-        <form method="GET"
-            class="bg-slate-50 border rounded-xl p-4 mb-6
-                   grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-
-            {{-- TANGGAL MULAI --}}
-            <div class="flex flex-col">
-                <label class="text-sm font-medium mb-1">Tanggal Mulai</label>
-                <input type="date" name="end_date" value="{{ request('end_date', now()->endOfMonth()->toDateString()) }}"
-                    class="h-11 px-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border">
+            <div>
+                <label class="text-sm font-medium block mb-1">Tanggal Mulai</label>
+                <input type="date" name="start_date" value="{{ request('start_date', $startDate->toDateString()) }}"
+                    class="w-full h-11 px-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
-            {{-- TANGGAL AKHIR --}}
-            <div class="flex flex-col">
-                <label class="text-sm font-medium mb-1">Tanggal Akhir</label>
-                <input type="date" name="end_date" value="{{ request('end_date', now()->endOfMonth()->toDateString()) }}"
-                    class="h-11 px-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-
+            <div>
+                <label class="text-sm font-medium block mb-1">Tanggal Akhir</label>
+                <input type="date" name="end_date" value="{{ request('end_date', $endDate->toDateString()) }}"
+                    class="w-full h-11 px-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
-            {{-- KELAS --}}
-            <div class="flex flex-col">
-                <label class="text-sm font-medium mb-1">Kelas</label>
-                <select name="class_id" class="h-11 px-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                    <option value="">Semua Kelas</option>
-                    @foreach ($classes as $class)
-                        <option value="{{ $class->id }}" @selected(request('class_id') == $class->id)>
-                            {{ $class->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            {{-- ASRAMA --}}
-            <div class="flex flex-col">
-                <label class="text-sm font-medium mb-1">Barak</label>
-                <select name="dormitory_id" class="h-11 px-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                    <option value="">Semua Barak</option>
-                    @foreach ($dormitories as $dormitory)
-                        <option value="{{ $dormitory->id }}" @selected(request('dormitory_id') == $dormitory->id)>
-                            {{ $dormitory->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-
-            {{-- BUTTON --}}
-            <div class="flex">
-                <button
-                    class="h-11 w-full bg-blue-600 text-white rounded-lg
-                           hover:bg-blue-700 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-filter"></i> Tampilkan
+            <div class="flex items-end">
+                <button type="submit"
+                    class="w-full h-11 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 font-medium">
+                    <i class="fa-solid fa-filter"></i>
+                    Tampilkan Laporan
                 </button>
             </div>
-
         </form>
 
-
-        {{-- SUMMARY --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-
-            {{-- TOTAL IZIN --}}
+        {{-- SUMMARY CARD --}}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div
-                class="p-4 rounded-xl flex items-center gap-3
-                                                                bg-blue-50 border border-blue-200">
-                <i class="fa-solid fa-envelope-open-text text-blue-600 text-2xl"></i>
+                class="p-4 rounded-xl bg-blue-50 border border-blue-100 flex items-center gap-4 transition hover:shadow-md">
+                <div
+                    class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <i class="fa-solid fa-envelope-open-text text-xl"></i>
+                </div>
                 <div>
-                    <p class="text-sm text-blue-600/80">Total Izin</p>
-                    <p class="text-2xl font-semibold text-blue-700">
-                        {{ $summary['total_permission'] }}
-                    </p>
+                    <p class="text-xs font-bold text-blue-600 uppercase tracking-wider">TOTAL IZIN</p>
+                    <p class="text-2xl font-bold text-slate-800">{{ $summary['total_izin'] }}</p>
                 </div>
             </div>
 
-            {{-- TERLAMBAT --}}
             <div
-                class="p-4 rounded-xl flex items-center gap-3
-                                                                bg-red-50 border border-red-200">
-                <i class="fa-solid fa-clock text-red-600 text-2xl"></i>
+                class="p-4 rounded-xl bg-rose-50 border border-rose-100 flex items-center gap-4 transition hover:shadow-md">
+                <div
+                    class="w-12 h-12 bg-rose-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-rose-200">
+                    <i class="fa-solid fa-clock text-xl"></i>
+                </div>
                 <div>
-                    <p class="text-sm text-red-600/80">Datang Terlambat</p>
-                    <p class="text-2xl font-semibold text-red-700">
-                        {{ $summary['late_checkin'] }}
-                    </p>
+                    <p class="text-xs font-bold text-rose-600 uppercase tracking-wider">Terlambat</p>
+                    <p class="text-2xl font-bold text-slate-800">{{ $summary['total_late'] }}</p>
                 </div>
             </div>
 
-            {{-- TOTAL PELANGGARAN --}}
             <div
-                class="p-4 rounded-xl flex items-center gap-3
-                                                                bg-yellow-50 border border-yellow-200">
-                <i class="fa-solid fa-triangle-exclamation text-yellow-600 text-2xl"></i>
+                class="p-4 rounded-xl bg-amber-50 border border-amber-100 flex items-center gap-4 transition hover:shadow-md">
+                <div
+                    class="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-amber-200">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                </div>
                 <div>
-                    <p class="text-sm text-yellow-700/80">Pelanggaran</p>
-                    <p class="text-2xl font-semibold text-yellow-800">
-                        {{ $summary['total_violation'] }}
-                    </p>
+                    <p class="text-xs font-bold text-amber-600 uppercase tracking-wider">Pelanggaran</p>
+                    <p class="text-2xl font-bold text-slate-800">{{ $summary['total_violation'] }}</p>
                 </div>
             </div>
-
-            {{-- PELANGGARAN BERAT --}}
-            <div
-                class="p-4 rounded-xl flex items-center gap-3
-                                                                bg-rose-50 border border-rose-200">
-                <i class="fa-solid fa-skull-crossbones text-rose-600 text-2xl"></i>
-                <div>
-                    <p class="text-sm text-rose-600/80">Pelanggaran Berat</p>
-                    <p class="text-2xl font-semibold text-rose-700">
-                        {{ $summary['heavy_violation'] }}
-                    </p>
-                </div>
-            </div>
-
         </div>
 
-        {{-- CHART --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {{-- TABEL TERLAMBAT --}}
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-8">
+            <h2 class="font-bold mb-4 flex items-center gap-2 text-rose-600 text-lg">
+                <i class="fa-solid fa-clock-rotate-left"></i> Daftar Siswa Terlambat
+            </h2>
 
-            {{-- BAR CHART --}}
-            <div class="bg-white border rounded-xl p-4 shadow">
-                <h2 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-chart-column text-blue-600"></i>
-                    Ringkasan Aktivitas
-                </h2>
-                <canvas id="summaryChart" height="80"></canvas>
-            </div>
-
-            {{-- PIE CHART --}}
-            <div class="bg-white border rounded-xl p-4 shadow">
-                <h2 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-chart-pie text-rose-600"></i>
-                    Proporsi Pelanggaran
-                </h2>
-                <canvas id="violationChart" height="80" style="max-height: 200px"></canvas>
-            </div>
-
-        </div>
-
-
-
-        {{-- TABLE --}}
-        <div class="bg-white rounded-xl shadow border overflow-x-auto px-4 py-5">
-            <table id="datatable" class="w-full text-sm">
-                <thead class="bg-slate-100 text-slate-700">
-                    <tr>
-                        <th>#</th>
-                        <th>Nama Siswa</th>
-                        <th>Kelas</th>
-                        <th> Izin</th>
-                        <th>Terlambat</th>
-                        <th>Pelanggaran (R/S/B)</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($rows as $i => $row)
-                        <tr class="hover:bg-slate-50">
-                            <td>{{ $i + 1 }}</td>
-                            <td>{{ $row->name }}</td>
-                            <td>{{ $row->class_name }}</td>
-                            <td class="text-center">{{ $row->permission_count }}</td>
-                            <td class="text-center">{{ $row->late_count }}</td>
-                            <td class="text-center">
-                                {{ $row->light }}/{{ $row->medium }}/{{ $row->heavy }}
-                            </td>
-                            <td>
-                                @if ($row->heavy > 0)
-                                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs flex items-center gap-1">
-                                        <i class="fa-solid fa-triangle-exclamation"></i> Kritis
-                                    </span>
-                                @elseif ($row->medium > 0 || $row->late_count > 0)
-                                    <span
-                                        class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs flex items-center gap-1">
-                                        <i class="fa-solid fa-circle-exclamation"></i> Perlu Perhatian
-                                    </span>
-                                @else
-                                    <span
-                                        class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs flex items-center gap-1">
-                                        <i class="fa-solid fa-check"></i> Aman
-                                    </span>
-                                @endif
-                            </td>
+            <div class="overflow-x-auto">
+                <table id="tableLate" class="w-full text-sm display cell-border">
+                    <thead class="bg-slate-50 text-slate-700">
+                        <tr>
+                            <th class="py-3 px-4 text-left">No</th>
+                            <th class="py-3 px-4 text-left">Nama</th>
+                            <th class="py-3 px-4 text-left">Kelas</th>
+                            <th class="py-3 px-4 text-left">Waktu Datang</th>
+                            <th class="py-3 px-4 text-left">Terlambat</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y">
+                        @foreach ($latePermissions as $i => $item)
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-3 px-4">{{ $i + 1 }}</td>
+                                <td class="py-3 px-4 font-medium text-slate-900">{{ $item->student->name }}</td>
+                                <td class="py-3 px-4">{{ $item->student->class->name }}</td>
+                                <td class="py-3 px-4 text-rose-600 font-medium">
+                                    {{ $item->checkin->checkin_at->format('d/m/Y H:i') }}
+                                </td>
+                                <td>
+                                    @php
+                                        $checkin = $item->checkin->checkin_at;
+                                        $endAt = $item->end_at;
+                                        $diff = $endAt->diff($checkin);
+                                    @endphp
+
+                                    <span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700">
+                                        TERLAMBAT
+                                        @if($diff->d > 0) {{ $diff->d }} hari @endif
+                                        @if($diff->h > 0) {{ $diff->h }} jam @endif
+                                        @if($diff->i > 0) {{ $diff->i }} menit @endif
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- TABEL PELANGGARAN --}}
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <h2 class="font-bold mb-4 flex items-center gap-2 text-amber-600 text-lg">
+                <i class="fa-solid fa-triangle-exclamation"></i> Daftar Pelanggaran
+            </h2>
+
+            <div class="overflow-x-auto">
+                <table id="tableViolation" class="w-full text-sm display cell-border">
+                    <thead class="bg-slate-50 text-slate-700">
+                        <tr>
+                            <th class="py-3 px-4 text-left">No</th>
+                            <th class="py-3 px-4 text-left">Nama</th>
+                            <th class="py-3 px-4 text-left">Kelas</th>
+                            <th class="py-3 px-4 text-left">Jenis</th>
+                            <th class="py-3 px-4 text-left">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+                        @foreach ($violations as $i => $v)
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-3 px-4">{{ $i + 1 }}</td>
+                                <td class="py-3 px-4 font-medium text-slate-900">{{ $v->name }}</td>
+                                <td class="py-3 px-4">{{ $v->class_name }}</td>
+                                <td class="py-3 px-4">
+                                    <span
+                                        class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-700 uppercase border border-amber-200">
+                                        {{ $v->handling_type }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-slate-600">
+                                    {{ \Carbon\Carbon::parse($v->occurred_at)->format('d/m/Y') }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>
-
-    @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            // BAR CHART - SUMMARY
-            const summaryCtx = document.getElementById('summaryChart');
-            new Chart(summaryCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Izin', 'Terlambat', 'Pelanggaran', 'Pelanggaran Berat'],
-                    datasets: [{
-                        label: 'Jumlah',
-                        data: [
-                            {{ $summary['total_permission'] }},
-                            {{ $summary['late_checkin'] }},
-                            {{ $summary['total_violation'] }},
-                            {{ $summary['heavy_violation'] }},
-                        ],
-                        backgroundColor: [
-                            '#3b82f6',
-                            '#ef4444',
-                            '#f59e0b',
-                            '#be123c'
-                        ],
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // PIE CHART - VIOLATION
-            const violationCtx = document.getElementById('violationChart');
-            new Chart(violationCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Ringan', 'Sedang', 'Berat'],
-                    datasets: [{
-                        data: [
-                            {{ $rows->sum('light') }},
-                            {{ $rows->sum('medium') }},
-                            {{ $rows->sum('heavy') }},
-                        ],
-                        backgroundColor: [
-                            '#fde68a',
-                            '#fb923c',
-                            '#ef4444'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true
-                }
-            });
-
-            // DATATABLE
-            $(document).ready(function() {
-                $('#datatable').DataTable({
-                    pageLength: 10,
-                    order: [
-                        [1, 'asc']
-                    ],
-                    responsive: true
-                });
-            });
-        </script>
-    @endpush
 @endsection
+
+@push('scripts')
+
+    <script>
+        $(document).ready(function () {
+
+            $('#tableLate').DataTable();
+
+            $('#tableViolation').DataTable();
+        });
+    </script>
+@endpush
