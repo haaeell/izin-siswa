@@ -12,10 +12,32 @@ class StudentViolationController extends Controller
 {
     public function index(Request $request)
     {
-        $classes = SchoolClass::orderBy('name')->get();
+        $user = Auth::user();
+
+        if ($user->role === 'wali_kelas') {
+            $classes = SchoolClass::where('id', $user->class->id)->get();
+        } else {
+            $classes = SchoolClass::orderBy('name')->get();
+        }
+
+        $students = Student::when(
+            $user->role === 'wali_kelas',
+            fn($q) => $q->where('class_id', $user->class->id)
+        )
+            ->orderBy('name')
+            ->get();
 
         $violations = StudentViolation::with(['student.class'])
-            ->when($request->class_id, function ($q) use ($request) {
+            ->when(
+                $user->role === 'wali_kelas',
+                fn($q) =>
+                $q->whereHas(
+                    'student',
+                    fn($s) =>
+                    $s->where('class_id', $user->class->id)
+                )
+            )
+            ->when($request->class_id && $user->role !== 'wali_kelas', function ($q) use ($request) {
                 $q->whereHas('student', function ($s) use ($request) {
                     $s->where('class_id', $request->class_id);
                 });
@@ -26,8 +48,6 @@ class StudentViolationController extends Controller
             ->latest()
             ->get();
 
-        $students = Student::orderBy('name')->get();
-
         return view('violations.index', compact(
             'violations',
             'students',
@@ -36,8 +56,13 @@ class StudentViolationController extends Controller
     }
 
 
+
     public function store(Request $request)
     {
+        if (Auth::user()->role != 'perizinan') {
+            abort(403, 'Anda tidak memiliki akses');
+        }
+
         $request->validate([
             'student_id'            => 'required|exists:students,id',
             'category'         => 'nullable|in:pengasuhan,pengajaran,pelatihan',
@@ -79,6 +104,9 @@ class StudentViolationController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (Auth::user()->role != 'perizinan') {
+            abort(403, 'Anda tidak memiliki akses');
+        }
         $violation = StudentViolation::findOrFail($id);
 
         $request->validate([
@@ -120,6 +148,9 @@ class StudentViolationController extends Controller
 
     public function destroy($id)
     {
+        if (Auth::user()->role != 'perizinan') {
+            abort(403, 'Anda tidak memiliki akses');
+        }
         StudentViolation::findOrFail($id)->delete();
 
         return redirect()->back()->with('success', 'Pelanggaran berhasil dihapus');

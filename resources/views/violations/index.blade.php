@@ -13,9 +13,12 @@
             </div>
 
             <div>
-                <button onclick="openCreateModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    + Tambah Pelanggaran
-                </button>
+                @if(Auth::user()->role !== 'wali_kelas')
+                    <button onclick="openCreateModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        + Tambah Pelanggaran
+                    </button>
+                @endif
+
             </div>
         </div>
 
@@ -74,7 +77,9 @@
                             <th>Berlaku Sampai</th>
                         @endif
 
-                        <th>Aksi</th>
+                        @if(Auth::user()->role !== 'wali_kelas')
+                            <th>Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -88,7 +93,7 @@
                                 <td>
                                     <span
                                         class="px-2 py-1 rounded text-white
-                                                                                                                                                                                                                                        {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                                                                                                                                                                                                                                                            {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
                                         {{ ucfirst($v->type) }}
                                     </span>
                                 </td>
@@ -116,14 +121,18 @@
                                 <td>{{ \Carbon\Carbon::parse($v->attendance_until)->format('d-m-Y') }}</td>
                             @endif
 
-                            <td>
-                                <button onclick='openEditModal(@json($v))' class="px-2 py-1 bg-yellow-400 rounded">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="deleteData({{ $v->id }})" class="px-2 py-1 bg-red-500 text-white rounded">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </td>
+                            @if(Auth::user()->role !== 'wali_kelas')
+                                <td>
+                                    <button onclick='openEditModal(@json($v))' class="px-2 py-1 bg-yellow-400 rounded">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+
+                                    <button onclick="deleteData({{ $v->id }})" class="px-2 py-1 bg-red-500 text-white rounded">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            @endif
+
                         </tr>
                     @endforeach
                 </tbody>

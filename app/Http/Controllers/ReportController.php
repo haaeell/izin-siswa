@@ -53,7 +53,8 @@ class ReportController extends Controller
                 'students.name',
                 'classes.name as class_name',
                 'student_violations.handling_type',
-                'student_violations.occurred_at'
+                'student_violations.occurred_at',
+                'student_violations.description'
             )
             ->whereBetween('student_violations.created_at', [$startDate, $endDate])
             ->orderBy('student_violations.occurred_at', 'desc')

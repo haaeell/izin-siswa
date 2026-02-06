@@ -38,5 +38,15 @@
             Permohonan Izin
         </a>
 
+        <div class="pt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 px-4">
+            Pelanggaran
+        </div>
+
+        <a href="{{ url('/violations?handling_type=pengasuhan') }}"
+            class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('violations*') }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-ban"></i></span>
+            Data Pelanggaran
+        </a>
+
     </nav>
 </aside>
