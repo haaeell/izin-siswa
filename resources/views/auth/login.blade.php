@@ -5,6 +5,15 @@
     <meta charset="utf-8">
     <title>Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png"
+        href="https://yt3.googleusercontent.com/aqwnd_6PPBpG0PqWP1QMcBjJZX0GwVYQCmJ0_r0pdJPrAgiqjH3TaxhHCF9a-oHRbhk90Bpz=s900-c-k-c0x00ffffff-no-rj">
+
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon"
+        href="https://yt3.googleusercontent.com/aqwnd_6PPBpG0PqWP1QMcBjJZX0GwVYQCmJ0_r0pdJPrAgiqjH3TaxhHCF9a-oHRbhk90Bpz=s900-c-k-c0x00ffffff-no-rj">
+
+    <!-- Meta Theme Color (Android Chrome) -->
+    <meta name="theme-color" content="#2563eb">
 
     <link href="https://fonts.bunny.net/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -94,11 +103,11 @@
                         Remember me
                     </label>
 
-                    @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-blue-600 hover:underline font-medium">
-                            Lupa password?
-                        </a>
-                    @endif
+                    {{-- @if (Route::has('password.request'))
+                    <a href="{{ route('password.request') }}" class="text-blue-600 hover:underline font-medium">
+                        Lupa password?
+                    </a>
+                    @endif --}}
                 </div>
 
                 <button type="submit" id="loginBtn" class="w-full mt-2 py-3  rounded-xl bg-blue-600 text-white font-semibold 
