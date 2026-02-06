@@ -52,11 +52,17 @@ class StudentPermissionController extends Controller
         $activePermissionCount = 0;
 
         if (Auth::user()->role === 'wali_kelas') {
-            $activePermissionCount = StudentPermission::where('wali_kelas_id', Auth::user()->id)
+            $activePermissions = StudentPermission::with('checkin')
+                ->where('wali_kelas_id', Auth::user()->id)
                 ->where('status', 'approved')
                 ->where('start_at', '<=', now())
                 ->where('end_at', '>=', now())
-                ->count();
+                ->where('type', '!=', 'sakit')
+                ->get();
+
+            $activePermissionCount = $activePermissions->filter(function ($permission) {
+                return !$permission->checkin || !$permission->checkin->checkin_at;
+            })->count();
         }
 
         return view('permissions.index', [

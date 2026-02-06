@@ -8,11 +8,9 @@ use Illuminate\Http\Request;
 
 class StudentPermissionCheckinController extends Controller
 {
-    /* ===================== VIEW ===================== */
 
     public function checkinView()
     {
-        // Sudah kembali (check-in)
         $checkins = StudentPermissionCheckin::with('permission.student.class')
             ->whereNotNull('checkin_at')
             ->latest('checkin_at')
@@ -23,7 +21,6 @@ class StudentPermissionCheckinController extends Controller
 
     public function checkoutView()
     {
-        // Masih di luar
         $checkins = StudentPermissionCheckin::with('permission.student.class')
             ->whereNotNull('checkout_at')
             ->whereNull('checkin_at')
@@ -32,10 +29,6 @@ class StudentPermissionCheckinController extends Controller
 
         return view('checkin.checkout', compact('checkins'));
     }
-
-    /* ===================== CHECK-OUT ===================== */
-    // SISWA KELUAR SEKOLAH
-
     public function checkout(Request $request)
     {
         $request->validate([
@@ -48,12 +41,10 @@ class StudentPermissionCheckinController extends Controller
             return $this->error('Data siswa / izin tidak ditemukan');
         }
 
-        // Sudah checkout
         if ($permission->checkin && $permission->checkin->checkout_at) {
             return $this->error('Siswa sudah keluar');
         }
 
-        // Create / Update record keluar
         StudentPermissionCheckin::updateOrCreate(
             ['student_permission_id' => $permission->id],
             [
@@ -69,9 +60,6 @@ class StudentPermissionCheckinController extends Controller
         );
     }
 
-    /* ===================== CHECK-IN ===================== */
-    // SISWA KEMBALI KE SEKOLAH
-
     public function checkin(Request $request)
     {
         $request->validate([
@@ -84,7 +72,6 @@ class StudentPermissionCheckinController extends Controller
             return $this->error('Siswa belum melakukan check-out');
         }
 
-        // Sudah check-in
         if ($permission->checkin->checkin_at) {
             return $this->error('Siswa sudah check-in');
         }
@@ -106,8 +93,6 @@ class StudentPermissionCheckinController extends Controller
             $status
         );
     }
-
-    /* ===================== HELPER ===================== */
 
     private function findPermission(string $code): ?StudentPermission
     {

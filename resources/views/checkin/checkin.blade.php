@@ -69,18 +69,35 @@
                             </td>
 
                             <td>
-                                @if($item->checkin_at)
-                                    <span class="px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
-                                        Selesai
+                                @if($item->status === 'TERLAMBAT')
+                                    @php
+                                        $checkin = \Carbon\Carbon::parse($item->checkin_at);
+                                        $endAt = \Carbon\Carbon::parse($item->end_at);
+                                        $diff = $checkin->diff($endAt); // selisih waktu
+                                    @endphp
+                                    <span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700">
+                                        TERLAMBAT
+                                        @if($diff->d > 0) {{ $diff->d }} hari @endif
+                                        @if($diff->h > 0) {{ $diff->h }} jam @endif
+                                        @if($diff->i > 0) {{ $diff->i }} menit @endif
                                     </span>
-                                @elseif($item->checkout_at)
+
+                                @elseif($item->status === 'TEPAT WAKTU')
+                                    <span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">
+                                        TEPAT WAKTU
+                                    </span>
+
+                                @elseif($item->status === 'DI LUAR')
                                     <span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
-                                        Pulang
+                                        PULANG
                                     </span>
+
                                 @else
                                     <span class="text-slate-400">-</span>
                                 @endif
                             </td>
+
+
                         </tr>
                     @endforeach
                 </tbody>
