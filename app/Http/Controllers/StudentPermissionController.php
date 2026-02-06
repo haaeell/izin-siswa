@@ -111,7 +111,7 @@ class StudentPermissionController extends Controller
             'start_at' => 'required|date',
             'end_at' => 'required|date|after_or_equal:start_at',
             'reason' => 'required|string',
-            'surat_ortu'   => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'surat_ortu'   => 'required|file|mimes:pdf,jpg,png|max:2048',
             'surat_dokter' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
         ], [
             'student_id.required' => 'Siswa wajib dipilih',
@@ -127,6 +127,7 @@ class StudentPermissionController extends Controller
             'surat_dokter.mimes' => 'Surat dokter harus berupa file PDF, JPG, atau PNG',
             'surat_ortu.max' => 'Surat ortu maksimal berukuran 2MB',
             'surat_dokter.max' => 'Surat dokter maksimal berukuran 2MB',
+            'surat_ortu.required' => 'Surat ortu wajib diunggah',
         ]);
 
         $hasActivePermission = StudentPermission::where('student_id', $data['student_id'])
