@@ -34,7 +34,6 @@
             background-color: #f8fafc;
         }
 
-        /* Desktop collapse */
         .sidebar-collapsed {
             width: 0;
             overflow: hidden;
@@ -43,9 +42,7 @@
         .select2-container .select2-selection--single {
             height: 42px;
             border-radius: 0.5rem;
-            /* rounded-lg */
             border: 1px solid #d1d5db;
-            /* border-gray-300 */
             padding: 6px 12px;
             display: flex;
             align-items: center;
@@ -63,6 +60,55 @@
         .select2-container--default .select2-selection--single:focus {
             border-color: #2563eb;
             outline: none;
+        }
+
+        .dt-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        button.dt-button {
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 7px 14px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+        }
+
+        button.buttons-excel {
+            background: #16a34a !important;
+            color: #fff !important;
+        }
+
+        button.buttons-excel:hover {
+            background: #15803d !important;
+        }
+
+        button.buttons-pdf {
+            background: #dc2626 !important;
+            color: #fff !important;
+        }
+
+        button.buttons-pdf:hover {
+            background: #b91c1c !important;
+        }
+
+        button.buttons-print {
+            background: #2563eb !important;
+            color: #fff !important;
+        }
+
+        button.buttons-print:hover {
+            background: #1d4ed8 !important;
+        }
+
+        button.dt-button:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, .25) !important;
         }
     </style>
 </head>

@@ -126,7 +126,7 @@
                     <tbody class="divide-y">
                         @foreach ($latePermissions as $i => $item)
                             <tr class="hover:bg-slate-50">
-                                <td class="py-3 px-4">{{ $i + 1 }}</td>
+                                <td class="py-3 px-4">{{ $loop->iteration }}</td>
                                 <td class="py-3 px-4 font-medium text-slate-900">{{ $item->student->name }}</td>
                                 <td class="py-3 px-4">{{ $item->student->class->name }}</td>
                                 <td class="py-3 px-4 text-rose-600 font-medium">
@@ -140,7 +140,7 @@
                                     @endphp
 
                                     <span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700">
-                                        TERLAMBAT
+
                                         @if($diff->d > 0) {{ $diff->d }} hari @endif
                                         @if($diff->h > 0) {{ $diff->h }} jam @endif
                                         @if($diff->i > 0) {{ $diff->i }} menit @endif
@@ -197,12 +197,141 @@
 
 @push('scripts')
 
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
     <script>
         $(document).ready(function () {
 
-            $('#tableLate').DataTable();
+            const periodText = 'Periode {{ $startDate->format("d M Y") }} - {{ $endDate->format("d M Y") }}';
 
-            $('#tableViolation').DataTable();
+            function pdfCustomize(doc, widths) {
+
+                doc.styles.title = {
+                    alignment: 'center',
+                    fontSize: 14,
+                    bold: true,
+                    margin: [0, 0, 0, 6]
+                };
+
+                doc.styles.message = {
+                    alignment: 'center',
+                    fontSize: 10,
+                    margin: [0, 0, 0, 14]
+                };
+
+                const table = doc.content.find(c => c.table);
+                table.table.widths = widths;
+
+                doc.styles.tableHeader = {
+                    fontSize: 9,
+                    bold: true,
+                    alignment: 'center',
+                    fillColor: '#1f2937',
+                    color: '#ffffff'
+                };
+
+                table.table.body.forEach((row, rowIndex) => {
+                    if (rowIndex === 0) return;
+
+                    row.forEach((cell, colIndex) => {
+                        cell.fontSize = 9;
+
+                        // NO
+                        if (colIndex === 0) {
+                            cell.alignment = 'center';
+                            cell.noWrap = true;
+                        }
+
+                        // NAMA
+                        if (colIndex === 1) {
+                            cell.alignment = 'left';
+                            cell.noWrap = true;
+                        }
+
+                        // KELAS
+                        if (colIndex === 2) {
+                            cell.alignment = 'center';
+                            cell.noWrap = true;
+                        }
+
+                        // WAKTU DATANG (INI PENTING)
+                        if (colIndex === 3) {
+                            cell.alignment = 'center';
+                            cell.noWrap = false; // ⬅️ BIAR GA NUMPUK
+                        }
+
+                        // TERLAMBAT
+                        if (colIndex === 4) {
+                            cell.alignment = 'left';
+                            cell.noWrap = false;
+                        }
+                    });
+                });
+
+                table.layout = {
+                    hLineWidth: () => 0.8,
+                    vLineWidth: () => 0.8,
+                    hLineColor: () => '#e5e7eb',
+                    vLineColor: () => '#e5e7eb',
+                    paddingLeft: () => 6,
+                    paddingRight: () => 6,
+                    paddingTop: () => 4,
+                    paddingBottom: () => 4
+                };
+            }
+
+            // ================= TABLE TERLAMBAT =================
+            $('#tableLate').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        title: 'Laporan Siswa Terlambat',
+                        messageTop: periodText
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        title: 'Laporan Siswa Terlambat',
+                        messageTop: periodText,
+                        orientation: 'portrait',
+                        pageSize: 'A4',
+                        customize: function (doc) {
+                            pdfCustomize(doc, ['6%', '26%', '14%', '24%', '30%']);
+                        }
+                    }
+                ]
+            });
+
+            // ================= TABLE PELANGGARAN =================
+            $('#tableViolation').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        title: 'Laporan Pelanggaran Siswa',
+                        messageTop: periodText
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        title: 'Laporan Pelanggaran Siswa',
+                        messageTop: periodText,
+                        orientation: 'portrait',
+                        pageSize: 'A4',
+                        customize: function (doc) {
+                            pdfCustomize(doc, ['5%', '30%', '20%', '20%', '25%']);
+                        }
+                    }
+                ]
+            });
+
         });
     </script>
 @endpush
