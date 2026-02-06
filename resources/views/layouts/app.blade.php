@@ -87,6 +87,8 @@
         <!-- Sidebar -->
         @if(auth()->user()->role == 'wali_kelas')
             @include('layouts.sidebar.walikelas')
+        @elseif(auth()->user()->role == 'security')
+            @include('layouts.sidebar.security')
         @else
             @include('layouts.sidebar.admin')
         @endif

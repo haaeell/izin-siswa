@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        {{-- INPUT --}}
+        {{-- INPUT CHECKIN --}}
         <div class="p-4 bg-slate-50 border rounded-2xl flex flex-col md:flex-row gap-3">
             <input id="barcodeInput" autofocus
                 class="flex-1 px-4 py-3 border rounded-xl text-lg focus:ring focus:ring-green-200"
@@ -31,6 +31,44 @@
             </button>
         </div>
 
+        {{-- FILTER --}}
+        <form method="GET" action="{{ url()->current() }}"
+            class="p-4 bg-slate-50 border rounded-2xl flex flex-col md:flex-row gap-4 items-end">
+            <div class="flex-1">
+                <label class="text-sm font-medium">Tanggal Mulai</label>
+                <input type="date" name="start_date" value="{{ request('start_date') }}"
+                    class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-green-200">
+            </div>
+            <div class="flex-1">
+                <label class="text-sm font-medium">Tanggal Akhir</label>
+                <input type="date" name="end_date" value="{{ request('end_date') }}"
+                    class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-green-200">
+            </div>
+            <div class="flex-1">
+                <label class="text-sm font-medium">Kelas</label>
+                <select name="class_id" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-green-200">
+                    <option value="">-- Semua Kelas --</option>
+                    @foreach($classes as $c)
+                        <option value="{{ $c->id }}" @selected(request('class_id') == $c->id)>{{ $c->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex-1">
+                <label class="text-sm font-medium">Asrama</label>
+                <select name="dormitory_id" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-green-200">
+                    <option value="">-- Semua Asrama --</option>
+                    @foreach($dormitories as $d)
+                        <option value="{{ $d->id }}" @selected(request('dormitory_id') == $d->id)>{{ $d->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
+                    <i class="fa-solid fa-filter mr-1"></i> Filter
+                </button>
+            </div>
+        </form>
+
         {{-- TABLE --}}
         <div class="bg-white border rounded-2xl overflow-hidden">
             <table id="checkinTable" class="w-full text-sm">
@@ -40,6 +78,7 @@
                         <th>NIS</th>
                         <th>Nama</th>
                         <th>Kelas</th>
+                        <th>Asrama</th>
                         <th>Keperluan</th>
                         <th>Check-in</th>
                         <th>Check-out</th>
@@ -51,29 +90,20 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $item->permission->student->nis }}</td>
-                            <td class="font-medium">
-                                {{ $item->permission->student->name }}
-                            </td>
-                            <td>
-                                {{ $item->permission->student->class->name }}
-                            </td>
-                            <td>
-                                {{ $item->permission->reason ?? '-' }}
-                            </td>
+                            <td class="font-medium">{{ $item->permission->student->name }}</td>
+                            <td>{{ $item->permission->student->class->name ?? '-' }}</td>
+                            <td>{{ $item->permission->student->dormitory->name ?? '-' }}</td>
+                            <td>{{ $item->permission->reason ?? '-' }}</td>
                             <td class="text-green-600 font-medium">
-                                {{ $item->checkin_at?->translatedFormat('l, d F Y H:i') ?? '-' }}
-                            </td>
-
+                                {{ $item->checkin_at?->translatedFormat('l, d F Y H:i') ?? '-' }}</td>
                             <td class="text-blue-600 font-medium">
-                                {{ $item->checkout_at?->translatedFormat('l, d F Y H:i') ?? '-' }}
-                            </td>
-
+                                {{ $item->checkout_at?->translatedFormat('l, d F Y H:i') ?? '-' }}</td>
                             <td>
                                 @if($item->status === 'TERLAMBAT')
                                     @php
                                         $checkin = \Carbon\Carbon::parse($item->checkin_at);
-                                        $endAt = \Carbon\Carbon::parse($item->end_at);
-                                        $diff = $checkin->diff($endAt); // selisih waktu
+                                        $endAt = \Carbon\Carbon::parse($item->permission->end_at);
+                                        $diff = $checkin->diff($endAt);
                                     @endphp
                                     <span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700">
                                         TERLAMBAT
@@ -81,23 +111,14 @@
                                         @if($diff->h > 0) {{ $diff->h }} jam @endif
                                         @if($diff->i > 0) {{ $diff->i }} menit @endif
                                     </span>
-
                                 @elseif($item->status === 'TEPAT WAKTU')
-                                    <span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">
-                                        TEPAT WAKTU
-                                    </span>
-
+                                    <span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">TEPAT WAKTU</span>
                                 @elseif($item->status === 'DI LUAR')
-                                    <span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
-                                        PULANG
-                                    </span>
-
+                                    <span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">PULANG</span>
                                 @else
                                     <span class="text-slate-400">-</span>
                                 @endif
                             </td>
-
-
                         </tr>
                     @endforeach
                 </tbody>
@@ -155,10 +176,7 @@
                 search: "Cari:",
                 lengthMenu: "Tampilkan _MENU_ data",
                 info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-                paginate: {
-                    previous: "‹",
-                    next: "›"
-                },
+                paginate: { previous: "‹", next: "›" },
                 zeroRecords: "Data tidak ditemukan"
             }
         });

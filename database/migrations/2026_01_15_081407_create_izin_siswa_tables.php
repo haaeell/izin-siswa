@@ -8,7 +8,6 @@ return new class extends Migration {
 
     public function up(): void
     {
-        /* role: wali_kelas | perizinan */
         Schema::table('users', function (Blueprint $table) {
             $table->string('role')->default('wali_kelas');
         });

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dormitory;
+use App\Models\SchoolClass;
 use App\Models\StudentPermission;
 use App\Models\StudentPermissionCheckin;
 use Illuminate\Http\Request;
@@ -9,15 +11,31 @@ use Illuminate\Http\Request;
 class StudentPermissionCheckinController extends Controller
 {
 
-    public function checkinView()
+    public function checkinView(Request $request)
     {
-        $checkins = StudentPermissionCheckin::with('permission.student.class')
-            ->whereNotNull('checkin_at')
-            ->latest('checkin_at')
-            ->get();
+        $query = StudentPermissionCheckin::with('permission.student.class', 'permission.student.dormitory')
+            ->whereNotNull('checkin_at');
 
-        return view('checkin.checkin', compact('checkins'));
+        if ($request->start_date) {
+            $query->whereDate('checkin_at', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $query->whereDate('checkin_at', '<=', $request->end_date);
+        }
+        if ($request->class_id) {
+            $query->whereHas('permission.student', fn($q) => $q->where('class_id', $request->class_id));
+        }
+        if ($request->dormitory_id) {
+            $query->whereHas('permission.student', fn($q) => $q->where('dormitory_id', $request->dormitory_id));
+        }
+
+        $checkins = $query->latest('checkin_at')->get();
+        $classes = SchoolClass::all();
+        $dormitories = Dormitory::all();
+
+        return view('checkin.checkin', compact('checkins', 'classes', 'dormitories'));
     }
+
 
     public function checkoutView()
     {

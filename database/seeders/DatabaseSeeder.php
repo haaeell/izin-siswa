@@ -4,20 +4,18 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\AcademicYear;
 use App\Models\SchoolClass;
 use App\Models\Student;
-use App\Models\StudentPermission;
-use App\Models\StudentPermissionCheckin;
+use App\Models\Dormitory;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
         /* ===============================
-         * USER
+         * USERS
          * =============================== */
         $perizinan = User::create([
             'name' => 'Petugas Perizinan',
@@ -33,10 +31,30 @@ class DatabaseSeeder extends Seeder
             'role' => 'wali_kelas',
         ]);
 
+        $security = User::create([
+            'name' => 'Security Asrama',
+            'email' => 'security@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'security',
+        ]);
+
+        /* ===============================
+         * DORMITORIES
+         * =============================== */
+        $dorm1 = Dormitory::create([
+            'name' => 'Asrama Putra',
+            'description' => 'Asrama khusus siswa putra.',
+        ]);
+
+        $dorm2 = Dormitory::create([
+            'name' => 'Asrama Putri',
+            'description' => 'Asrama khusus siswa putri.',
+        ]);
+
         /* ===============================
          * TAHUN AKADEMIK
          * =============================== */
-        $academicYear = AcademicYear::create([
+        $academicYear = \App\Models\AcademicYear::create([
             'name' => '2024 / 2025',
             'is_active' => true,
         ]);
@@ -57,6 +75,14 @@ class DatabaseSeeder extends Seeder
             'nis' => '1234567890',
             'name' => 'Ahmad Fauzi',
             'class_id' => $class->id,
+            'dormitory_id' => $dorm1->id,
+        ]);
+
+        $student2 = Student::create([
+            'nis' => '1234567891',
+            'name' => 'Siti Aminah',
+            'class_id' => $class->id,
+            'dormitory_id' => $dorm2->id,
         ]);
     }
 }

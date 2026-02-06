@@ -1,0 +1,25 @@
+<aside id="sidebar"
+    class="fixed md:static inset-y-0 left-0 z-40 w-64 bg-white border-r transform -translate-x-full md:translate-x-0 transition-all duration-300 ease-in-out flex flex-col">
+
+    <div class="h-16 flex items-center px-6 text-xl font-semibold text-blue-600 border-b">
+        <i class="fa-solid fa-shield-halved mr-2"></i> SECURITY
+    </div>
+
+    <nav class="flex-1 px-4 py-4 space-y-1">
+
+        <div class="pt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 px-4">
+            Menu Security
+        </div>
+
+        <a href="/checkout" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('checkout') }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-arrow-right"></i></span>
+            Check-Out
+        </a>
+
+        <a href="/checkin" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ isActive('checkin') }}">
+            <span class="w-5 text-center"><i class="fa-solid fa-arrow-left"></i></span>
+            Check-In
+        </a>
+
+    </nav>
+</aside>
