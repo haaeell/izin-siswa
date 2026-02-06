@@ -81,6 +81,7 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
+    Route::get('/permissions/pdf', [StudentPermissionController::class, 'pdf'])->name('permissions.pdf');
     Route::prefix('permissions')->group(function () {
 
         Route::controller(StudentPermissionController::class)->group(function () {

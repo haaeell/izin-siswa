@@ -1,8 +1,10 @@
 <aside id="sidebar"
     class="fixed md:static inset-y-0 left-0 z-40 w-64 bg-white border-r transform -translate-x-full md:translate-x-0 transition-all duration-300 ease-in-out flex flex-col">
 
-    <div class="h-16 flex items-center px-6 text-xl font-semibold text-blue-600 border-b">
-        <i class="fa-solid fa-layer-group mr-2"></i> PERIZINAN SISWA
+    <div class="h-16 flex items-center px-6 text-sm font-semibold text-blue-600 border-b">
+        <img class="w-10"
+            src="https://yt3.googleusercontent.com/aqwnd_6PPBpG0PqWP1QMcBjJZX0GwVYQCmJ0_r0pdJPrAgiqjH3TaxhHCF9a-oHRbhk90Bpz=s900-c-k-c0x00ffffff-no-rj"
+            alt=""> PERIZINAN SISWA
     </div>
 
     <nav class="flex-1 px-4 py-4 space-y-1">

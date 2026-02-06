@@ -72,6 +72,35 @@ class StudentPermissionController extends Controller
         ]);
     }
 
+    public function pdf(Request $request)
+    {
+        $query = StudentPermission::with(['student.class', 'checkin']);
+
+        if (Auth::user()->role === 'wali_kelas') {
+            $query->where('wali_kelas_id', Auth::user()->id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('start_at', [
+                $request->start_date,
+                $request->end_date
+            ]);
+        }
+
+        $permissions = $query->latest()->get();
+
+        $pdf = Pdf::loadView('permissions.pdf', [
+            'permissions' => $permissions,
+            'request' => $request
+        ])->setPaper('A4', 'portrait');
+
+        return $pdf->download('laporan-perizinan.pdf');
+    }
+
     public function store(Request $request)
     {
         abort_if(auth()->user()->role !== 'wali_kelas', 403);

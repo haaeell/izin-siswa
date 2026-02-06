@@ -167,6 +167,7 @@
                             <th class="py-3 px-4 text-left">Nama</th>
                             <th class="py-3 px-4 text-left">Kelas</th>
                             <th class="py-3 px-4 text-left">Jenis</th>
+                            <th class="py-3 px-4 text-left">Deskripsi</th>
                             <th class="py-3 px-4 text-left">Tanggal</th>
                         </tr>
                     </thead>
@@ -182,6 +183,7 @@
                                         {{ $v->handling_type }}
                                     </span>
                                 </td>
+                                <td class="py-3 px-4 text-slate-600">{{ $v->description ?? '-' }}</td>
                                 <td class="py-3 px-4 text-slate-600">
                                     {{ \Carbon\Carbon::parse($v->occurred_at)->format('d/m/Y') }}
                                 </td>
@@ -244,31 +246,26 @@
                     row.forEach((cell, colIndex) => {
                         cell.fontSize = 9;
 
-                        // NO
                         if (colIndex === 0) {
                             cell.alignment = 'center';
                             cell.noWrap = true;
                         }
 
-                        // NAMA
                         if (colIndex === 1) {
                             cell.alignment = 'left';
                             cell.noWrap = true;
                         }
 
-                        // KELAS
                         if (colIndex === 2) {
                             cell.alignment = 'center';
                             cell.noWrap = true;
                         }
 
-                        // WAKTU DATANG (INI PENTING)
                         if (colIndex === 3) {
                             cell.alignment = 'center';
-                            cell.noWrap = false; // ⬅️ BIAR GA NUMPUK
+                            cell.noWrap = false;
                         }
 
-                        // TERLAMBAT
                         if (colIndex === 4) {
                             cell.alignment = 'left';
                             cell.noWrap = false;
@@ -326,10 +323,13 @@
                         orientation: 'portrait',
                         pageSize: 'A4',
                         customize: function (doc) {
-                            pdfCustomize(doc, ['5%', '30%', '20%', '20%', '25%']);
+                            pdfCustomize(doc, ['5%', '20%', '15%', '15%', '30%', '15%']);
                         }
                     }
-                ]
+                ],
+                exportOptions: {
+                    columns: ':visible'
+                }
             });
 
         });

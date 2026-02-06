@@ -16,12 +16,6 @@ class StudentPermissionLetterController extends Controller
             'approver'
         ])->findOrFail($id);
 
-        abort_if(
-            Auth::user()->role === 'wali_kelas'
-                && $permission->wali_kelas_id !== Auth::id(),
-            403
-        );
-
         if (!in_array($permission->status, ['approved', 'rejected'])) {
             abort(404);
         }

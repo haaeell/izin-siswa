@@ -14,27 +14,56 @@ class HomeController extends Controller
     {
         $user = Auth::user();
 
-        $data = [
-            'totalStudents' => Student::count(),
-            'totalClasses'  => SchoolClass::count(),
-            'pendingCount'  => StudentPermission::where('status', 'pending')->count(),
-            'todayCount'    => StudentPermission::whereDate('created_at', now())->count(),
-        ];
+        $data = [];
 
+        // ======================
+        // WALI KELAS
+        // ======================
         if ($user->role === 'wali_kelas') {
+
+            $classId = $user->class->id;
+
+            $data['totalStudents'] = Student::where('class_id', $classId)->count();
+            $data['totalClasses']  = 1;
+
+            $data['pendingCount'] = StudentPermission::where('wali_kelas_id', $user->id)
+                ->where('status', 'pending')
+                ->count();
+
+            $data['todayCount'] = StudentPermission::where('wali_kelas_id', $user->id)
+                ->whereDate('created_at', now())
+                ->count();
+
             $data['myPermissions'] = StudentPermission::where('wali_kelas_id', $user->id)
                 ->latest()
                 ->limit(5)
                 ->get();
         }
 
+        // ======================
+        // ROLE LAIN (ADMIN / PERIZINAN)
+        // ======================
+        else {
+
+            $data['totalStudents'] = Student::count();
+            $data['totalClasses']  = SchoolClass::count();
+
+            $data['pendingCount'] = StudentPermission::where('status', 'pending')->count();
+            $data['todayCount']   = StudentPermission::whereDate('created_at', now())->count();
+        }
+
+        // ======================
+        // PERIZINAN
+        // ======================
         if ($user->role === 'perizinan') {
+
             $data['pendingPermissions'] = StudentPermission::where('status', 'pending')
                 ->latest()
                 ->limit(5)
                 ->get();
 
-            $data['todayCheckins'] = StudentPermissionCheckin::whereDate('checkin_at', now())->count();
+            $data['todayCheckins'] = StudentPermissionCheckin::whereDate('checkin_at', now())
+                ->count();
         }
 
         return view('home', $data);
