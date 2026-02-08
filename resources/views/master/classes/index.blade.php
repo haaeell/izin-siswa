@@ -3,61 +3,66 @@
 @section('title', 'Kelas')
 
 @section('content')
-    <div class="mx-auto p-6 bg-white rounded-xl">
+   <div class="mx-auto p-4 sm:p-6 bg-white rounded-xl">
 
-        {{-- HEADER --}}
-        <div class="flex justify-between mb-4">
-            <div>
-                <h1 class="text-2xl font-semibold text-slate-800">Kelas</h1>
-                <nav class="text-sm text-slate-500 mt-1">
-                    <ol class="flex items-center gap-2">
-                        <li><a href="/home" class="hover:text-blue-600">Dashboard</a></li>
-                        <li>/</li>
-                        <li class="text-slate-700 font-medium">Kelas</li>
-                    </ol>
-                </nav>
-            </div>
-
-            <div>
-                <button onclick="openCreateModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    + Tambah
-                </button>
-            </div>
+    <div class="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-4">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-semibold text-slate-800">Kelas</h1>
+            <nav class="text-sm text-slate-500 mt-1">
+                <ol class="flex items-center gap-2 flex-wrap">
+                    <li><a href="/home" class="hover:text-blue-600">Dashboard</a></li>
+                    <li>/</li>
+                    <li class="text-slate-700 font-medium">Kelas</li>
+                </ol>
+            </nav>
         </div>
 
-        {{-- TABLE --}}
-        <div class="bg-white rounded-xl shadow border overflow-x-auto px-4 py-5">
-            <table id="datatable" class="w-full text-sm">
-                <thead class="bg-slate-100 text-slate-700">
+        <div>
+            <button onclick="openCreateModal()"
+                class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                + Tambah
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow border overflow-x-auto px-3 sm:px-4 py-4 sm:py-5">
+        <table id="datatable" class="w-full text-sm whitespace-nowrap">
+            <thead class="bg-slate-100 text-slate-700">
+                <tr>
+                    <th>#</th>
+                    <th>Nama Kelas</th>
+                    <th>Wali Kelas</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($classes as $i => $class)
                     <tr>
-                        <th>#</th>
-                        <th>Nama Kelas</th>
-                        <th>Wali Kelas</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($classes as $i => $class)
-                        <tr>
-                            <td>{{ $i + 1 }}</td>
-                            <td>{{ $class->name }}</td>
-                            <td>{{ $class->waliKelas->name }}</td>
-                            <td class="text-center space-x-2">
+                        <td>{{ $i + 1 }}</td>
+                        <td>{{ $class->name }}</td>
+                        <td>
+                            {{ $class->waliKelas->name ?? '-' }}
+                        </td>
+                        <td>
+                            <div class="flex justify-center gap-2">
                                 <button onclick='openEditModal(@json($class))'
                                     class="px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
 
-                                <button onclick="deleteClass({{ $class->id }})" class="px-3 py-1 bg-red-500 text-white rounded">
+                                <button onclick="deleteClass({{ $class->id }})"
+                                    class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
+</div>
+
 
     {{-- MODAL --}}
     <div id="classModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50">

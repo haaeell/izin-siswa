@@ -3,14 +3,13 @@
 @section('title', 'Data Guru')
 
 @section('content')
-    <div class="mx-auto p-6 bg-white rounded-xl">
+    <div class="mx-auto p-4 sm:p-6 bg-white rounded-xl">
 
-        {{-- HEADER --}}
-        <div class="flex justify-between mb-4">
+        <div class="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-4">
             <div>
-                <h1 class="text-2xl font-semibold text-slate-800">Data Guru</h1>
+                <h1 class="text-xl sm:text-2xl font-semibold text-slate-800">Data Guru</h1>
                 <nav class="text-sm text-slate-500 mt-1">
-                    <ol class="flex items-center gap-2">
+                    <ol class="flex items-center gap-2 flex-wrap">
                         <li><a href="/home" class="hover:text-blue-600">Dashboard</a></li>
                         <li>/</li>
                         <li class="text-slate-700 font-medium">Guru</li>
@@ -20,39 +19,47 @@
 
             <div>
                 <button onclick="openCreateModal()"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     + Tambah Guru
                 </button>
             </div>
         </div>
 
-        {{-- TABLE --}}
-        <div class="bg-white rounded-xl shadow border overflow-x-auto px-4 py-5">
-            <table id="datatable" class="w-full text-sm">
+        <div class="bg-white rounded-xl shadow border overflow-x-auto px-3 sm:px-4 py-4 sm:py-5">
+            <table id="datatable" class="w-full text-sm whitespace-nowrap">
                 <thead class="bg-slate-100 text-slate-700">
                     <tr>
                         <th>#</th>
                         <th>Nama Guru</th>
-                        <th>Email</th>
+                        <th class="hidden sm:table-cell">Email</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($teachers as $i => $teacher)
+                    @foreach ($teachers as $i => $teacher)
                         <tr>
                             <td>{{ $i + 1 }}</td>
-                            <td>{{ $teacher->name }}</td>
-                            <td>{{ $teacher->email }}</td>
-                            <td class="text-center space-x-2">
-                                <button onclick='openEditModal(@json($teacher))'
-                                    class="px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
+                            <td>
+                                <div class="font-medium">{{ $teacher->name }}</div>
+                                <div class="text-xs text-slate-500 sm:hidden">
+                                    {{ $teacher->email }}
+                                </div>
+                            </td>
+                            <td class="hidden sm:table-cell">
+                                {{ $teacher->email }}
+                            </td>
+                            <td>
+                                <div class="flex justify-center gap-2">
+                                    <button onclick='openEditModal(@json($teacher))'
+                                        class="px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
 
-                                <button onclick="deleteTeacher({{ $teacher->id }})"
-                                    class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                                    <button onclick="deleteTeacher({{ $teacher->id }})"
+                                        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -60,6 +67,7 @@
             </table>
         </div>
     </div>
+
 
     {{-- MODAL --}}
     <div id="teacherModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50">
@@ -97,7 +105,8 @@
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2">
                         <span id="btnText">Simpan</span>
                         <svg id="loader" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.3" />
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+                                opacity="0.3" />
                             <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" />
                         </svg>
                     </button>
@@ -108,7 +117,7 @@
 
     @push('scripts')
         <script>
-            $(document).ready(function () {
+            $(document).ready(function() {
 
                 $('#datatable').DataTable();
 
@@ -125,7 +134,7 @@
                 const $btnText = $('#btnText');
                 const $loader = $('#loader');
 
-                window.openCreateModal = function () {
+                window.openCreateModal = function() {
                     $modal.removeClass('hidden');
                     $title.text('Tambah Guru');
 
@@ -136,7 +145,7 @@
                     $pass.val('');
                 }
 
-                window.openEditModal = function (data) {
+                window.openEditModal = function(data) {
                     $modal.removeClass('hidden');
                     $title.text('Edit Guru');
 
@@ -147,17 +156,17 @@
                     $pass.val('');
                 }
 
-                window.closeModal = function () {
+                window.closeModal = function() {
                     $modal.addClass('hidden');
                 }
 
-                $form.on('submit', function () {
+                $form.on('submit', function() {
                     $btn.prop('disabled', true).addClass('opacity-70');
                     $btnText.text('Menyimpan...');
                     $loader.removeClass('hidden');
                 });
 
-                window.deleteTeacher = function (id) {
+                window.deleteTeacher = function(id) {
                     Swal.fire({
                         title: 'Yakin?',
                         text: 'Data guru akan dihapus!',

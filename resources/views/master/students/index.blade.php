@@ -3,204 +3,154 @@
 @section('title', 'Data Siswa')
 
 @section('content')
-    <div class="mx-auto p-6 bg-white rounded-xl">
-
-        {{-- HEADER --}}
-        <div class="flex justify-between mb-4">
-            <div>
-                <h1 class="text-2xl font-semibold text-slate-800">Data Siswa</h1>
-                <nav class="text-sm text-slate-500 mt-1">
-                    <ol class="flex items-center gap-2">
-                        <li><a href="/home" class="hover:text-blue-600">Dashboard</a></li>
-                        <li>/</li>
-                        <li class="text-slate-700 font-medium">Siswa</li>
-                    </ol>
-                </nav>
-            </div>
-
-            <div>
-                @if (Auth::user()->role === 'perizinan')
-                    <div class="flex gap-2">
-                        <button onclick="openImportModal()"
-                            class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-excel"></i>
-                            Import Excel
-                        </button>
-
-                        <button onclick="openCreateModal()"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                            + Tambah
-                        </button>
-                    </div>
-                @endif
-            </div>
-
-            {{-- MODAL IMPORT EXCEL --}}
-            <div id="importModal" class="fixed inset-0 hidden bg-black/50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white w-full max-w-xl md:max-w-2xl rounded-xl p-6 overflow-y-auto max-h-[90vh]">
-
-                    <h2 class="text-lg font-semibold mb-6 flex items-center gap-2 flex-wrap">
-                        <i class="fa-solid fa-file-excel text-emerald-600"></i>
-                        Import Data Siswa (Excel)
-                    </h2>
-
-                    {{-- STEP 1 --}}
-                    <div
-                        class="mb-4 p-4 border rounded-lg bg-slate-50 flex flex-col md:flex-row gap-4 md:gap-3 items-start">
-                        <div
-                            class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0">
-                            1
-                        </div>
-
-                        <div class="flex-1">
-                            <p class="font-semibold text-slate-700">Download Template Excel</p>
-                            <p class="text-sm text-slate-500 mb-2">
-                                Gunakan template agar format sesuai sistem (NIS, Nama, Kelas, Asrama).
-                            </p>
-
-                            <a href="/master/students/template"
-                                class="inline-flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700">
-                                <i class="fa-solid fa-download"></i>
-                                Download Template
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- STEP 2 --}}
-                    <div
-                        class="mb-4 p-4 border rounded-lg bg-slate-50 flex flex-col md:flex-row gap-4 md:gap-3 items-start">
-                        <div
-                            class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
-                            2
-                        </div>
-
-                        <div class="flex-1">
-                            <p class="font-semibold text-slate-700">Upload File Excel</p>
-                            <p class="text-sm text-slate-500 mb-3">
-                                Upload file <b>.xlsx</b> sesuai template yang sudah diunduh.
-                            </p>
-
-                            <form id="importForm" action="/master/students/import" method="POST"
-                                enctype="multipart/form-data">
-                                @csrf
-
-                                {{-- CUSTOM FILE INPUT --}}
-                                <label for="fileInput"
-                                    class="group flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer
-                               bg-white hover:bg-blue-50 border-slate-300 hover:border-blue-500 transition">
-
-                                    <div class="flex flex-col items-center justify-center text-center px-2">
-                                        <i class="fa-solid fa-file-excel text-4xl text-green-600 mb-2"></i>
-
-                                        <p class="text-sm text-slate-600">
-                                            Klik untuk memilih file atau
-                                            <span class="text-blue-600 font-semibold">drag & drop</span>
-                                        </p>
-
-                                        <p class="text-xs text-slate-400 mt-1">
-                                            Format .xlsx • Maks 2MB
-                                        </p>
-
-                                        <p id="fileName"
-                                            class="mt-2 text-sm font-medium text-slate-700 hidden break-words text-center">
-                                        </p>
-                                    </div>
-
-                                    <input id="fileInput" type="file" name="file" accept=".xlsx" required
-                                        class="hidden">
-                                </label>
-
-                                {{-- SUBMIT --}}
-                                <button type="submit" id="importBtn"
-                                    class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition">
-                                    <span id="importText">Import Data</span>
-                                    <svg id="importLoader" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24">
-                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
-                                            opacity="0.3" />
-                                        <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" />
-                                    </svg>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button onclick="closeImportModal()"
-                            class="px-4 py-2 border rounded-lg hover:bg-slate-100 transition">
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-
+  <div class="mx-auto p-4 sm:p-6 bg-white rounded-xl">
+    <div class="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-4">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-semibold text-slate-800">Data Siswa</h1>
+            <nav class="text-sm text-slate-500 mt-1">
+                <ol class="flex items-center gap-2 flex-wrap">
+                    <li><a href="/home" class="hover:text-blue-600">Dashboard</a></li>
+                    <li>/</li>
+                    <li class="text-slate-700 font-medium">Siswa</li>
+                </ol>
+            </nav>
         </div>
 
-        {{-- TABLE --}}
-        <div class="bg-white rounded-xl shadow border overflow-x-auto px-4 py-5">
-            @if (session('import_error'))
-                <div class="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-                    <i class="fa-solid fa-circle-xmark mt-1"></i>
-                    <div>
-                        <p class="font-semibold">Gagal Import</p>
-                        <p class="text-sm">{{ session('import_error') }}</p>
-                    </div>
-                </div>
-            @endif
+        @if (Auth::user()->role === 'perizinan')
+            <div class="flex flex-col sm:flex-row gap-2">
+                <button onclick="openImportModal()"
+                    class="w-full sm:w-auto px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-excel"></i>
+                    Import Excel
+                </button>
 
-            @if ($errors->any())
-                <div class="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-                    <i class="fa-solid fa-triangle-exclamation mt-1"></i>
-                    <div>
-                        <p class="font-semibold">Validasi Gagal</p>
-                        <ul class="text-sm list-disc ml-4">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+                <button onclick="openCreateModal()"
+                    class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    + Tambah
+                </button>
+            </div>
+        @endif
+    </div>
+
+    <div id="importModal"
+        class="fixed inset-0 hidden bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
+        <div
+            class="bg-white w-full max-w-xl md:max-w-2xl rounded-xl p-4 sm:p-6 overflow-y-auto max-h-[90vh]">
+
+            <h2 class="text-lg font-semibold mb-6 flex items-center gap-2 flex-wrap">
+                <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                Import Data Siswa (Excel)
+            </h2>
+
+            <div
+                class="mb-4 p-4 border rounded-lg bg-slate-50 flex flex-col md:flex-row gap-4 items-start">
+                <div
+                    class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                    1
                 </div>
-            @endif
-            <table id="datatable" class="w-full text-sm">
-                <thead class="bg-slate-100 text-slate-700">
+                <div class="flex-1">
+                    <p class="font-semibold text-slate-700">Download Template Excel</p>
+                    <p class="text-sm text-slate-500 mb-2">
+                        Gunakan template agar format sesuai sistem.
+                    </p>
+                    <a href="/master/students/template"
+                        class="inline-flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700">
+                        <i class="fa-solid fa-download"></i>
+                        Download Template
+                    </a>
+                </div>
+            </div>
+
+            <div
+                class="mb-4 p-4 border rounded-lg bg-slate-50 flex flex-col md:flex-row gap-4 items-start">
+                <div
+                    class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                    2
+                </div>
+                <div class="flex-1">
+                    <p class="font-semibold text-slate-700">Upload File Excel</p>
+                    <p class="text-sm text-slate-500 mb-3">
+                        Upload file <b>.xlsx</b> sesuai template.
+                    </p>
+
+                    <form action="/master/students/import" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <label
+                            class="group flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer bg-white hover:bg-blue-50 border-slate-300 hover:border-blue-500 transition">
+                            <div class="text-center px-2">
+                                <i class="fa-solid fa-file-excel text-4xl text-green-600 mb-2"></i>
+                                <p class="text-sm text-slate-600">
+                                    Klik atau <span class="text-blue-600 font-semibold">drag & drop</span>
+                                </p>
+                                <p class="text-xs text-slate-400 mt-1">
+                                    Format .xlsx • Maks 2MB
+                                </p>
+                            </div>
+                            <input type="file" name="file" accept=".xlsx" required class="hidden">
+                        </label>
+
+                        <button
+                            class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            Import Data
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="closeImportModal()"
+                    class="px-4 py-2 border rounded-lg hover:bg-slate-100 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow border overflow-x-auto px-3 sm:px-4 py-4 sm:py-5">
+        <table id="datatable" class="w-full text-sm whitespace-nowrap">
+            <thead class="bg-slate-100 text-slate-700">
+                <tr>
+                    <th>#</th>
+                    <th>NIS</th>
+                    <th>Nama</th>
+                    <th>Kelas</th>
+                    <th class="hidden sm:table-cell">Barak</th>
+                    @if (Auth::user()->role === 'perizinan')
+                        <th>Aksi</th>
+                    @endif
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($students as $i => $student)
                     <tr>
-                        <th>#</th>
-                        <th>NIS</th>
-                        <th>Nama</th>
-                        <th>Kelas</th>
-                        <th>Barak</th>
+                        <td>{{ $i + 1 }}</td>
+                        <td>{{ $student->nis }}</td>
+                        <td>{{ $student->name }}</td>
+                        <td>{{ $student->class->name ?? '-' }}</td>
+                        <td class="hidden sm:table-cell">
+                            {{ $student->dormitory->name ?? '-' }}
+                        </td>
                         @if (Auth::user()->role === 'perizinan')
-                            <th>Aksi</th>
-                        @endif
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($students as $i => $student)
-                        <tr>
-                            <td>{{ $i + 1 }}</td>
-                            <td>{{ $student->nis }}</td>
-                            <td>{{ $student->name }}</td>
-                            <td>{{ $student->class->name ?? '-' }}</td>
-                            <td>{{ $student->dormitory->name ?? '-' }}</td>
-                            @if (Auth::user()->role === 'perizinan')
-                                <td class="text-center space-x-2">
-                                    <button onclick='openEditModal(@json($student))'
+                            <td>
+                                <div class="flex justify-center gap-2">
+                                    <button
                                         class="px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-
-                                    <button onclick="deleteStudent({{ $student->id }})"
+                                    <button
                                         class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
-                                </td>
-                            @endif
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                                </div>
+                            </td>
+                        @endif
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
+</div>
+
 
     {{-- MODAL --}}
     <div id="studentModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50">
