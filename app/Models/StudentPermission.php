@@ -23,6 +23,7 @@ class StudentPermission extends Model
         'surat_walas',
         'surat_ortu',
         'surat_dokter',
+        'address',
     ];
 
     protected $casts = [

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Surat Izin Wali Kelas</title>
+    <title>Surat Rekomendasi Izin</title>
     <style>
         body {
             font-family: "Times New Roman", serif;
@@ -13,58 +13,28 @@
             color: #000;
         }
 
-        /* KOP */
-        .kop {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .kop td {
-            vertical-align: middle;
-        }
-
-        .kop img {
-            width: 80px;
-        }
-
-        .kop .school {
+        .title {
             text-align: center;
-        }
-
-        .kop .school h1 {
-            font-size: 16pt;
-            margin: 0;
+            font-weight: bold;
             text-transform: uppercase;
         }
 
-        .kop .school p {
-            margin: 2px 0;
-            font-size: 11pt;
+        .title .main {
+            font-size: 14pt;
         }
 
-        .divider {
-            border-top: 3px solid #000;
+        .title .sub {
+            font-size: 13pt;
+            margin-top: 5px;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid #000;
             margin: 10px 0 25px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .header h2 {
-            margin: 0;
-            font-size: 14pt;
-            text-transform: uppercase;
-            text-decoration: underline;
-        }
-
-        .header p {
-            margin-top: 5px;
-            font-size: 11pt;
-        }
-
-        .content p {
+        p {
             margin: 0 0 12px;
             text-align: justify;
         }
@@ -72,116 +42,160 @@
         table.data {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0 20px;
+            margin: 10px 0 15px;
         }
 
         table.data td {
-            padding: 4px 0;
+            padding: 3px 0;
             vertical-align: top;
         }
 
         table.data td.label {
-            width: 150px;
+            width: 220px;
         }
 
         table.data td.separator {
             width: 10px;
         }
 
-        .footer {
-            margin-top: 40px;
-            width: 100%;
+        .section-title {
+            margin-top: 20px;
+            font-weight: bold;
         }
 
         .signature {
-            width: 45%;
-            float: right;
+            margin-top: 40px;
+            width: 40%;
+            margin-left: auto;
             text-align: center;
         }
 
-        .signature img {
-            width: 90px;
-            margin: 5px 0;
+        .signature .name {
+            margin-top: 60px;
+            font-weight: bold;
+            text-decoration: underline;
         }
 
-        .clear {
-            clear: both;
+        .small {
+            font-size: 11pt;
+        }
+
+        .checkbox {
+            font-family: DejaVu Sans;
+        }
+
+        .data-indent {
+            margin-left: 40px;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- KOP SEKOLAH -->
-    <table class="kop">
+    <!-- JUDUL -->
+    <div class="title">
+        <div class="main">SURAT REKOMENDASI</div>
+        <div class="sub">PERMOHONAN IZIN BERMALAM (IB) / PESIAR</div>
+    </div>
+
+    <hr>
+
+    <!-- ISI PEMBUKA -->
+    <p>
+        Yang bertanda tangan di bawah ini Wali Kelas:
+    </p>
+
+    <p>
+        Dengan ini mengajukan <strong>PERMOHONAN REKOMENDASI IZIN BERMALAM (IB) / PESIAR</strong>
+        untuk meninggalkan sekolah. Berdasarkan permohonan ini dan keterangan yang disampaikan
+        dari Orang Tua/Wali, menerangkan bahwa:
+    </p>
+
+    <!-- DATA SISWA -->
+    <table class="data data-indent">
         <tr>
-            <td width="15%">
-                <img src="{{ public_path('images/logosekolah.jpg') }}">
-            </td>
-            <td class="school">
-                <h1>{{ $school['name'] }}</h1>
-                <p>{{ $school['address'] }}</p>
-                <p>Telp. {{ $school['phone'] }} • Email: {{ $school['email'] }}</p>
-            </td>
-            <td width="15%"></td>
+            <td class="label">Nama Siswa</td>
+            <td class="separator">:</td>
+            <td>{{ $student->name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Kelas</td>
+            <td class="separator">:</td>
+            <td>{{ $student->class->name ?? '_________________' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Nomor Induk Siswa</td>
+            <td class="separator">:</td>
+            <td>{{ $student->nis ?? '_________________' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Alamat</td>
+            <td class="separator">:</td>
+            <td>{{ $address ?? '_________________' }}</td>
         </tr>
     </table>
 
-    <div class="divider"></div>
+    <hr>
 
-    <!-- JUDUL -->
-    <div class="header">
-        <h2>Surat Izin Wali Kelas</h2>
-        <p>Nomor: {{ $nomor }}</p>
-    </div>
+    <p>
+        Adalah <strong>BENAR</strong> siswa SMA Plus Astha Hannas, mohon kiranya diberikan izin
+        untuk meninggalkan Asrama / Sekolah untuk keperluan
+        <strong>{{ strtoupper($reason) }}</strong> pada:
+    </p>
 
-    <!-- ISI -->
-    <div class="content">
-        <p>
-            Yang bertanda tangan di bawah ini, Wali Kelas {{ $school['name'] }},
-            dengan ini menerangkan bahwa:
-        </p>
+    <!-- WAKTU IZIN -->
+    <table class="data data-indent">
+        <tr>
+            <td class="label">Hari</td>
+            <td class="separator">:</td>
+            <td>{{ \Carbon\Carbon::parse($start)->translatedFormat('l') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Tanggal</td>
+            <td class="separator">:</td>
+            <td>{{ \Carbon\Carbon::parse($start)->translatedFormat('d / m / Y') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Pukul</td>
+            <td class="separator">:</td>
+            <td>{{ \Carbon\Carbon::parse($start)->format('H:i') }} WIB</td>
+        </tr>
+    </table>
 
-        <table class="data">
-            <tr>
-                <td class="label">Nama Siswa</td>
-                <td class="separator">:</td>
-                <td>{{ $student->name }}</td>
-            </tr>
-            <tr>
-                <td class="label">Jenis Izin</td>
-                <td class="separator">:</td>
-                <td>{{ ucfirst($type) }}</td>
-            </tr>
-            <tr>
-                <td class="label">Waktu Izin</td>
-                <td class="separator">:</td>
-                <td>
-                    {{ \Carbon\Carbon::parse($start)->translatedFormat('d F Y H:i') }}
-                    s/d
-                    {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y H:i') }}
-                </td>
-            </tr>
-        </table>
+    <p>
+        Dan kembali masuk Kampus pada:
+    </p>
 
-        <p>
-            Berdasarkan pertimbangan yang ada, siswa tersebut diberikan izin
-            sesuai keterangan di atas. Surat ini dibuat untuk dipergunakan
-            sebagaimana mestinya.
-        </p>
-    </div>
+    <table class="data data-indent">
+        <tr>
+            <td class="label">Hari</td>
+            <td class="separator">:</td>
+            <td>{{ \Carbon\Carbon::parse($end)->translatedFormat('l') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Tanggal</td>
+            <td class="separator">:</td>
+            <td>{{ \Carbon\Carbon::parse($end)->translatedFormat('d / m / Y') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Pukul</td>
+            <td class="separator">:</td>
+            <td>{{ \Carbon\Carbon::parse($end)->format('H:i') }} WIB</td>
+        </tr>
+    </table>
 
-    <!-- TANDA TANGAN + QR -->
-    <div class="footer">
-        <div class="signature">
-            <p>{{ $city }}, {{ now()->translatedFormat('d F Y') }}</p>
-            <p>Wali Kelas</p>
+    <p>
+        Demikian surat rekomendasi ini dibuat untuk digunakan sebagaimana mestinya.
+    </p>
 
-            <img src="{{ $qrCode }}">
+    <!-- TTD -->
+    <div class="signature">
+        <p>Binong - Subang, {{ now()->translatedFormat('d F Y') }}</p>
+        <p>Wali Kelas,</p>
 
-            <p><strong>{{ $wali->name }}</strong></p>
+        <div class="name">
+            {{ $wali->name }}
         </div>
-        <div class="clear"></div>
     </div>
 
 </body>

@@ -113,8 +113,10 @@ class StudentPermissionController extends Controller
             'reason' => 'required|string',
             'surat_ortu'   => 'required|file|mimes:pdf,jpg,png|max:2048',
             'surat_dokter' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'address'       => 'required|string|max:255',
         ], [
             'student_id.required' => 'Siswa wajib dipilih',
+            'address.required' => 'Alamat wajib diisi',
             'type.required' => 'Jenis izin wajib dipilih',
             'start_at.required' => 'Tanggal mulai wajib diisi',
             'end_at.required' => 'Tanggal selesai wajib diisi',
@@ -212,16 +214,12 @@ class StudentPermissionController extends Controller
             'type'    => $data['type'],
             'start'   => $data['start_at'],
             'end'     => $data['end_at'],
+            'address' => $data['address'],
+            'reason'  => $data['reason'],
             'nomor'   => $nomorSurat,
             'qrCode'  => $qrCode,
             'city'    => 'Yogyakarta',
             'verify'  => $verifyUrl,
-            'school'  => [
-                'name'    => 'SMP NEGERI 1 CONTOH',
-                'address' => 'Jl. Pendidikan No. 1, Yogyakarta',
-                'phone'   => '(0274) 123456',
-                'email'   => 'smp1@example.sch.id',
-            ],
         ]);
 
         $path = 'permissions/surat-walas/surat-walas-' . now()->format('YmdHis') . '.pdf';
@@ -233,7 +231,6 @@ class StudentPermissionController extends Controller
 
         return redirect()->back()->with('success', 'Permohonan izin berhasil diajukan');
     }
-
 
     public function show($id)
     {

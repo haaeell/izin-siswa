@@ -32,7 +32,6 @@ class StudentPermissionLetterController extends Controller
         }
 
 
-        // 🔹 DATA TAMBAHAN UNTUK VIEW
         $school = [
             'name'    => config('school.name', 'SMA Contoh Negeri'),
             'address' => config('school.address', 'Jl. Pendidikan No. 1'),
