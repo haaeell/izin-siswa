@@ -101,7 +101,7 @@
                                 <td>
                                     <span
                                         class="px-2 py-1 rounded text-white
-                                    {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                                {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
                                         {{ ucfirst($v->type) }}
                                     </span>
                                 </td>
@@ -131,12 +131,10 @@
 
                             @if (Auth::user()->role !== 'wali_kelas')
                                 <td class="whitespace-nowrap">
-                                    <button onclick='openEditModal(@json($v))'
-                                        class="px-2 py-1 bg-yellow-400 rounded">
+                                    <button onclick='openEditModal(@json($v))' class="px-2 py-1 bg-yellow-400 rounded">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button onclick="deleteData({{ $v->id }})"
-                                        class="px-2 py-1 bg-red-500 text-white rounded">
+                                    <button onclick="deleteData({{ $v->id }})" class="px-2 py-1 bg-red-500 text-white rounded">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </td>
@@ -267,13 +265,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="text-xs text-slate-600">Larangan HP sampai</label>
-                            <input type="date" name="no_phone_until"
-                                class="w-full py-2 px-3 border rounded-lg disabled:bg-slate-100" disabled>
+                            <input type="date" name="no_phone_until" class="w-full py-2 px-3 border rounded-lg">
                         </div>
                         <div>
                             <label class="text-xs text-slate-600">Larangan Izin sampai</label>
-                            <input type="date" name="no_permission_until"
-                                class="w-full py-2 px-3 border rounded-lg disabled:bg-slate-100" disabled>
+                            <input type="date" name="no_permission_until" class="w-full py-2 px-3 border rounded-lg">
                         </div>
                     </div>
                 </div>
@@ -311,7 +307,7 @@
 
     @push('scripts')
         <script>
-            $(function() {
+            $(function () {
                 $('.select2').select2({
                     width: '100%',
                     allowClear: true
@@ -319,10 +315,10 @@
                 const phoneUntil = document.getElementById('no_phone_until');
                 const izinUntil = document.getElementById('no_permission_until');
 
-                $('input[name="no_phone"]').on('change', function() {
+                $('input[name="no_phone"]').on('change', function () {
                     phoneUntil.disabled = !this.checked;
                 });
-                $('input[name="no_permission"]').on('change', function() {
+                $('input[name="no_permission"]').on('change', function () {
                     izinUntil.disabled = !this.checked;
                 });
 
@@ -378,10 +374,10 @@
 
                 window.deleteData = (id) => {
                     Swal.fire({
-                            title: 'Yakin?',
-                            icon: 'warning',
-                            showCancelButton: true
-                        })
+                        title: 'Yakin?',
+                        icon: 'warning',
+                        showCancelButton: true
+                    })
                         .then(r => {
                             if (r.isConfirmed) {
                                 $('<form>', {
@@ -393,14 +389,14 @@
                         });
                 }
 
-                $('#form').on('submit', function() {
+                $('#form').on('submit', function () {
                     const btn = $('#btnSubmit');
                     btn.prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
                     $('#btnText').text('Menyimpan...');
                     $('#btnLoading').removeClass('hidden');
                 });
 
-                $('#handlingTabs .tab-btn').on('click', function() {
+                $('#handlingTabs .tab-btn').on('click', function () {
                     const type = $(this).data('type');
 
                     $('#handlingTabs .tab-btn').removeClass('bg-blue-600 text-white');
