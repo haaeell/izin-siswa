@@ -119,7 +119,25 @@
         <p>Binong - Subang, {{ now()->translatedFormat('d F Y') }}</p>
         <p>Wakasek Bid. Pengasuhan,</p>
 
-        <br><br><br>
+        @if ($permission->qr_token)
+            @php
+                $verifyUrl = route('verify.permission', ['t' => $permission->qr_token]);
+                $qrBase64 = 'data:image/png;base64,' . base64_encode(
+                    file_get_contents(
+                        'https://api.qrserver.com/v1/create-qr-code/?' . http_build_query([
+                            'size' => '100x100',
+                            'data' => $verifyUrl,
+                        ])
+                    )
+                );
+            @endphp
+            <img src="{{ $qrBase64 }}" style="width:80px; height:80px; display:block; margin:8px auto 2px;">
+            <p style="font-size:8pt; margin:0 0 6px; color:#555; text-align:center;">
+                Scan untuk verifikasi
+            </p>
+        @else
+            <br><br><br>
+        @endif
 
         <p>
             <strong>Drs. Anwari Hilmy</strong><br>

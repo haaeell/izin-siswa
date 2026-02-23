@@ -37,13 +37,13 @@ class StudentPermissionApprovalController extends Controller
         ]);
 
         $permission = StudentPermission::findOrFail($id);
-
         abort_if($permission->status !== 'pending', 400);
 
         $permission->update([
             'status'        => 'rejected',
             'reject_reason' => $data['reject_reason'],
             'approved_by'   => Auth::user()->id,
+            'qr_token'      => Str::random(32),
         ]);
 
         return redirect()->back()->with('success', 'Permohonan izin ditolak');

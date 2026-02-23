@@ -24,12 +24,24 @@ class PermissionVerifyController extends Controller
 
     public function walas(Request $request)
     {
-        $token = $request->query('t');
+        $permissionId = $request->query('p');
+        $guruId       = $request->query('g');
+        $timestamp    = $request->query('t');
+        $signature    = $request->query('s');
 
-        $permission = StudentPermission::with([
-            'student.class',
-            'waliKelas'
-        ])->where('qr_token', $token)->first();
+        $expected = sha1(
+            $permissionId . '|' .
+                $guruId . '|' .
+                $timestamp . '|' .
+                config('app.key')
+        );
+
+        if (!hash_equals($expected, $signature)) {
+            return view('verify.walas-invalid');
+        }
+
+        $permission = StudentPermission::with(['student.class', 'waliKelas'])
+            ->find($permissionId);
 
         if (!$permission || !$permission->waliKelas) {
             return view('verify.walas-invalid');

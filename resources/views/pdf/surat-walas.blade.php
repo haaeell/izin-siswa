@@ -8,7 +8,7 @@
         body {
             font-family: "Times New Roman", serif;
             font-size: 12pt;
-            line-height: 1.6;
+            line-height: 1.2;
             margin: 40px 50px;
             color: #000;
         }
@@ -71,7 +71,8 @@
         }
 
         .signature .name {
-            margin-top: 60px;
+            margin-top: 10px;
+            /* dari 60px → 10px, karena QR sudah mengisi ruang TTD */
             font-weight: bold;
             text-decoration: underline;
         }
@@ -193,9 +194,10 @@
         <p>Binong - Subang, {{ now()->translatedFormat('d F Y') }}</p>
         <p>Wali Kelas,</p>
 
-        <div class="name">
-            {{ $wali->name }}
-        </div>
+        <img src="{{ $qrCode }}" style="width: 80px; height: 80px; display: block; margin: 6px auto 2px;">
+        <p style="font-size: 8pt; margin: 0 0 0; color: #555; text-align: center;">Scan untuk verifikasi</p>
+
+        <div class="name" style="margin-top: 10px;">{{ $wali->name }}</div>
     </div>
 
 </body>

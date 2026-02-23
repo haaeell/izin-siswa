@@ -23,7 +23,7 @@
 			@if (auth()->user()->role === 'wali_kelas')
 				<div class="flex gap-2 flex-shrink-0">
 					<button onclick="openCreateModal()" @disabled($activePermissionCount >= $maxActivePermissions) class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition
-																	{{ $activePermissionCount >= $maxActivePermissions
+																									{{ $activePermissionCount >= $maxActivePermissions
 				? 'bg-slate-300 text-slate-500 cursor-not-allowed'
 				: 'bg-blue-600 text-white hover:bg-blue-700' }}">
 						<i class="fa-solid fa-plus text-xs"></i>
@@ -59,12 +59,12 @@
 					@endphp
 
 					<div class="mb-4 rounded-xl border
-												{{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}
-												px-4 py-3 flex flex-col sm:flex-row gap-3 items-start">
+																				{{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}
+																				px-4 py-3 flex flex-col sm:flex-row gap-3 items-start">
 
 						<div class="flex-shrink-0">
 							<div class="w-9 h-9 rounded-full flex items-center justify-center
-														{{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
+																						{{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
 								<i
 									class="fa-solid {{ $isFull ? 'fa-circle-exclamation text-red-600' : 'fa-circle-info text-blue-600' }}"></i>
 							</div>
@@ -253,8 +253,9 @@
 											<div class="flex items-center justify-center gap-1.5 flex-nowrap">
 
 												@if (in_array($p->status, ['approved', 'rejected']))
-													<a href="{{ route('permissions.surat', $p->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5
-																								bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition whitespace-nowrap">
+													<a href="{{ route('permissions.surat', $p->id) }}" target="_blank"
+														class="inline-flex items-center gap-1 px-2.5 py-1.5
+																																								bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition whitespace-nowrap">
 														<i class="fa-solid fa-file-lines"></i>
 														Lihat Surat
 													</a>
@@ -262,8 +263,9 @@
 													<span class="text-xs text-slate-400 whitespace-nowrap">Belum tersedia</span>
 												@endif
 
-												<button onclick="openTerlambatModal({{ $p->id }})" class="inline-flex items-center gap-1 px-2.5 py-1.5
-																					bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-lg transition whitespace-nowrap">
+												<button onclick="openTerlambatModal({{ $p->id }})"
+													class="inline-flex items-center gap-1 px-2.5 py-1.5
+																																	bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-lg transition whitespace-nowrap">
 													<i class="fa-solid fa-clock-rotate-left"></i>
 													{{ $p->surat_terlambat ? 'Ganti File Terlambat' : 'Upload File Terlambat' }}
 												</button>
@@ -278,36 +280,36 @@
 
 												@if ($p->status === 'pending')
 													<button onclick="approvePermission({{ $p->id }})" class="inline-flex items-center gap-1 px-3 py-1.5
-																								bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition">
+																																								bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-check"></i>
 														<span>Setujui</span>
 													</button>
 
 													<button onclick="openRejectModal({{ $p->id }})" class="inline-flex items-center gap-1 px-3 py-1.5
-																								bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
+																																								bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-xmark"></i>
 														<span>Tolak</span>
 													</button>
 
 												@elseif ($p->status === 'rejected')
 													<button onclick="showRejectReason(`{{ addslashes($p->reject_reason) }}`)" class="inline-flex items-center gap-1 px-3 py-1.5
-																								bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
+																																								bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-eye"></i>
 														<span>Alasan Ditolak</span>
 													</button>
 
 												@elseif ($p->status === 'approved' && $p->qr_token)
 													<button onclick="showBarcode(
-																							'{{ $p->qr_token }}',
-																							'{{ $p->student->name }}',
-																							'{{ $p->student->nis }}',
-																							'{{ $p->student->class->name }}',
-																							'{{ $p->student->dormitory->name ?? '-' }}',
-																							'{{ ucfirst($p->type) }}',
-																							'{{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}',
-																							'{{ \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i') }}'
-																						)" class="inline-flex items-center gap-1 px-3 py-1.5
-																								bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg transition">
+																																							'{{ $p->qr_token }}',
+																																							'{{ $p->student->name }}',
+																																							'{{ $p->student->nis }}',
+																																							'{{ $p->student->class->name }}',
+																																							'{{ $p->student->dormitory->name ?? '-' }}',
+																																							'{{ ucfirst($p->type) }}',
+																																							'{{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}',
+																																							'{{ \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i') }}'
+																																						)" class="inline-flex items-center gap-1 px-3 py-1.5
+																																								bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-barcode"></i>
 														<span>Barcode</span>
 													</button>
@@ -315,7 +317,7 @@
 
 												@if (in_array($p->status, ['approved', 'rejected']))
 													<a href="{{ route('permissions.surat', $p->id) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5
-																								bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition">
+																																								bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-file-lines"></i>
 														<span>Surat</span>
 													</a>
@@ -480,7 +482,7 @@
 					<div>
 						<label class="text-sm font-medium mb-2 block">Surat Orang Tua</label>
 						<label class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl
-										cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+														cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
 							<i class="fa-solid fa-people-roof text-blue-600 text-xl"></i>
 							<div class="flex-1">
 								<p class="text-sm font-medium text-slate-700" id="ortuText">Klik untuk upload surat orang
@@ -495,7 +497,7 @@
 					<div id="suratDokterWrap">
 						<label class="text-sm font-medium mb-2 block">Surat Dokter</label>
 						<label class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl
-										cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+														cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
 							<i class="fa-solid fa-user-doctor text-blue-600 text-xl"></i>
 							<div class="flex-1">
 								<p class="text-sm font-medium text-slate-700" id="dokterText">Klik untuk upload surat dokter
@@ -617,7 +619,7 @@
 
 				<div>
 					<label class="flex items-center gap-3 px-4 py-4 border-2 border-dashed border-orange-300 rounded-xl
-									cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition">
+													cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition">
 						<i class="fa-solid fa-cloud-arrow-up text-orange-500 text-2xl"></i>
 						<div class="flex-1">
 							<p class="text-sm font-medium text-slate-700" id="terlambatFileName">Klik untuk pilih file</p>
@@ -638,7 +640,7 @@
 					<button type="button" onclick="closeTerlambatModal()"
 						class="flex-1 px-4 py-2 border rounded-lg hover:bg-slate-100 transition text-sm">Batal</button>
 					<button type="submit" id="btnTerlambat" class="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition
-										flex items-center justify-center gap-2 text-sm">
+														flex items-center justify-center gap-2 text-sm">
 						<span id="btnTerlambatText">Upload</span>
 						<svg id="btnTerlambatLoader" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
 							<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.3" />
@@ -712,348 +714,351 @@
 		<script>
 			// ===== TOOLTIP (FIXED) =====
 			document.addEventListener('mouseenter', function (e) {
-						const el = e.target.closest('.tooltip-icon');
-						if (!el) return;
+				const el = e.target.closest('.tooltip-icon');
+				if (!el) return;
 
-						const tooltip = document.getElementById('global-tooltip');
-						const title = document.getElementById('tooltip-title');
-						const desc = document.getElementById('tooltip-desc');
+				const tooltip = document.getElementById('global-tooltip');
+				const title = document.getElementById('tooltip-title');
+				const desc = document.getElementById('tooltip-desc');
 
-						title.textContent = el.dataset.title || '';
-						desc.textContent = el.dataset.desc || '';
+				title.textContent = el.dataset.title || '';
+				desc.textContent = el.dataset.desc || '';
 
-						tooltip.classList.remove('hidden');
+				tooltip.classList.remove('hidden');
 
-						positionTooltip(el, tooltip);
-					}, true);
+				positionTooltip(el, tooltip);
+			}, true);
 
-					document.addEventListener('mouseleave', function (e) {
-						if (!e.target.closest('.tooltip-icon')) return;
-						document.getElementById('global-tooltip')?.classList.add('hidden');
-					}, true);
+			document.addEventListener('mouseleave', function (e) {
+				if (!e.target.closest('.tooltip-icon')) return;
+				document.getElementById('global-tooltip')?.classList.add('hidden');
+			}, true);
 
-					function positionTooltip(el, tooltip) {
-						const rect = el.getBoundingClientRect();
+			function positionTooltip(el, tooltip) {
+				const rect = el.getBoundingClientRect();
 
-						const top = rect.top + window.scrollY - tooltip.offsetHeight - 10;
-						const left = rect.left + window.scrollX + rect.width / 2;
+				const top = rect.top + window.scrollY - tooltip.offsetHeight - 10;
+				const left = rect.left + window.scrollX + rect.width / 2;
 
-						tooltip.style.top = `${top}px`;
-						tooltip.style.left = `${left}px`;
-						tooltip.style.transform = 'translateX(-50%)';
+				tooltip.style.top = `${top}px`;
+				tooltip.style.left = `${left}px`;
+				tooltip.style.transform = 'translateX(-50%)';
+			}
+			// ===== REASON MODAL =====
+			function openReasonModal(reason) {
+				document.getElementById('reasonContent').innerText = reason;
+				document.getElementById('reasonModal').classList.remove('hidden');
+			}
+			function closeReasonModal() {
+				document.getElementById('reasonModal').classList.add('hidden');
+			}
+
+			// ===== REJECT REASON MODAL =====
+			function showRejectReason(reason) {
+				$('#rejectReasonText').text(reason || '-');
+				$('#viewRejectModal').removeClass('hidden');
+			}
+			function closeViewRejectModal() {
+				$('#viewRejectModal').addClass('hidden');
+			}
+
+			// ===== FILE LABEL =====
+			function updateFileLabel(input, targetId) {
+				if (!input.files || !input.files[0]) return;
+				document.getElementById(targetId).innerText = input.files[0].name;
+			}
+
+			// ===== CREATE MODAL =====
+			function openCreateModal() {
+				$('#createModal').removeClass('hidden');
+			}
+			function closeCreateModal() {
+				$('#createModal').addClass('hidden');
+			}
+
+			// ===== MASSAL MODAL =====
+			function openMassalModal() {
+				$('#massalModal').removeClass('hidden');
+			}
+			function closeMassalModal() {
+				$('#massalModal').addClass('hidden');
+				$('#massalForm')[0].reset();
+			}
+
+			// ===== TERLAMBAT MODAL =====
+			function openTerlambatModal(id) {
+				$('#terlambatForm').attr('action', `/permissions/upload-terlambat/${id}`);
+				$('#terlambatFileName').text('Klik untuk pilih file');
+				$('#terlambatFile').val('');
+				$('#terlambatModal').removeClass('hidden');
+			}
+			function closeTerlambatModal() {
+				$('#terlambatModal').addClass('hidden');
+				$('#terlambatForm')[0].reset();
+				$('#terlambatFileName').text('Klik untuk pilih file');
+			}
+			function updateTerlambatLabel(input) {
+				if (!input.files || !input.files[0]) return;
+				$('#terlambatFileName').text(input.files[0].name);
+			}
+
+			// ===== REJECT MODAL =====
+			function openRejectModal(id) {
+				$('#rejectForm').attr('action', `/permissions/${id}/reject`);
+				$('#rejectModal').removeClass('hidden');
+			}
+			function closeRejectModal() {
+				$('#rejectModal').addClass('hidden');
+			}
+
+			// ===== APPROVE =====
+			function approvePermission(id) {
+				Swal.fire({
+					title: 'Setujui izin?',
+					text: 'Permohonan izin siswa akan disetujui',
+					icon: 'question',
+					showCancelButton: true,
+					confirmButtonColor: '#16a34a',
+					cancelButtonColor: '#94a3b8',
+					confirmButtonText: 'Ya, setujui',
+					cancelButtonText: 'Batal'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						const form = document.createElement('form');
+						form.method = 'POST';
+						form.action = `/permissions/${id}/approve`;
+						form.innerHTML = `<input type="hidden" name="_token" value="{{ csrf_token() }}">`;
+						document.body.appendChild(form);
+						form.submit();
 					}
-					// ===== REASON MODAL =====
-					function openReasonModal(reason) {
-						document.getElementById('reasonContent').innerText = reason;
-						document.getElementById('reasonModal').classList.remove('hidden');
+				});
+			}
+
+			// ===== FLATPICKR =====
+			flatpickr("#dateRange", {
+				mode: "range",
+				dateFormat: "Y-m-d",
+				defaultDate: ["{{ $start }}", "{{ $end }}"],
+				onClose: function (dates) {
+					if (dates.length === 2) {
+						document.getElementById('startDate').value = dates[0].toISOString().slice(0, 10);
+						document.getElementById('endDate').value = dates[1].toISOString().slice(0, 10);
 					}
-					function closeReasonModal() {
-						document.getElementById('reasonModal').classList.add('hidden');
+				}
+			});
+
+			$(document).ready(function () {
+				$('#datatable').DataTable({ responsive: true, scrollX: true, autoWidth: false });
+				$('.select2').select2({ width: '100%' });
+
+				// ===== STUDENT SELECT =====
+				$('select[name="student_id"]').on('change', function () {
+					const studentId = $(this).val();
+					$('#violationAlert').addClass('hidden');
+					$('#violationDetail').html('');
+
+					if (!studentId) {
+						$('#typeField, #timeFields, #reasonField, #attachmentFields, #addressField').addClass('hidden');
+						$('#submitCreateBtn').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+						return;
 					}
 
-					// ===== REJECT REASON MODAL =====
-					function showRejectReason(reason) {
-						$('#rejectReasonText').text(reason || '-');
-						$('#viewRejectModal').removeClass('hidden');
-					}
-					function closeViewRejectModal() {
-						$('#viewRejectModal').addClass('hidden');
-					}
+					$('#typeField, #timeFields, #reasonField, #attachmentFields, #addressField').removeClass('hidden');
+					$('#submitCreateBtn').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+				});
 
-					// ===== FILE LABEL =====
-					function updateFileLabel(input, targetId) {
-						if (!input.files || !input.files[0]) return;
-						document.getElementById(targetId).innerText = input.files[0].name;
-					}
+				// ===== TOGGLE SURAT DOKTER =====
+				const $typeField = $('select[name="type"]');
+				const $suratDokterWrap = $('#suratDokterWrap');
 
-					// ===== CREATE MODAL =====
-					function openCreateModal() {
-						$('#createModal').removeClass('hidden');
+				function toggleDokterField() {
+					if ($typeField.val() === 'sakit') {
+						$suratDokterWrap.show();
+					} else {
+						$suratDokterWrap.hide();
+						$suratDokterWrap.find('input').val('');
+						$('#dokterText').text('Klik untuk upload surat dokter');
 					}
-					function closeCreateModal() {
-						$('#createModal').addClass('hidden');
-					}
+				}
 
-					// ===== MASSAL MODAL =====
-					function openMassalModal() {
-						$('#massalModal').removeClass('hidden');
-					}
-					function closeMassalModal() {
-						$('#massalModal').addClass('hidden');
-						$('#massalForm')[0].reset();
-					}
+				toggleDokterField();
+				$typeField.on('change', toggleDokterField);
 
-					// ===== TERLAMBAT MODAL =====
-					function openTerlambatModal(id) {
-						$('#terlambatForm').attr('action', `/permissions/${id}/upload-terlambat`);
-						$('#terlambatFileName').text('Klik untuk pilih file');
-						$('#terlambatFile').val('');
-						$('#terlambatModal').removeClass('hidden');
-					}
-					function closeTerlambatModal() {
-						$('#terlambatModal').addClass('hidden');
-						$('#terlambatForm')[0].reset();
-						$('#terlambatFileName').text('Klik untuk pilih file');
-					}
-					function updateTerlambatLabel(input) {
-						if (!input.files || !input.files[0]) return;
-						$('#terlambatFileName').text(input.files[0].name);
-					}
+				// ===== CEK VIOLATION =====
+				$('select[name="type"]').on('change', function () {
+					const type = $(this).val();
+					const studentId = $('select[name="student_id"]').val();
+					const $alert = $('#violationAlert');
+					const $submitBtn = $('#submitCreateBtn');
 
-					// ===== REJECT MODAL =====
-					function openRejectModal(id) {
-						$('#rejectForm').attr('action', `/permissions/${id}/reject`);
-						$('#rejectModal').removeClass('hidden');
-					}
-					function closeRejectModal() {
-						$('#rejectModal').addClass('hidden');
-					}
+					$alert.addClass('hidden');
+					$submitBtn.prop('disabled', false).removeClass('opacity-50 grayscale cursor-not-allowed');
+					$('#violationDetail').html('');
 
-					// ===== APPROVE =====
-					function approvePermission(id) {
-						Swal.fire({
-							title: 'Setujui izin?',
-							text: 'Permohonan izin siswa akan disetujui',
-							icon: 'question',
-							showCancelButton: true,
-							confirmButtonColor: '#16a34a',
-							cancelButtonColor: '#94a3b8',
-							confirmButtonText: 'Ya, setujui',
-							cancelButtonText: 'Batal'
-						}).then((result) => {
-							if (result.isConfirmed) {
-								const form = document.createElement('form');
-								form.method = 'POST';
-								form.action = `/permissions/${id}/approve`;
-								form.innerHTML = `<input type="hidden" name="_token" value="{{ csrf_token() }}">`;
-								document.body.appendChild(form);
-								form.submit();
-							}
-						});
-					}
+					if (!studentId || type === 'sakit') return;
 
-					// ===== FLATPICKR =====
-					flatpickr("#dateRange", {
-						mode: "range",
-						dateFormat: "Y-m-d",
-						defaultDate: ["{{ $start }}", "{{ $end }}"],
-						onClose: function (dates) {
-							if (dates.length === 2) {
-								document.getElementById('startDate').value = dates[0].toISOString().slice(0, 10);
-								document.getElementById('endDate').value = dates[1].toISOString().slice(0, 10);
-							}
+					$.get(`/permissions/check-violation/${studentId}`, function (res) {
+						if (!res.has_violation) return;
+
+						let html = '<div class="grid gap-3">';
+						for (const [vType, data] of Object.entries(res.details)) {
+							const isPengasuhan = vType === 'pengasuhan';
+							const icon = isPengasuhan ? 'fa-user-shield' : 'fa-calendar-check';
+							const accentColor = isPengasuhan ? 'text-rose-600' : 'text-amber-600';
+
+							html += `<div class="bg-white/80 backdrop-blur-sm p-4 rounded-lg border border-rose-100 shadow-sm">
+																							<div class="flex gap-3">
+																								<i class="fa-solid ${icon} ${accentColor} mt-1"></i>
+																								<div class="flex-1 text-sm text-slate-700">
+																									${isPengasuhan ? `
+																										<div class="font-bold text-slate-900 mb-1">Pelanggaran Pengasuhan: ${data.type}</div>
+																										<div class="italic text-slate-600 mb-2">"${data.description}"</div>
+																										<div class="text-[11px] font-medium text-slate-500 uppercase">
+																											<i class="fa-regular fa-clock mr-1"></i>Hingga: ${data.until}
+																										</div>
+																									` : `
+																										<div class="font-bold text-slate-900 mb-1">Pelanggaran ${data.handling_type}</div>
+																										<div class="mb-2">Kehadiran: <span class="font-bold text-rose-600">${data.attendance_percentage}%</span></div>
+																										<div class="text-[11px] font-medium text-slate-500 uppercase">
+																											<i class="fa-regular fa-calendar-xmark mr-1"></i>Berlaku Sampai: ${data.until}
+																										</div>
+																									`}
+																								</div>
+																							</div>
+																						</div>`;
 						}
+						html += '</div>';
+
+						$('#violationDetail').html(html);
+						$alert.removeClass('hidden').hide().slideDown(300);
+						$submitBtn.prop('disabled', true).addClass('opacity-50 grayscale cursor-not-allowed');
+					});
+				});
+
+				// ===== SUBMIT LOADING =====
+				$('#createModal form').on('submit', function () {
+					$('#submitCreateBtn').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
+					$('#submitCreateText').text('Mengirim...');
+					$('#submitCreateLoader').removeClass('hidden');
+				});
+
+				$('#massalForm').on('submit', function () {
+					$('#btnMassal').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
+					$('#btnMassalText').text('Memproses...');
+					$('#btnMassalLoader').removeClass('hidden');
+				});
+
+				$('#terlambatForm').on('submit', function () {
+					$('#btnTerlambat').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
+					$('#btnTerlambatText').text('Mengupload...');
+					$('#btnTerlambatLoader').removeClass('hidden');
+				});
+			});
+
+			// ===== BARCODE =====
+			let barcodeData = {};
+			let barcodeReady = false;
+
+
+			function closeQrModal() {
+				$('#qrModal').addClass('hidden');
+			}
+
+			function showBarcode(token, nama, nis, kelas, asrama, izin, startAt, endAt) {
+				barcodeReady = false;
+				barcodeData = { token, nama, nis, kelas, asrama, izin, startAt, endAt };
+
+				$('#qrModal').removeClass('hidden');
+				$('#qrLoader').removeClass('hidden');
+				$('#qrImage').addClass('hidden');
+				$('#qrText').text('');
+				$('#printQrBtn')
+					.prop('disabled', true)
+					.removeClass('bg-blue-600 hover:bg-blue-700 text-white')
+					.addClass('bg-slate-300 text-slate-500 cursor-not-allowed');
+
+				// Generate barcode pakai canvas (offline, tidak hit internet)
+				const canvas = document.createElement('canvas');
+				try {
+					JsBarcode(canvas, token, {
+						format: 'CODE128',
+						width: 2,
+						height: 50,
+						displayValue: false,
+						margin: 5,
 					});
 
-					$(document).ready(function () {
-						$('#datatable').DataTable({ responsive: true, scrollX: true, autoWidth: false });
-						$('.select2').select2({ width: '100%' });
+					const dataUrl = canvas.toDataURL('image/png');
+					$('#qrImage').attr('src', dataUrl).removeClass('hidden');
+					$('#qrLoader').addClass('hidden');
+					$('#qrText').text(token);
 
-						// ===== STUDENT SELECT =====
-						$('select[name="student_id"]').on('change', function () {
-							const studentId = $(this).val();
-							$('#violationAlert').addClass('hidden');
-							$('#violationDetail').html('');
+					barcodeReady = true;
+					$('#printQrBtn')
+						.prop('disabled', false)
+						.removeClass('bg-slate-300 text-slate-500 cursor-not-allowed')
+						.addClass('bg-blue-600 hover:bg-blue-700 text-white');
 
-							if (!studentId) {
-								$('#typeField, #timeFields, #reasonField, #attachmentFields, #addressField').addClass('hidden');
-								$('#submitCreateBtn').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
-								return;
-							}
+				} catch (e) {
+					$('#qrLoader').addClass('hidden');
+					$('#qrText').text('Gagal generate barcode');
+				}
+			}
 
-							$('#typeField, #timeFields, #reasonField, #attachmentFields, #addressField').removeClass('hidden');
-							$('#submitCreateBtn').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
-						});
+			function printQr() {
+				if (!barcodeReady) {
+					Swal.fire({ icon: 'warning', title: 'Barcode belum siap', confirmButtonColor: '#2563eb' });
+					return;
+				}
 
-						// ===== TOGGLE SURAT DOKTER =====
-						const $typeField = $('select[name="type"]');
-						const $suratDokterWrap = $('#suratDokterWrap');
+				// barcodeSrc sudah berupa data:image/png base64 — tidak perlu internet
+				const barcodeSrc = document.getElementById('qrImage').src;
+				const d = barcodeData;
+				const win = window.open('', '_blank', 'width=360,height=520');
 
-						function toggleDokterField() {
-							if ($typeField.val() === 'sakit') {
-								$suratDokterWrap.show();
-							} else {
-								$suratDokterWrap.hide();
-								$suratDokterWrap.find('input').val('');
-								$('#dokterText').text('Klik untuk upload surat dokter');
-							}
-						}
-
-						toggleDokterField();
-						$typeField.on('change', toggleDokterField);
-
-						// ===== CEK VIOLATION =====
-						$('select[name="type"]').on('change', function () {
-							const type = $(this).val();
-							const studentId = $('select[name="student_id"]').val();
-							const $alert = $('#violationAlert');
-							const $submitBtn = $('#submitCreateBtn');
-
-							$alert.addClass('hidden');
-							$submitBtn.prop('disabled', false).removeClass('opacity-50 grayscale cursor-not-allowed');
-							$('#violationDetail').html('');
-
-							if (!studentId || type === 'sakit') return;
-
-							$.get(`/permissions/check-violation/${studentId}`, function (res) {
-								if (!res.has_violation) return;
-
-								let html = '<div class="grid gap-3">';
-								for (const [vType, data] of Object.entries(res.details)) {
-									const isPengasuhan = vType === 'pengasuhan';
-									const icon = isPengasuhan ? 'fa-user-shield' : 'fa-calendar-check';
-									const accentColor = isPengasuhan ? 'text-rose-600' : 'text-amber-600';
-
-									html += `<div class="bg-white/80 backdrop-blur-sm p-4 rounded-lg border border-rose-100 shadow-sm">
-															<div class="flex gap-3">
-																<i class="fa-solid ${icon} ${accentColor} mt-1"></i>
-																<div class="flex-1 text-sm text-slate-700">
-																	${isPengasuhan ? `
-																		<div class="font-bold text-slate-900 mb-1">Pelanggaran Pengasuhan: ${data.type}</div>
-																		<div class="italic text-slate-600 mb-2">"${data.description}"</div>
-																		<div class="text-[11px] font-medium text-slate-500 uppercase">
-																			<i class="fa-regular fa-clock mr-1"></i>Hingga: ${data.until}
-																		</div>
-																	` : `
-																		<div class="font-bold text-slate-900 mb-1">Pelanggaran ${data.handling_type}</div>
-																		<div class="mb-2">Kehadiran: <span class="font-bold text-rose-600">${data.attendance_percentage}%</span></div>
-																		<div class="text-[11px] font-medium text-slate-500 uppercase">
-																			<i class="fa-regular fa-calendar-xmark mr-1"></i>Berlaku Sampai: ${data.until}
-																		</div>
-																	`}
-																</div>
-															</div>
-														</div>`;
-								}
-								html += '</div>';
-
-								$('#violationDetail').html(html);
-								$alert.removeClass('hidden').hide().slideDown(300);
-								$submitBtn.prop('disabled', true).addClass('opacity-50 grayscale cursor-not-allowed');
-							});
-						});
-
-						// ===== SUBMIT LOADING =====
-						$('#createModal form').on('submit', function () {
-							$('#submitCreateBtn').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
-							$('#submitCreateText').text('Mengirim...');
-							$('#submitCreateLoader').removeClass('hidden');
-						});
-
-						$('#massalForm').on('submit', function () {
-							$('#btnMassal').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
-							$('#btnMassalText').text('Memproses...');
-							$('#btnMassalLoader').removeClass('hidden');
-						});
-
-						$('#terlambatForm').on('submit', function () {
-							$('#btnTerlambat').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
-							$('#btnTerlambatText').text('Mengupload...');
-							$('#btnTerlambatLoader').removeClass('hidden');
-						});
-					});
-
-					// ===== BARCODE =====
-					let barcodeData = {};
-					let barcodeReady = false;
-
-					function showBarcode(token, nama, nis, kelas, asrama, izin, startAt, endAt) {
-						barcodeReady = false;
-						barcodeData = { nama, nis, kelas, asrama, izin, startAt, endAt };
-
-						$('#qrModal').removeClass('hidden');
-						$('#qrImage').addClass('hidden');
-						$('#qrLoader').removeClass('hidden');
-						$('#qrText').text('Memuat barcode...');
-						$('#printQrBtn')
-							.prop('disabled', true)
-							.removeClass('bg-blue-600 hover:bg-blue-700 text-white')
-							.addClass('bg-slate-300 text-slate-500 cursor-not-allowed');
-
-						const url = `https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(token)}&scale=2&height=12&includetext=false`;
-						const img = new Image();
-
-						img.onload = function () {
-							$('#qrImage').attr('src', url).removeClass('hidden');
-							$('#qrLoader').addClass('hidden');
-							$('#qrText').text(token);
-							barcodeReady = true;
-							$('#printQrBtn')
-								.prop('disabled', false)
-								.removeClass('bg-slate-300 text-slate-500 cursor-not-allowed')
-								.addClass('bg-blue-600 hover:bg-blue-700 text-white');
-						};
-
-						img.onerror = function () {
-							$('#qrLoader').addClass('hidden');
-							$('#qrText').text('Gagal memuat barcode');
-						};
-
-						img.src = url;
-					}
-
-					function closeQrModal() {
-						$('#qrModal').addClass('hidden');
-					}
-
-					function printQr() {
-						if (!barcodeReady) {
-							Swal.fire({
-								icon: 'warning',
-								title: 'Barcode belum siap',
-								text: 'Tunggu sampai barcode selesai dimuat sebelum mencetak.',
-								confirmButtonColor: '#2563eb'
-							});
-							return;
-						}
-
-						const barcodeSrc = document.getElementById('qrImage').src;
-						const d = barcodeData;
-						const win = window.open('', '_blank', 'width=360,height=520');
-
-						win.document.write(`<!DOCTYPE html>
-							<html>
-							<head>
-							<title>Tiket Izin</title>
-							<style>
-							@page { size: 80mm auto; margin: 4mm; }
-							body { margin: 0; font-family: Arial, sans-serif; padding: 6mm 0; }
-							.ticket { border: 2px solid #000; padding: 6px 8px; max-width: 70mm; margin: 0 auto; font-size: 9px; }
-							.title { text-align: center; font-weight: bold; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 4px; }
-							.info { display: grid; grid-template-columns: 55px auto; row-gap: 2px; margin-bottom: 6px; }
-							.label { font-weight: bold; }
-							.barcode { text-align: center; border-top: 1px dashed #000; padding-top: 6px; }
-							.barcode img { width: 180px; }
-							.barcode small { display: block; font-size: 7px; margin-top: 2px; }
-							.time { display: flex; justify-content: space-between; font-size: 8px; border-top: 1px dashed #000; margin-top: 4px; padding-top: 4px; }
-							</style>
-							</head>
-							<body>
-							<div class="ticket">
-								<div class="title">IZIN KEPULANGAN</div>
-								<div class="info">
-									<div class="label">Nama</div><div>: ${d.nama}</div>
-									<div class="label">NIS</div><div>: ${d.nis}</div>
-									<div class="label">Kelas</div><div>: ${d.kelas}</div>
-									<div class="label">Asrama</div><div>: ${d.asrama}</div>
-									<div class="label">Jenis</div><div>: ${d.izin}</div>
-								</div>
-								<div class="barcode">
-									<img src="${barcodeSrc}">
-									<small>Scan saat keluar & masuk</small>
-								</div>
-								<div class="time">
-									<div><b>Mulai</b><br>${d.startAt}</div>
-									<div style="text-align:right"><b>Sampai</b><br>${d.endAt}</div>
-								</div>
+				win.document.write(`<!DOCTYPE html>
+						<html>
+						<head>
+						<title>Tiket Izin</title>
+						<style>
+						@page { size: 80mm auto; margin: 4mm; }
+						body { margin: 0; font-family: Arial, sans-serif; padding: 6mm 0; }
+						.ticket { border: 2px solid #000; padding: 6px 8px; max-width: 70mm; margin: 0 auto; font-size: 9px; }
+						.title { text-align: center; font-weight: bold; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 4px; }
+						.info { display: grid; grid-template-columns: 55px auto; row-gap: 2px; margin-bottom: 6px; }
+						.label { font-weight: bold; }
+						.barcode { text-align: center; border-top: 1px dashed #000; padding-top: 6px; }
+						.barcode img { width: 180px; }
+						.barcode small { display: block; font-size: 7px; margin-top: 2px; }
+						.time { display: flex; justify-content: space-between; font-size: 8px; border-top: 1px dashed #000; margin-top: 4px; padding-top: 4px; }
+						</style>
+						</head>
+						<body>
+						<div class="ticket">
+							<div class="title">IZIN KEPULANGAN</div>
+							<div class="info">
+								<div class="label">Nama</div><div>: ${d.nama}</div>
+								<div class="label">NIS</div><div>: ${d.nis}</div>
+								<div class="label">Kelas</div><div>: ${d.kelas}</div>
+								<div class="label">Asrama</div><div>: ${d.asrama}</div>
+								<div class="label">Jenis</div><div>: ${d.izin}</div>
 							</div>
-							</body>
-							</html>`);
+							<div class="barcode">
+								<img src="${barcodeSrc}">
+								<small>Scan saat keluar & masuk</small>
+							</div>
+							<div class="time">
+								<div><b>Mulai</b><br>${d.startAt}</div>
+								<div style="text-align:right"><b>Sampai</b><br>${d.endAt}</div>
+							</div>
+						</div>
+						<script>window.onload = function() { window.print(); window.close(); }<\/script>
+						</body>
+						</html>`);
 
-						win.document.close();
-						win.focus();
-						setTimeout(() => { win.print(); win.close(); }, 300);
-					}
-				</script>
+				win.document.close();
+				win.focus();
+			}
+		</script>
 	@endpush
 @endsection
