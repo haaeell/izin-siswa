@@ -18,6 +18,14 @@ class LoginController extends Controller
             return '/checkin';
         }
 
+        if ($user->role === 'pengajaran') {
+            return '/violations?handling_type=pengajaran';
+        }
+
+        if ($user->role === 'pelatihan') {
+            return '/violations?handling_type=pelatihan';
+        }
+
         return '/home';
     }
 

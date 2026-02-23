@@ -115,86 +115,87 @@
 
 <body class="bg-slate-100">
 
-   <div class="flex min-h-screen bg-slate-100">
+    <div class="flex min-h-screen bg-slate-100">
 
-    <div id="overlay"
-        class="fixed inset-0 bg-black/40 z-30 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden">
-    </div>
+        <div id="overlay"
+            class="fixed inset-0 bg-black/40 z-30 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden">
+        </div>
 
-    @php
-        function isActive($pattern)
-        {
-            return request()->is($pattern)
-                ? 'bg-blue-50 text-blue-600 font-medium'
-                : 'text-slate-600 hover:bg-slate-100';
-        }
-    @endphp
+        @php
+            function isActive($pattern)
+            {
+                return request()->is($pattern)
+                    ? 'bg-blue-50 text-blue-600 font-medium'
+                    : 'text-slate-600 hover:bg-slate-100';
+            }
+        @endphp
 
-    @if(auth()->user()->role == 'wali_kelas')
-        @include('layouts.sidebar.walikelas')
-    @elseif(auth()->user()->role == 'security')
-        @include('layouts.sidebar.security')
-    @else
-        @include('layouts.sidebar.admin')
-    @endif
+        @if(auth()->user()->role == 'wali_kelas')
+            @include('layouts.sidebar.walikelas')
+        @elseif(auth()->user()->role == 'security')
+            @include('layouts.sidebar.security')
+        @elseif (auth()->user()->role == 'pengajaran')
+            @include('layouts.sidebar.pengajaran')
+        @elseif (auth()->user()->role == 'pelatihan')
+            @include('layouts.sidebar.pelatihan')
+        @else
+            @include('layouts.sidebar.admin')
+        @endif
 
-    <div class="flex-1 flex flex-col min-w-0">
+        <div class="flex-1 flex flex-col min-w-0">
 
-        <header
-            class="h-16 bg-white border-b flex items-center justify-between px-4 sm:px-5 md:px-6 sticky top-0 z-20">
+            <header
+                class="h-16 bg-white border-b flex items-center justify-between px-4 sm:px-5 md:px-6 sticky top-0 z-20">
 
-            <div class="flex items-center gap-3">
-                <button id="menuBtn"
-                    class="p-2 rounded-lg hover:bg-slate-100 md:hidden">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
+                <div class="flex items-center gap-3">
+                    <button id="menuBtn" class="p-2 rounded-lg hover:bg-slate-100 md:hidden">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
 
-            <div class="relative">
-                <button id="userMenuBtn" class="flex items-center gap-3 focus:outline-none">
-                    <div class="text-right hidden sm:block">
-                        <div class="text-sm font-medium leading-tight">
-                            {{ Auth::user()->name ?? 'User' }}
+                <div class="relative">
+                    <button id="userMenuBtn" class="flex items-center gap-3 focus:outline-none">
+                        <div class="text-right hidden sm:block">
+                            <div class="text-sm font-medium leading-tight">
+                                {{ Auth::user()->name ?? 'User' }}
+                            </div>
+                            <div class="text-xs text-slate-500">
+                                {{ ucfirst(Auth::user()->role) }}
+                            </div>
                         </div>
-                        <div class="text-xs text-slate-500">
-                            {{ ucfirst(Auth::user()->role) }}
-                        </div>
-                    </div>
 
-                    <img
-                        src="https://ui-avatars.com/api/?name={{ Auth::user()->name ?? 'User' }}"
-                        class="w-9 h-9 rounded-full border object-cover">
-                </button>
+                        <img src="https://ui-avatars.com/api/?name={{ Auth::user()->name ?? 'User' }}"
+                            class="w-9 h-9 rounded-full border object-cover">
+                    </button>
 
-                <div id="userMenu"
-                    class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-slate-200
+                    <div id="userMenu" class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-slate-200
                            opacity-0 scale-95 pointer-events-none
                            transition-all duration-200 origin-top-right z-50">
 
-                    <a href="#"
-                        class="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-t-lg">
-                        <i class="fa-solid fa-user"></i>
-                        Profile
-                    </a>
+                        <a href="#"
+                            class="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-t-lg">
+                            <i class="fa-solid fa-user"></i>
+                            Profile
+                        </a>
 
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                            class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-lg">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            Logout
-                        </button>
-                    </form>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-lg">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <main class="flex-1 p-4 sm:p-5 md:p-6 overflow-x-hidden">
-            @yield('content')
-        </main>
+            <main class="flex-1 p-4 sm:p-5 md:p-6 overflow-x-hidden">
+                @yield('content')
+            </main>
 
+        </div>
     </div>
-</div>
 
 
     <!-- JS -->

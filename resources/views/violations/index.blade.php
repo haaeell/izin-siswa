@@ -3,6 +3,16 @@
 @section('title', 'Pelanggaran Siswa')
 
 @section('content')
+    @php
+        $role = auth()->user()->role;
+        $defaultTab = match ($role) {
+            'pelatihan' => 'pelatihan',
+            'pengajaran' => 'pengajaran',
+            default => 'pengasuhan',
+        };
+        $currentType = request('handling_type', $defaultTab);
+    @endphp
+
     <div class="mx-auto p-4 sm:p-6 bg-white rounded-xl">
 
         {{-- HEADER --}}
@@ -12,7 +22,7 @@
                 <p class="text-sm text-slate-500">Manajemen pelanggaran dan hukuman</p>
             </div>
 
-            @if (Auth::user()->role !== 'wali_kelas')
+            @if ($role !== 'wali_kelas')
                 <button onclick="openCreateModal()"
                     class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     + Tambah Pelanggaran
@@ -20,8 +30,8 @@
             @endif
         </div>
 
-        {{-- FILTER KELAS --}}
-        @if (Auth::user()->role === 'perizinan')
+        {{-- FILTER KELAS (hanya perizinan) --}}
+        @if ($role === 'perizinan')
             <form method="GET" class="mb-4">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                     <select name="class_id" id="filter_class" class="w-full sm:w-64">
@@ -32,12 +42,10 @@
                             </option>
                         @endforeach
                     </select>
-
                     <div class="flex gap-2">
                         <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                             Filter
                         </button>
-
                         @if (request('class_id'))
                             <a href="{{ url()->current() }}" class="px-4 py-2 border rounded-lg hover:bg-slate-100">
                                 Reset
@@ -51,29 +59,33 @@
         {{-- NAV TABS --}}
         <div class="mb-4 border-b overflow-x-auto">
             <ul class="flex gap-2 min-w-max" id="handlingTabs">
-                <li><button class="tab-btn px-4 py-2 rounded-t-lg whitespace-nowrap"
-                        data-type="pengasuhan">Pengasuhan</button></li>
-                <li><button class="tab-btn px-4 py-2 rounded-t-lg whitespace-nowrap"
-                        data-type="pengajaran">Pengajaran</button></li>
-                <li><button class="tab-btn px-4 py-2 rounded-t-lg whitespace-nowrap"
-                        data-type="pelatihan">Pelatihan</button></li>
+                @if ($role === 'perizinan')
+                    <li><button class="tab-btn px-4 py-2 rounded-t-lg whitespace-nowrap"
+                            data-type="pengasuhan">Pengasuhan</button></li>
+                    <li><button class="tab-btn px-4 py-2 rounded-t-lg whitespace-nowrap"
+                            data-type="pengajaran">Pengajaran</button></li>
+                    <li><button class="tab-btn px-4 py-2 rounded-t-lg whitespace-nowrap"
+                            data-type="pelatihan">Pelatihan</button></li>
+                @elseif ($role === 'pelatihan')
+                    <li><button class="tab-btn px-4 py-2 rounded-t-lg whitespace-nowrap"
+                            data-type="pelatihan">Pelatihan</button></li>
+                @elseif ($role === 'pengajaran')
+                    <li><button class="tab-btn px-4 py-2 rounded-t-lg whitespace-nowrap"
+                            data-type="pengajaran">Pengajaran</button></li>
+                @endif
             </ul>
         </div>
 
         {{-- TABLE --}}
         <div class="bg-white shadow rounded-xl p-3 sm:p-4 overflow-x-auto">
-            <div class="text-xs text-slate-400 mb-2 sm:hidden">
-                Geser ke samping →
-            </div>
-
+            <div class="text-xs text-slate-400 mb-2 sm:hidden">Geser ke samping →</div>
             <table id="datatable" class="w-full text-sm min-w-[900px]">
                 <thead class="bg-slate-100">
                     <tr>
                         <th>#</th>
                         <th>Siswa</th>
                         <th>Kelas</th>
-
-                        @if (request('handling_type') === 'pengasuhan')
+                        @if ($currentType === 'pengasuhan')
                             <th>Tipe</th>
                             <th>Kejadian</th>
                             <th>Keterangan</th>
@@ -83,13 +95,11 @@
                             <th>Persentase Kehadiran</th>
                             <th>Berlaku Sampai</th>
                         @endif
-
-                        @if (Auth::user()->role !== 'wali_kelas')
+                        @if ($role !== 'wali_kelas')
                             <th>Aksi</th>
                         @endif
                     </tr>
                 </thead>
-
                 <tbody>
                     @foreach ($violations as $i => $v)
                         <tr>
@@ -100,8 +110,8 @@
                             @if ($v->handling_type === 'pengasuhan')
                                 <td>
                                     <span
-                                        class="px-2 py-1 rounded text-white
-                                                {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                        class="px-2 py-1 rounded text-white text-xs
+                                                                                                                            {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
                                         {{ ucfirst($v->type) }}
                                     </span>
                                 </td>
@@ -109,19 +119,16 @@
                                 <td class="max-w-xs truncate">{{ $v->description }}</td>
                                 <td class="text-xs space-y-1">
                                     @if ($v->no_phone)
-                                        <div>🚫 HP</div>
-                                    @endif
+                                    <div>🚫 HP</div>@endif
                                     @if ($v->no_permission)
-                                        <div>🚫 Izin</div>
-                                    @endif
+                                    <div>🚫 Izin</div>@endif
                                 </td>
                                 <td class="text-xs">
                                     @if ($v->no_phone_until)
                                         <div>HP: {{ \Carbon\Carbon::parse($v->no_phone_until)->format('d-m-Y') }}</div>
                                     @endif
                                     @if ($v->no_permission_until)
-                                        <div>Izin: {{ \Carbon\Carbon::parse($v->no_permission_until)->format('d-m-Y') }}
-                                        </div>
+                                        <div>Izin: {{ \Carbon\Carbon::parse($v->no_permission_until)->format('d-m-Y') }}</div>
                                     @endif
                                 </td>
                             @else
@@ -129,15 +136,19 @@
                                 <td>{{ \Carbon\Carbon::parse($v->attendance_until)->format('d-m-Y') }}</td>
                             @endif
 
-                            @if (Auth::user()->role !== 'wali_kelas')
-                                <td class="whitespace-nowrap">
-                                    <button onclick='openEditModal(@json($v))' class="px-2 py-1 bg-yellow-400 rounded">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                    <button onclick="deleteData({{ $v->id }})" class="px-2 py-1 bg-red-500 text-white rounded">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </td>
+                            @if ($role !== 'wali_kelas')
+                                @if ($role === 'perizinan' && $v->handling_type === 'pengasuhan' || in_array($role, ['pelatihan', 'pengajaran']))
+                                    <td class="whitespace-nowrap">
+                                        <button onclick='openEditModal(@json($v))' class="px-2 py-1 bg-yellow-400 rounded">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button onclick="deleteData({{ $v->id }})" class="px-2 py-1 bg-red-500 text-white rounded">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                @else
+                                    <td><span class="text-slate-400 text-xs">Read Only</span></td>
+                                @endif
                             @endif
                         </tr>
                     @endforeach
@@ -149,29 +160,33 @@
     {{-- MODAL --}}
     <div id="modal"
         class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center">
-
         <div
-            class="bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl shadow-xl max-h-[95vh] sm:max-h-[90vh] flex flex-col animate-scaleIn">
+            class="bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl shadow-xl max-h-[95vh] sm:max-h-[90vh] flex flex-col">
 
-            {{-- HEADER --}}
+            {{-- MODAL HEADER --}}
             <div class="flex items-start justify-between px-4 sm:px-6 py-4 border-b">
                 <div>
-                    <h2 id="modalTitle" class="text-base sm:text-lg font-semibold text-slate-800">
-                        Tambah Pelanggaran
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-500">
-                        Catat pelanggaran siswa dengan benar
-                    </p>
+                    <h2 id="modalTitle" class="text-base sm:text-lg font-semibold text-slate-800">Tambah Pelanggaran</h2>
+                    <p class="text-xs sm:text-sm text-slate-500">Catat pelanggaran siswa dengan benar</p>
                 </div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">
-                    &times;
-                </button>
+                <button onclick="closeModal()"
+                    class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
             </div>
 
-            {{-- BODY --}}
+            {{-- MODAL BODY --}}
             <form id="form" method="POST" class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
                 @csrf
                 <input type="hidden" name="_method" id="method">
+
+                {{-- Category hidden (fixed per role) --}}
+                @if ($role === 'perizinan')
+                    <input type="hidden" name="category" id="category" value="pengasuhan">
+                @elseif ($role === 'pelatihan')
+                    <input type="hidden" name="category" id="category" value="pelatihan">
+                @elseif ($role === 'pengajaran')
+                    <input type="hidden" name="category" id="category" value="pengajaran">
+                @endif
+
 
                 {{-- SISWA --}}
                 <div>
@@ -187,235 +202,252 @@
                     </div>
                 </div>
 
-                {{-- CATEGORY --}}
-                <div>
-                    <label class="text-sm font-medium text-slate-700">Tipe</label>
-                    <div class="relative mt-1">
-                        <i class="fa-solid fa-layer-group absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <select name="category" id="category"
-                            class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 select2">
-                            <option value="pengasuhan">Pengasuhan</option>
-                            <option value="pengajaran">Pengajaran</option>
-                            <option value="pelatihan">Pelatihan</option>
-                        </select>
+                @if ($role === 'perizinan')
+                    <input type="hidden" name="category" id="category" value="pengasuhan">
+                    <div class="px-3 py-2 bg-slate-100 rounded-lg text-sm text-slate-600 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-slate-400"></i>
+                        Kategori: <span class="font-medium capitalize">Pengasuhan</span>
                     </div>
-                </div>
+                @elseif ($role === 'pelatihan')
+                    <input type="hidden" name="category" id="category" value="pelatihan">
+                    <div class="px-3 py-2 bg-slate-100 rounded-lg text-sm text-slate-600 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-slate-400"></i>
+                        Kategori: <span class="font-medium capitalize">Pelatihan</span>
+                    </div>
+                @elseif ($role === 'pengajaran')
+                    <input type="hidden" name="category" id="category" value="pengajaran">
+                    <div class="px-3 py-2 bg-slate-100 rounded-lg text-sm text-slate-600 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-slate-400"></i>
+                        Kategori: <span class="font-medium capitalize">Pengajaran</span>
+                    </div>
+                @endif
 
-                {{-- PENGASUHAN --}}
-                <div id="pengasuhan" class="space-y-4">
+                {{-- FORM PENGASUHAN (hanya perizinan) --}}
+                @if ($role === 'perizinan')
+                    <div id="pengasuhan" class="space-y-4">
 
-                    <div>
-                        <label class="text-sm font-medium text-slate-700">Jenis Pelanggaran</label>
-                        <div class="relative mt-1">
-                            <i
-                                class="fa-solid fa-triangle-exclamation absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <select name="type"
-                                class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 select2">
-                                <option value="ringan">Ringan</option>
-                                <option value="sedang">Sedang</option>
-                                <option value="berat">Berat</option>
-                            </select>
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Jenis Pelanggaran</label>
+                            <div class="relative mt-1">
+                                <i
+                                    class="fa-solid fa-triangle-exclamation absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <select name="type"
+                                    class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 select2">
+                                    <option value="ringan">Ringan</option>
+                                    <option value="sedang">Sedang</option>
+                                    <option value="berat">Berat</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="text-sm font-medium text-slate-700">Tanggal Kejadian</label>
-                        <div class="relative mt-1">
-                            <i
-                                class="fa-solid fa-calendar-days absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="date" name="occurred_at" id="occurred_at"
-                                class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Tanggal Kejadian</label>
+                            <div class="relative mt-1">
+                                <i
+                                    class="fa-solid fa-calendar-days absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="date" name="occurred_at" id="occurred_at"
+                                    class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="text-sm font-medium text-slate-700">Deskripsi</label>
-                        <div class="relative mt-1">
-                            <i class="fa-solid fa-align-left absolute left-3 top-3 text-slate-400"></i>
-                            <textarea name="description" rows="3"
-                                class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="Contoh: Membawa HP saat jam pelajaran"></textarea>
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Deskripsi</label>
+                            <div class="relative mt-1">
+                                <i class="fa-solid fa-align-left absolute left-3 top-3 text-slate-400"></i>
+                                <textarea name="description" id="description" rows="3"
+                                    class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Contoh: Membawa HP saat jam pelajaran"></textarea>
+                            </div>
                         </div>
-                    </div>
 
-                    {{-- SANKSI --}}
-                    <div>
-                        <label class="text-sm font-medium text-slate-700 mb-2 block">Sanksi</label>
+                        <div>
+                            <label class="text-sm font-medium text-slate-700 mb-2 block">Sanksi</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <label
+                                    class="flex gap-3 border rounded-xl p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50">
+                                    <input type="checkbox" name="no_phone" id="no_phone" class="mt-1">
+                                    <div>
+                                        <p class="text-sm font-medium">🚫 Larangan HP</p>
+                                        <p class="text-xs text-slate-500">Tidak boleh mengambil HP</p>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex gap-3 border rounded-xl p-3 cursor-pointer hover:border-red-500 hover:bg-red-50">
+                                    <input type="checkbox" name="no_permission" id="no_permission" class="mt-1">
+                                    <div>
+                                        <p class="text-sm font-medium">🚫 Larangan Izin</p>
+                                        <p class="text-xs text-slate-500">Tidak boleh izin pulang</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <label
-                                class="flex gap-3 border rounded-xl p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50">
-                                <input type="checkbox" name="no_phone" class="mt-1">
-                                <div>
-                                    <p class="text-sm font-medium">🚫 Larangan HP</p>
-                                    <p class="text-xs text-slate-500">Tidak boleh mengambil HP</p>
-                                </div>
-                            </label>
+                            <div>
+                                <label class="text-xs text-slate-600">Larangan HP sampai</label>
+                                <input type="date" name="no_phone_until" id="no_phone_until" disabled
+                                    class="w-full py-2 px-3 border rounded-lg disabled:bg-slate-50 disabled:text-slate-400">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-600">Larangan Izin sampai</label>
+                                <input type="date" name="no_permission_until" id="no_permission_until" disabled
+                                    class="w-full py-2 px-3 border rounded-lg disabled:bg-slate-50 disabled:text-slate-400">
+                            </div>
+                        </div>
 
-                            <label
-                                class="flex gap-3 border rounded-xl p-3 cursor-pointer hover:border-red-500 hover:bg-red-50">
-                                <input type="checkbox" name="no_permission" class="mt-1">
-                                <div>
-                                    <p class="text-sm font-medium">🚫 Larangan Izin</p>
-                                    <p class="text-xs text-slate-500">Tidak boleh izin pulang</p>
-                                </div>
-                            </label>
+                    </div>
+                @endif
+
+                {{-- FORM ATTENDANCE (pelatihan & pengajaran) --}}
+                @if (in_array($role, ['pelatihan', 'pengajaran']))
+                    <div id="attendanceSection" class="border rounded-xl p-4 space-y-3">
+                        <p class="text-sm font-medium text-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-blue-500"></i>
+                            Data Kehadiran
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-slate-600">Kehadiran (%)</label>
+                                <input type="number" name="attendance_percentage" id="attendance_percentage" min="1" max="100"
+                                    class="w-full py-2 px-3 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-600">Berlaku Sampai</label>
+                                <input type="date" name="attendance_until" id="attendance_until"
+                                    class="w-full py-2 px-3 border rounded-lg">
+                            </div>
                         </div>
                     </div>
+                @endif
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs text-slate-600">Larangan HP sampai</label>
-                            <input type="date" name="no_phone_until" class="w-full py-2 px-3 border rounded-lg">
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-600">Larangan Izin sampai</label>
-                            <input type="date" name="no_permission_until" class="w-full py-2 px-3 border rounded-lg">
-                        </div>
-                    </div>
-                </div>
-
-                {{-- ATTENDANCE --}}
-                <div id="attendanceSection" class="border rounded-xl p-4 space-y-3 hidden">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs text-slate-600">Kehadiran (%)</label>
-                            <input type="number" name="attendance_percentage" min="1" max="100"
-                                class="w-full py-2 px-3 border rounded-lg">
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-600">Berlaku Sampai</label>
-                            <input type="date" name="attendance_until" class="w-full py-2 px-3 border rounded-lg">
-                        </div>
-                    </div>
-                </div>
             </form>
 
-            {{-- FOOTER --}}
-            <div class="px-4 sm:px-6 py-3 border-t flex gap-2">
-                <button type="button" onclick="closeModal()"
-                    class="flex-1 sm:flex-none px-4 py-2 border rounded-lg hover:bg-slate-100">
+            {{-- MODAL FOOTER --}}
+            <div class="px-4 sm:px-6 py-3 border-t flex gap-2 justify-end">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg hover:bg-slate-100">
                     Batal
                 </button>
-                <button type="submit" form="form"
-                    class="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    Simpan
+                <button type="submit" form="form" id="btnSubmit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                    <span id="btnText">Simpan</span>
+                    <svg id="btnLoading" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.3" />
+                        <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" />
+                    </svg>
                 </button>
             </div>
         </div>
     </div>
 
-
     @push('scripts')
         <script>
+            const ROLE = @json($role);
+            const DEFAULT_TAB = @json($defaultTab);
+
             $(function () {
-                $('.select2').select2({
-                    width: '100%',
-                    allowClear: true
-                });
-                const phoneUntil = document.getElementById('no_phone_until');
-                const izinUntil = document.getElementById('no_permission_until');
-
-                $('input[name="no_phone"]').on('change', function () {
-                    phoneUntil.disabled = !this.checked;
-                });
-                $('input[name="no_permission"]').on('change', function () {
-                    izinUntil.disabled = !this.checked;
-                });
-
-                $('#filter_class').select2({
-                    placeholder: 'Pilih Kelas',
-                    allowClear: true
-                });
+                $('.select2').select2({ width: '100%', allowClear: true });
                 $('#datatable').DataTable();
 
-                function handleCategory() {
-                    const val = $('#category').val();
-                    if (val === 'pengasuhan') {
-                        $('#attendanceSection').addClass('hidden');
-                        $('#pengasuhan').removeClass('hidden');
-                    } else {
-                        $('#attendanceSection').removeClass('hidden');
-                        $('#pengasuhan').addClass('hidden');
-                    }
-                }
-                $('#category').on('change', handleCategory);
+                @if ($role === 'perizinan')
+                    $('#filter_class').select2({ placeholder: 'Pilih Kelas', allowClear: true });
 
-                // MODAL FUNCTIONS
+                    // Checkbox sanksi toggle
+                    $('#no_phone').on('change', function () {
+                        $('#no_phone_until').prop('disabled', !this.checked).val('');
+                    });
+                    $('#no_permission').on('change', function () {
+                        $('#no_permission_until').prop('disabled', !this.checked).val('');
+                    });
+                @endif
+
+                // OPEN CREATE
                 window.openCreateModal = () => {
                     $('#modal').removeClass('hidden');
+                    $('#modalTitle').text('Tambah Pelanggaran');
                     $('#form').attr('action', '/violations');
                     $('#method').val('');
                     $('#form')[0].reset();
-                    $('#category').val('pengasuhan').trigger('change');
-                    handleCategory();
-                    $('#no_phone_until').prop('disabled', true);
-                    $('#no_permission_until').prop('disabled', true);
-                }
 
+                    @if ($role === 'perizinan')
+                        $('#no_phone_until, #no_permission_until').prop('disabled', true);
+                    @endif
+                                                                        }
+
+                // OPEN EDIT
                 window.openEditModal = (d) => {
                     $('#modal').removeClass('hidden');
+                    $('#modalTitle').text('Edit Pelanggaran');
                     $('#form').attr('action', `/violations/${d.id}`);
                     $('#method').val('PUT');
-                    $('#student_id').val(d.student_id);
-                    $('#type').val(d.type);
-                    $('#description').val(d.description);
-                    $('#occurred_at').val(d.occurred_at);
-                    $('#category').val(d.handling_type).trigger('change');
-                    handleCategory();
-                    $('#attendance_percentage').val(d.attendance_percentage);
-                    $('#attendance_until').val(d.attendance_until);
-                    $('#no_phone_until').val(d.no_phone_until).prop('disabled', !d.no_phone);
-                    $('#no_permission_until').val(d.no_permission_until).prop('disabled', !d.no_permission);
-                    $('input[name=no_phone]').prop('checked', d.no_phone);
-                    $('input[name=no_permission]').prop('checked', d.no_permission);
-                }
+
+                    $('#student_id').val(d.student_id).trigger('change');
+
+                    @if ($role === 'perizinan')
+                        $('select[name="type"]').val(d.type).trigger('change');
+                        $('#occurred_at').val(d.occurred_at);
+                        $('#description').val(d.description);
+                        $('#no_phone').prop('checked', !!d.no_phone);
+                        $('#no_permission').prop('checked', !!d.no_permission);
+                        $('#no_phone_until').val(d.no_phone_until).prop('disabled', !d.no_phone);
+                        $('#no_permission_until').val(d.no_permission_until).prop('disabled', !d.no_permission);
+                    @endif
+
+                    @if (in_array($role, ['pelatihan', 'pengajaran']))
+                        $('#attendance_percentage').val(d.attendance_percentage);
+                        $('#attendance_until').val(d.attendance_until);
+                    @endif
+                                                                        }
 
                 window.closeModal = () => $('#modal').addClass('hidden');
 
+                // DELETE
                 window.deleteData = (id) => {
                     Swal.fire({
                         title: 'Yakin?',
+                        text: 'Data pelanggaran akan dihapus!',
                         icon: 'warning',
-                        showCancelButton: true
-                    })
-                        .then(r => {
-                            if (r.isConfirmed) {
-                                $('<form>', {
-                                    method: 'POST',
-                                    action: `/violations/${id}`,
-                                    html: `@csrf<input type="hidden" name="_method" value="DELETE">`
-                                }).appendTo('body').submit();
-                            }
-                        });
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Ya, hapus',
+                        cancelButtonText: 'Batal',
+                    }).then(r => {
+                        if (r.isConfirmed) {
+                            $('<form>', {
+                                method: 'POST',
+                                action: `/violations/${id}`,
+                                html: `<input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                               <input type="hidden" name="_method" value="DELETE">`
+                            }).appendTo('body').submit();
+                        }
+                    });
                 }
 
+                // Loading saat submit
                 $('#form').on('submit', function () {
-                    const btn = $('#btnSubmit');
-                    btn.prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
+                    $('#btnSubmit').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
                     $('#btnText').text('Menyimpan...');
                     $('#btnLoading').removeClass('hidden');
                 });
 
+                // TABS click
                 $('#handlingTabs .tab-btn').on('click', function () {
                     const type = $(this).data('type');
-
                     $('#handlingTabs .tab-btn').removeClass('bg-blue-600 text-white');
                     $(this).addClass('bg-blue-600 text-white');
 
-                    const classId = $('#filter_class').val() || '';
                     let url = new URL(window.location.href.split('?')[0], window.location.origin);
+                    const classId = $('#filter_class').val() || '';
                     if (classId) url.searchParams.set('class_id', classId);
-                    if (type) url.searchParams.set('handling_type', type);
+                    url.searchParams.set('handling_type', type);
                     window.location.href = url.toString();
                 });
 
-
+                // Set active tab
                 const urlParams = new URLSearchParams(window.location.search);
-                const currentType = urlParams.get('handling_type') || 'pengasuhan';
-                $('#handlingTabs .tab-btn').removeClass('bg-blue-600 text-white');
+                const currentType = urlParams.get('handling_type') || DEFAULT_TAB;
                 $(`#handlingTabs .tab-btn[data-type="${currentType}"]`).addClass('bg-blue-600 text-white');
-
             });
         </script>
     @endpush
+
 @endsection

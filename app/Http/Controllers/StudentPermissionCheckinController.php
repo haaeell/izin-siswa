@@ -152,7 +152,7 @@ class StudentPermissionCheckinController extends Controller
     public function tracking(Request $request)
     {
         $request->validate([
-            'nis' => 'required', // bisa juga ganti 'nis' dengan 'student_id' sesuai kebutuhan
+            'nis' => 'required',
         ]);
 
         $studentNis = $request->nis;

@@ -19,7 +19,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
-            'role' => 'required|in:security,perizinan',
+            'role' => 'required|in:security,perizinan,pengajaran,pelatihan',
             'password' => 'required|min:4',
         ]);
 
@@ -40,7 +40,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => "required|email|unique:users,email,$id",
-            'role' => 'required|in:security,perizinan',
+            'role' => 'required|in:security,perizinan,pengajaran,pelatihan',
         ]);
 
         $data = [

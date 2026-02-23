@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DormitoryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\PermissionVerifyController;
@@ -86,6 +87,8 @@ Route::middleware(['auth'])->group(function () {
 
         Route::controller(StudentPermissionController::class)->group(function () {
             Route::get('/check-violation/{student}', 'checkViolation');
+            Route::post('/massal', 'storeMassal')->name('permissions.massal');
+            Route::post('/upload-terlambat/{id}', 'uploadTerlambat')->name('permissions.upload-terlambat');
             Route::get('/', 'index');
             Route::post('/', 'store')->name('permissions.store');
             Route::get('/{id}', 'show');
@@ -119,6 +122,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/permissions/{id}/surat', [StudentPermissionLetterController::class, 'show'])->name('permissions.surat');
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 });
 
 
