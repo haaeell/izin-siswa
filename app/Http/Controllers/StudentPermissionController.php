@@ -373,8 +373,6 @@ class StudentPermissionController extends Controller
                 )
             );
 
-            $qrToken = Str::random(32);
-            $permission->update(['qr_token' => $qrToken]);
 
             $pdf  = Pdf::loadView('pdf.surat-walas', [
                 'student' => $student,
@@ -403,7 +401,6 @@ class StudentPermissionController extends Controller
 
     public function uploadTerlambat(Request $request, $id)
     {
-        abort_if(auth()->user()->role !== 'wali_kelas', 403);
 
         $request->validate([
             'surat_terlambat' => 'required|file|mimes:pdf,jpg,png|max:2048',
@@ -414,8 +411,6 @@ class StudentPermissionController extends Controller
         ]);
 
         $permission = StudentPermission::findOrFail($id);
-
-        abort_if($permission->wali_kelas_id !== auth()->id(), 403);
 
         if ($permission->surat_terlambat) {
             Storage::disk('public')->delete($permission->surat_terlambat);

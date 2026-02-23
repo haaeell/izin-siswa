@@ -65,7 +65,7 @@ class TeacherController extends Controller
     {
         $teacher = User::where('role', 'wali_kelas')->findOrFail($id);
 
-        if ($teacher->classes()->exists()) {
+        if ($teacher->class()->exists()) {
             return redirect()->back()->with('error', 'Guru masih digunakan di kelas');
         }
 
