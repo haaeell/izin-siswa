@@ -111,7 +111,7 @@
                                 <td>
                                     <span
                                         class="px-2 py-1 rounded text-white text-xs
-                                                                                                                            {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                                                                                                                        {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
                                         {{ ucfirst($v->type) }}
                                     </span>
                                 </td>
@@ -196,7 +196,9 @@
                         <select name="student_id" id="student_id"
                             class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 select2">
                             @foreach ($students as $s)
-                                <option value="{{ $s->id }}">{{ $s->name }}</option>
+                                <option value="{{ $s->id }}">
+                                    {{ $s->name }} - {{ $s->nis }} ({{ $s->class->name ?? '-' }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -371,7 +373,7 @@
                     @if ($role === 'perizinan')
                         $('#no_phone_until, #no_permission_until').prop('disabled', true);
                     @endif
-                                                                        }
+                                                                                }
 
                 // OPEN EDIT
                 window.openEditModal = (d) => {
@@ -396,7 +398,7 @@
                         $('#attendance_percentage').val(d.attendance_percentage);
                         $('#attendance_until').val(d.attendance_until);
                     @endif
-                                                                        }
+                                                                                }
 
                 window.closeModal = () => $('#modal').addClass('hidden');
 
@@ -416,7 +418,7 @@
                                 method: 'POST',
                                 action: `/violations/${id}`,
                                 html: `<input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                                                               <input type="hidden" name="_method" value="DELETE">`
+                                                                                                       <input type="hidden" name="_method" value="DELETE">`
                             }).appendTo('body').submit();
                         }
                     });
