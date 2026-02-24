@@ -12,22 +12,57 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class StudentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        if (Auth()->user()->role == 'wali_kelas') {
-            $students = Student::where('class_id', Auth()->user()->class->id)->with('class')->get();
+        $isWalikelas = Auth()->user()->role == 'wali_kelas';
+
+        $query = Student::with(['class', 'dormitory']);
+
+        if ($isWalikelas) {
+            $query->where('class_id', Auth()->user()->class->id);
             $classes = SchoolClass::where('id', Auth()->user()->class->id)->get();
         } else {
-            $students = Student::with('class')->get();
             $classes = SchoolClass::all();
+
+            if ($request->class_id) {
+                $query->where('class_id', $request->class_id);
+            }
         }
 
+        if ($request->filter === 'pulang') {
+            $query->whereHas('permissions', function ($q) {
+                $q->where('status', 'approved')
+                    ->where('start_at', '<=', now())
+                    ->where('end_at', '>=', now())
+                    ->whereDoesntHave('checkin');
+            });
+        }
 
+        $students    = $query->get();
         $dormitories = Dormitory::all();
+
+        $pulangQuery = Student::whereHas('permissions', function ($q) {
+            $q->where('status', 'approved')
+                ->where('start_at', '<=', now())
+                ->where('end_at', '>=', now())
+                ->whereDoesntHave('checkin');
+        });
+
+        if ($isWalikelas) {
+            $pulangQuery->where('class_id', Auth()->user()->class->id);
+        } elseif ($request->class_id) {
+            $pulangQuery->where('class_id', $request->class_id);
+        }
+
+        $sedangPulangCount = $pulangQuery->count();
+
         return view('master.students.index', [
-            'students' => $students,
-            'classes' => $classes,
-            'dormitories' => $dormitories,
+            'students'          => $students,
+            'classes'           => $classes,
+            'dormitories'       => $dormitories,
+            'sedangPulangCount' => $sedangPulangCount,
+            'filterPulang'      => $request->filter === 'pulang',
+            'filterClass'       => $request->class_id,
         ]);
     }
 

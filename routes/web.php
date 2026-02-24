@@ -61,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('students')->controller(StudentController::class)->group(function () {
             Route::get('/template', 'template');
             Route::post('/import', 'import');
-            Route::get('/', 'index');
+            Route::get('/', 'index')->name('master.students.index');
             Route::post('/', 'store');
             Route::put('/{id}', 'update');
             Route::delete('/{id}', 'destroy');

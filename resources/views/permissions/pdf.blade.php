@@ -6,7 +6,6 @@
     <title>Laporan Perizinan Siswa</title>
     <style>
         body {
-            /* Menggunakan Arial sebagai font utama */
             font-family: Arial, Helvetica, sans-serif;
             font-size: 11px;
             color: #333;
@@ -109,9 +108,19 @@
             <tr>
                 <td class="label-filter">Periode</td>
                 <td>: <strong>{{ $request->start_date && $request->end_date
-    ? \Carbon\Carbon::parse($request->start_date)->format('d/m/Y') . ' - ' . \Carbon\Carbon::parse($request->end_date)->format('d/m/Y')
-    : 'Semua Tanggal' }}</strong>
+                    ? \Carbon\Carbon::parse($request->start_date)->format('d/m/Y') . ' - ' . \Carbon\Carbon::parse($request->end_date)->format('d/m/Y')
+                    : 'Semua Tanggal' }}</strong>
                 </td>
+            </tr>
+            <tr>
+                <td class="label-filter">Status</td>
+                <td>: <strong>
+                    @if ($request->status === 'approved') Disetujui
+                    @elseif ($request->status === 'rejected') Ditolak
+                    @elseif ($request->status === 'pending') Pending
+                    @else Semua Status
+                    @endif
+                </strong></td>
             </tr>
         </table>
     </div>
@@ -119,13 +128,14 @@
     <table>
         <thead>
             <tr>
-                <th width="5%">No</th>
-                <th width="12%">NIS</th>
-                <th width="18%">Nama Siswa</th>
-                <th width="10%">Kelas</th>
-                <th width="10%">Jenis</th>
-                <th width="20%">Tanggal</th>
-                <th width="25%">Alasan</th>
+                <th width="4%">No</th>
+                <th width="11%">NIS</th>
+                <th width="16%">Nama Siswa</th>
+                <th width="9%">Kelas</th>
+                <th width="8%">Jenis</th>
+                <th width="18%">Tanggal</th>
+                <th width="20%">Alasan</th>
+                <th width="14%">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -138,16 +148,34 @@
                     <td>{{ ucfirst($p->type) }}</td>
                     <td class="date-range">
                         {{ \Carbon\Carbon::parse($p->start_at)->format('d M Y') }}
-                        -
+                        —
                         {{ \Carbon\Carbon::parse($p->end_at)->format('d M Y') }}
                     </td>
-                    <td class="reason-text">
-                        "{{ $p->reason ?: '-' }}"
+                    <td class="reason-text">"{{ $p->reason ?: '-' }}"</td>
+                    <td>
+                        @if ($p->status === 'approved')
+                            <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:10px; white-space:nowrap;">
+                                Disetujui
+                            </span>
+                        @elseif ($p->status === 'rejected')
+                            <span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:10px; white-space:nowrap;">
+                                Ditolak
+                            </span>
+                            @if ($p->reject_reason)
+                                <div style="font-size:10px; color:#b91c1c; margin-top:4px; font-style:italic;">
+                                    {{ $p->reject_reason }}
+                                </div>
+                            @endif
+                        @else
+                            <span style="background:#fef9c3; color:#854d0e; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:10px; white-space:nowrap;">
+                                Pending
+                            </span>
+                        @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" align="center" style="padding: 30px; color: #9ca3af;">
+                    <td colspan="8" align="center" style="padding:30px; color:#9ca3af;">
                         Tidak ada data perizinan.
                     </td>
                 </tr>

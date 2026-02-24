@@ -15,9 +15,61 @@
                     </ol>
                 </nav>
             </div>
-
             @if (Auth::user()->role === 'perizinan')
-                <div class="flex flex-col sm:flex-row gap-2">
+                <div class="flex flex-wrap gap-3 mb-4 items-end">
+
+                    {{-- Filter Kelas --}}
+                    <form method="GET" class="flex gap-2 items-end flex-wrap">
+                        @if ($filterPulang)
+                            <input type="hidden" name="filter" value="pulang">
+                        @endif
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Filter Kelas</label>
+                            <select name="class_id"
+                                class="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[160px]">
+                                <option value="">Semua Kelas</option>
+                                @foreach ($classes as $class)
+                                    <option value="{{ $class->id }}" @selected($filterClass == $class->id)>
+                                        {{ $class->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-filter text-xs"></i>
+                            Terapkan
+                        </button>
+
+                        @if ($filterClass)
+                            <a href="{{ route('master.students.index', $filterPulang ? ['filter' => 'pulang'] : []) }}"
+                                class="px-4 py-2 border rounded-lg text-sm hover:bg-slate-50 transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                                Reset
+                            </a>
+                        @endif
+                    </form>
+
+                </div>
+            @endif
+
+            <div class="flex flex-col sm:flex-row gap-2">
+                <a href="{{ $filterPulang ? route('master.students.index') : route('master.students.index', ['filter' => 'pulang']) }}"
+                    class="w-full sm:w-auto px-4 py-2 rounded-lg transition flex items-center justify-center gap-2
+                        {{ $filterPulang
+        ? 'bg-orange-600 text-white hover:bg-orange-700'
+        : 'bg-orange-100 text-orange-700 hover:bg-orange-200' }}">
+                    <i class="fa-solid fa-person-walking-arrow-right"></i>
+                    Sedang Pulang
+                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full
+                        {{ $filterPulang ? 'bg-white text-orange-600' : 'bg-orange-600 text-white' }}">
+                        {{ $sedangPulangCount }}
+                    </span>
+                </a>
+
+                @if (Auth::user()->role === 'perizinan')
                     <button onclick="openImportModal()"
                         class="w-full sm:w-auto px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-file-excel"></i>
@@ -28,8 +80,9 @@
                         class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                         + Tambah
                     </button>
-                </div>
-            @endif
+                @endif
+
+            </div>
         </div>
 
         <div id="importModal" class="fixed inset-0 hidden bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
@@ -297,9 +350,9 @@
                             form.action = `/master/students/${id}`;
                             form.innerHTML =
                                 `
-                                                                                                                                                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                                                                                                                                                    <input type="hidden" name="_method" value="DELETE">
-                                                                                                                                                                                `;
+                                                                                                                                                                                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                                                                                                                                                    <input type="hidden" name="_method" value="DELETE">
+                                                                                                                                                                                                                `;
                             document.body.appendChild(form);
                             form.submit();
                         }
