@@ -89,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/check-violation/{student}', 'checkViolation');
             Route::post('/massal', 'storeMassal')->name('permissions.massal');
             Route::post('/upload-terlambat/{id}', 'uploadTerlambat')->name('permissions.upload-terlambat');
+            Route::get('/qr-massal', 'getQrMassal')->name('permissions.qr-massal');
             Route::get('/', 'index');
             Route::post('/', 'store')->name('permissions.store');
             Route::get('/{id}', 'show');
@@ -109,6 +110,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('violations')->controller(StudentViolationController::class)->group(function () {
+        Route::get('/students/by-class/{classId}', [StudentViolationController::class, 'studentsByClass'])->name('students.by-class');
         Route::get('/', 'index');
         Route::post('/', 'store');
         Route::put('/{id}', 'update');

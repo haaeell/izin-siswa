@@ -111,7 +111,7 @@
                                 <td>
                                     <span
                                         class="px-2 py-1 rounded text-white text-xs
-                                                                                                                                        {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                                                                                                                                                                                                                        {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
                                         {{ ucfirst($v->type) }}
                                     </span>
                                 </td>
@@ -139,7 +139,8 @@
                             @if ($role !== 'wali_kelas')
                                 @if ($role === 'perizinan' && $v->handling_type === 'pengasuhan' || in_array($role, ['pelatihan', 'pengajaran']))
                                     <td class="whitespace-nowrap">
-                                        <button onclick='openEditModal(@json($v))' class="px-2 py-1 bg-yellow-400 rounded">
+                                        <button onclick='openEditModal(@json($v->load("student.class")))'
+                                            class="px-2 py-1 bg-yellow-400 rounded">
                                             <i class="fa-solid fa-pen"></i>
                                         </button>
                                         <button onclick="deleteData({{ $v->id }})" class="px-2 py-1 bg-red-500 text-white rounded">
@@ -189,17 +190,30 @@
 
 
                 {{-- SISWA --}}
+                {{-- KELAS (pilih dulu sebelum siswa) --}}
+                <div>
+                    <label class="text-sm font-medium text-slate-700">Kelas</label>
+                    <div class="relative mt-1">
+                        <i class="fa-solid fa-chalkboard absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <select id="modal_class_id"
+                            class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 select2-kelas">
+                            <option value="">-- Pilih Kelas Dulu --</option>
+                            @foreach ($classes as $c)
+                                <option value="{{ $c->id }}">{{ $c->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                {{-- SISWA --}}
                 <div>
                     <label class="text-sm font-medium text-slate-700">Siswa</label>
                     <div class="relative mt-1">
                         <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         <select name="student_id" id="student_id"
-                            class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 select2">
-                            @foreach ($students as $s)
-                                <option value="{{ $s->id }}">
-                                    {{ $s->name }} - {{ $s->nis }} ({{ $s->class->name ?? '-' }})
-                                </option>
-                            @endforeach
+                            class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 select2-siswa"
+                            disabled>
+                            <option value="">-- Pilih Kelas Dulu --</option>
                         </select>
                     </div>
                 </div>
@@ -347,13 +361,13 @@
             const DEFAULT_TAB = @json($defaultTab);
 
             $(function () {
-                $('.select2').select2({ width: '100%', allowClear: true });
+                // Init select2
+                $('.select2-kelas').select2({ width: '100%', placeholder: '-- Pilih Kelas --', allowClear: true });
+                $('.select2-siswa').select2({ width: '100%', placeholder: '-- Pilih Siswa --', allowClear: true });
                 $('#datatable').DataTable();
-
                 @if ($role === 'perizinan')
                     $('#filter_class').select2({ placeholder: 'Pilih Kelas', allowClear: true });
 
-                    // Checkbox sanksi toggle
                     $('#no_phone').on('change', function () {
                         $('#no_phone_until').prop('disabled', !this.checked).val('');
                     });
@@ -361,6 +375,29 @@
                         $('#no_permission_until').prop('disabled', !this.checked).val('');
                     });
                 @endif
+
+                // ── Kelas → load siswa via AJAX ──
+                $('#modal_class_id').on('change', function () {
+                    const classId = $(this).val();
+                    const $siswa = $('#student_id');
+
+                    $siswa.empty().append('<option value="">-- Pilih Siswa --</option>');
+                    $siswa.prop('disabled', true);
+
+                    if (!classId) return;
+
+                    $siswa.append('<option disabled>Memuat...</option>');
+
+                    $.get(`/violations/students/by-class/${classId}`, function (data) {
+                        $siswa.empty().append('<option value="">-- Pilih Siswa --</option>');
+                        data.forEach(s => {
+                            $siswa.append(new Option(s.text, s.id));
+                        });
+                        $siswa.prop('disabled', false).trigger('change.select2');
+                    }).fail(function () {
+                        $siswa.empty().append('<option value="">Gagal memuat siswa</option>');
+                    });
+                });
 
                 // OPEN CREATE
                 window.openCreateModal = () => {
@@ -370,19 +407,34 @@
                     $('#method').val('');
                     $('#form')[0].reset();
 
+                    $('#modal_class_id').val('').trigger('change.select2');
+                    $('#student_id').empty()
+                        .append('<option value="">-- Pilih Kelas Dulu --</option>')
+                        .prop('disabled', true)
+                        .trigger('change.select2');
+
                     @if ($role === 'perizinan')
                         $('#no_phone_until, #no_permission_until').prop('disabled', true);
                     @endif
-                                                                                }
+                                                            };
 
-                // OPEN EDIT
                 window.openEditModal = (d) => {
                     $('#modal').removeClass('hidden');
                     $('#modalTitle').text('Edit Pelanggaran');
                     $('#form').attr('action', `/violations/${d.id}`);
                     $('#method').val('PUT');
 
-                    $('#student_id').val(d.student_id).trigger('change');
+                    const classId = d.student?.class_id ?? null;
+                    $('#modal_class_id').val(classId).trigger('change.select2');
+
+                    if (classId) {
+                        $.get(`/violations/students/by-class/${classId}`, function (data) {
+                            const $siswa = $('#student_id');
+                            $siswa.empty().append('<option value="">-- Pilih Siswa --</option>');
+                            data.forEach(s => $siswa.append(new Option(s.text, s.id)));
+                            $siswa.prop('disabled', false).val(d.student_id).trigger('change.select2');
+                        });
+                    }
 
                     @if ($role === 'perizinan')
                         $('select[name="type"]').val(d.type).trigger('change');
@@ -398,11 +450,10 @@
                         $('#attendance_percentage').val(d.attendance_percentage);
                         $('#attendance_until').val(d.attendance_until);
                     @endif
-                                                                                }
+                                                            };
 
                 window.closeModal = () => $('#modal').addClass('hidden');
 
-                // DELETE
                 window.deleteData = (id) => {
                     Swal.fire({
                         title: 'Yakin?',
@@ -418,20 +469,18 @@
                                 method: 'POST',
                                 action: `/violations/${id}`,
                                 html: `<input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                                                                       <input type="hidden" name="_method" value="DELETE">`
+                                                                                   <input type="hidden" name="_method" value="DELETE">`
                             }).appendTo('body').submit();
                         }
                     });
-                }
+                };
 
-                // Loading saat submit
                 $('#form').on('submit', function () {
                     $('#btnSubmit').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
                     $('#btnText').text('Menyimpan...');
                     $('#btnLoading').removeClass('hidden');
                 });
 
-                // TABS click
                 $('#handlingTabs .tab-btn').on('click', function () {
                     const type = $(this).data('type');
                     $('#handlingTabs .tab-btn').removeClass('bg-blue-600 text-white');
@@ -444,7 +493,6 @@
                     window.location.href = url.toString();
                 });
 
-                // Set active tab
                 const urlParams = new URLSearchParams(window.location.search);
                 const currentType = urlParams.get('handling_type') || DEFAULT_TAB;
                 $(`#handlingTabs .tab-btn[data-type="${currentType}"]`).addClass('bg-blue-600 text-white');

@@ -23,7 +23,7 @@
 			@if (auth()->user()->role === 'wali_kelas')
 				<div class="flex gap-2 flex-shrink-0">
 					<button onclick="openCreateModal()" @disabled($activePermissionCount >= $maxActivePermissions) class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition
-																									{{ $activePermissionCount >= $maxActivePermissions
+																																													{{ $activePermissionCount >= $maxActivePermissions
 				? 'bg-slate-300 text-slate-500 cursor-not-allowed'
 				: 'bg-blue-600 text-white hover:bg-blue-700' }}">
 						<i class="fa-solid fa-plus text-xs"></i>
@@ -34,6 +34,15 @@
 						class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition bg-emerald-600 text-white hover:bg-emerald-700">
 						<i class="fa-solid fa-users text-xs"></i>
 						Izin Perpulangan
+					</button>
+				</div>
+			@endif
+			@if (auth()->user()->role === 'perizinan')
+				<div class="flex gap-2 flex-shrink-0">
+					<button onclick="openQrMassalModal()"
+						class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition bg-indigo-600 text-white hover:bg-indigo-700">
+						<i class="fa-solid fa-qrcode text-xs"></i>
+						Cetak QR Perpulangan
 					</button>
 				</div>
 			@endif
@@ -59,12 +68,12 @@
 					@endphp
 
 					<div class="mb-4 rounded-xl border
-																				{{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}
-																				px-4 py-3 flex flex-col sm:flex-row gap-3 items-start">
+																																								{{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}
+																																								px-4 py-3 flex flex-col sm:flex-row gap-3 items-start">
 
 						<div class="flex-shrink-0">
 							<div class="w-9 h-9 rounded-full flex items-center justify-center
-																						{{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
+																																										{{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
 								<i
 									class="fa-solid {{ $isFull ? 'fa-circle-exclamation text-red-600' : 'fa-circle-info text-blue-600' }}"></i>
 							</div>
@@ -183,7 +192,7 @@
 										</button>
 									</td>
 
-									<td class="px-4 py-2 text-xs text-slate-700 break-words">
+									<td class="px-4 py-2 text-xs text-slate-700 ">
 										<i class="fa-regular fa-clock text-slate-400 mr-1"></i>
 										{{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}
 										<span class="mx-1 text-slate-400">→</span>
@@ -255,7 +264,7 @@
 												@if (in_array($p->status, ['approved', 'rejected']))
 													<a href="{{ route('permissions.surat', $p->id) }}" target="_blank"
 														class="inline-flex items-center gap-1 px-2.5 py-1.5
-																																								bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition whitespace-nowrap">
+																																																																																bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition whitespace-nowrap">
 														<i class="fa-solid fa-file-lines"></i>
 														Lihat Surat
 													</a>
@@ -265,7 +274,7 @@
 
 												<button onclick="openTerlambatModal({{ $p->id }})"
 													class="inline-flex items-center gap-1 px-2.5 py-1.5
-																																	bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-lg transition whitespace-nowrap">
+																																																															bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-lg transition whitespace-nowrap">
 													<i class="fa-solid fa-clock-rotate-left"></i>
 													{{ $p->surat_terlambat ? 'Ganti File Terlambat' : 'Upload File Terlambat' }}
 												</button>
@@ -279,45 +288,50 @@
 											<div class="flex items-center justify-start gap-2 whitespace-nowrap">
 
 												@if ($p->status === 'pending')
-													<button onclick="approvePermission({{ $p->id }})" class="inline-flex items-center gap-1 px-3 py-1.5
-																																								bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition">
+													<button onclick="approvePermission({{ $p->id }})"
+														class="inline-flex items-center gap-1 px-3 py-1.5
+																																																																																bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-check"></i>
 														<span>Setujui</span>
 													</button>
 
-													<button onclick="openRejectModal({{ $p->id }})" class="inline-flex items-center gap-1 px-3 py-1.5
-																																								bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
+													<button onclick="openRejectModal({{ $p->id }})"
+														class="inline-flex items-center gap-1 px-3 py-1.5
+																																																																																bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-xmark"></i>
 														<span>Tolak</span>
 													</button>
 
 												@elseif ($p->status === 'rejected')
-													<button onclick="showRejectReason(`{{ addslashes($p->reject_reason) }}`)" class="inline-flex items-center gap-1 px-3 py-1.5
-																																								bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
+													<button onclick="showRejectReason(`{{ addslashes($p->reject_reason) }}`)"
+														class="inline-flex items-center gap-1 px-3 py-1.5
+																																																																																bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-eye"></i>
 														<span>Alasan Ditolak</span>
 													</button>
 
 												@elseif ($p->status === 'approved' && $p->qr_token)
 													<button onclick="showBarcode(
-																																							'{{ $p->qr_token }}',
-																																							'{{ $p->student->name }}',
-																																							'{{ $p->student->nis }}',
-																																							'{{ $p->student->class->name }}',
-																																							'{{ $p->student->dormitory->name ?? '-' }}',
-																																							'{{ ucfirst($p->type) }}',
-																																							'{{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}',
-																																							'{{ \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i') }}'
-																																						)" class="inline-flex items-center gap-1 px-3 py-1.5
-																																								bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg transition">
+																																																																															'{{ $p->qr_token }}',
+																																																																															'{{ $p->student->name }}',
+																																																																															'{{ $p->student->nis }}',
+																																																																															'{{ $p->student->class->name }}',
+																																																																															'{{ $p->student->dormitory->name ?? '-' }}',
+																																																																															'{{ ucfirst($p->type) }}',
+																																																																															'{{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}',
+																																																																															'{{ \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i') }}'
+																																																																														)"
+														class="inline-flex items-center gap-1 px-3 py-1.5
+																																																																																bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-barcode"></i>
 														<span>Barcode</span>
 													</button>
 												@endif
 
 												@if (in_array($p->status, ['approved', 'rejected']))
-													<a href="{{ route('permissions.surat', $p->id) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5
-																																								bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition">
+													<a href="{{ route('permissions.surat', $p->id) }}" target="_blank"
+														class="inline-flex items-center gap-1 px-3 py-1.5
+																																																																																bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition">
 														<i class="fa-solid fa-file-lines"></i>
 														<span>Surat</span>
 													</a>
@@ -482,7 +496,7 @@
 					<div>
 						<label class="text-sm font-medium mb-2 block">Surat Orang Tua</label>
 						<label class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl
-														cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+																								cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
 							<i class="fa-solid fa-people-roof text-blue-600 text-xl"></i>
 							<div class="flex-1">
 								<p class="text-sm font-medium text-slate-700" id="ortuText">Klik untuk upload surat orang
@@ -497,7 +511,7 @@
 					<div id="suratDokterWrap">
 						<label class="text-sm font-medium mb-2 block">Surat Dokter</label>
 						<label class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl
-														cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+																								cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
 							<i class="fa-solid fa-user-doctor text-blue-600 text-xl"></i>
 							<div class="flex-1">
 								<p class="text-sm font-medium text-slate-700" id="dokterText">Klik untuk upload surat dokter
@@ -600,6 +614,61 @@
 			</form>
 		</div>
 	</div>
+	{{-- ================= MODAL QR MASSAL ================= --}}
+	<div id="qrMassalModal" class="fixed inset-0 hidden bg-black/40 z-50 flex items-center justify-center p-4">
+		<div class="bg-white w-full max-w-md rounded-xl shadow-lg overflow-hidden">
+			<div class="flex items-center justify-between px-5 py-4 border-b">
+				<h2 class="text-lg font-semibold flex items-center gap-2">
+					<i class="fa-solid fa-qrcode text-indigo-600"></i>
+					Cetak QR Massal
+				</h2>
+				<button onclick="closeQrMassalModal()" class="text-slate-400 hover:text-red-500 transition">
+					<i class="fa-solid fa-xmark text-xl"></i>
+				</button>
+			</div>
+
+			<div class="px-5 pt-4">
+				<div class="rounded-lg bg-indigo-50 border border-indigo-200 px-4 py-3 text-sm text-indigo-800 flex gap-2">
+					<i class="fa-solid fa-circle-info mt-0.5 flex-shrink-0"></i>
+					<span>Hanya izin <strong>perpulangan</strong> berstatus <strong>disetujui</strong> yang dicetak,
+						diurutkan per kelas.</span>
+				</div>
+			</div>
+
+			<div class="px-5 py-4 space-y-4">
+
+				<div>
+					<label class="text-sm font-medium text-slate-700 mb-1 block">Tanggal</label>
+					<div class="relative">
+						<i class="fa-regular fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+						<input type="date" id="qrMassalDate"
+							class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+							value="{{ now()->format('Y-m-d') }}">
+					</div>
+				</div>
+
+				<div id="qrMassalPreview"
+					class="hidden rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 flex items-center gap-2">
+					<svg id="qrMassalLoader" class="hidden w-4 h-4 animate-spin text-indigo-600" viewBox="0 0 24 24"
+						fill="none">
+						<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.3" />
+						<path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" />
+					</svg>
+					Ditemukan <span id="qrMassalCount" class="font-bold text-indigo-600 mx-1">0</span> siswa perpulangan
+				</div>
+
+				<div class="flex gap-2 pt-1">
+					<button type="button" onclick="closeQrMassalModal()"
+						class="flex-1 px-4 py-2 border rounded-lg hover:bg-slate-100 transition">Batal</button>
+					<button type="button" onclick="cetakQrMassal()" id="btnCetakQr"
+						class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+						<i class="fa-solid fa-print"></i>
+						<span id="btnCetakQrText">Cetak QR</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	{{-- ================= MODAL SURAT TERLAMBAT ================= --}}
 	<div id="terlambatModal" class="fixed inset-0 hidden bg-black/40 z-50 flex items-center justify-center p-4">
@@ -619,7 +688,7 @@
 
 				<div>
 					<label class="flex items-center gap-3 px-4 py-4 border-2 border-dashed border-orange-300 rounded-xl
-													cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition">
+																							cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition">
 						<i class="fa-solid fa-cloud-arrow-up text-orange-500 text-2xl"></i>
 						<div class="flex-1">
 							<p class="text-sm font-medium text-slate-700" id="terlambatFileName">Klik untuk pilih file</p>
@@ -640,7 +709,7 @@
 					<button type="button" onclick="closeTerlambatModal()"
 						class="flex-1 px-4 py-2 border rounded-lg hover:bg-slate-100 transition text-sm">Batal</button>
 					<button type="submit" id="btnTerlambat" class="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition
-														flex items-center justify-center gap-2 text-sm">
+																								flex items-center justify-center gap-2 text-sm">
 						<span id="btnTerlambatText">Upload</span>
 						<svg id="btnTerlambatLoader" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
 							<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.3" />
@@ -907,25 +976,25 @@
 							const accentColor = isPengasuhan ? 'text-rose-600' : 'text-amber-600';
 
 							html += `<div class="bg-white/80 backdrop-blur-sm p-4 rounded-lg border border-rose-100 shadow-sm">
-																							<div class="flex gap-3">
-																								<i class="fa-solid ${icon} ${accentColor} mt-1"></i>
-																								<div class="flex-1 text-sm text-slate-700">
-																									${isPengasuhan ? `
-																										<div class="font-bold text-slate-900 mb-1">Pelanggaran Pengasuhan: ${data.type}</div>
-																										<div class="italic text-slate-600 mb-2">"${data.description}"</div>
-																										<div class="text-[11px] font-medium text-slate-500 uppercase">
-																											<i class="fa-regular fa-clock mr-1"></i>Hingga: ${data.until}
-																										</div>
-																									` : `
-																										<div class="font-bold text-slate-900 mb-1">Pelanggaran ${data.handling_type}</div>
-																										<div class="mb-2">Kehadiran: <span class="font-bold text-rose-600">${data.attendance_percentage}%</span></div>
-																										<div class="text-[11px] font-medium text-slate-500 uppercase">
-																											<i class="fa-regular fa-calendar-xmark mr-1"></i>Berlaku Sampai: ${data.until}
-																										</div>
-																									`}
-																								</div>
-																							</div>
-																						</div>`;
+																																											<div class="flex gap-3">
+																																												<i class="fa-solid ${icon} ${accentColor} mt-1"></i>
+																																												<div class="flex-1 text-sm text-slate-700">
+																																													${isPengasuhan ? `
+																																														<div class="font-bold text-slate-900 mb-1">Pelanggaran Pengasuhan: ${data.type}</div>
+																																														<div class="italic text-slate-600 mb-2">"${data.description}"</div>
+																																														<div class="text-[11px] font-medium text-slate-500 uppercase">
+																																															<i class="fa-regular fa-clock mr-1"></i>Hingga: ${data.until}
+																																														</div>
+																																													` : `
+																																														<div class="font-bold text-slate-900 mb-1">Pelanggaran ${data.handling_type}</div>
+																																														<div class="mb-2">Kehadiran: <span class="font-bold text-rose-600">${data.attendance_percentage}%</span></div>
+																																														<div class="text-[11px] font-medium text-slate-500 uppercase">
+																																															<i class="fa-regular fa-calendar-xmark mr-1"></i>Berlaku Sampai: ${data.until}
+																																														</div>
+																																													`}
+																																												</div>
+																																											</div>
+																																										</div>`;
 						}
 						html += '</div>';
 
@@ -1017,45 +1086,242 @@
 				const win = window.open('', '_blank', 'width=360,height=520');
 
 				win.document.write(`<!DOCTYPE html>
-						<html>
-						<head>
-						<title>Tiket Izin</title>
-						<style>
-						@page { size: 80mm auto; margin: 4mm; }
-						body { margin: 0; font-family: Arial, sans-serif; padding: 6mm 0; }
-						.ticket { border: 2px solid #000; padding: 6px 8px; max-width: 70mm; margin: 0 auto; font-size: 9px; }
-						.title { text-align: center; font-weight: bold; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 4px; }
-						.info { display: grid; grid-template-columns: 55px auto; row-gap: 2px; margin-bottom: 6px; }
-						.label { font-weight: bold; }
-						.barcode { text-align: center; border-top: 1px dashed #000; padding-top: 6px; }
-						.barcode img { width: 180px; }
-						.barcode small { display: block; font-size: 7px; margin-top: 2px; }
-						.time { display: flex; justify-content: space-between; font-size: 8px; border-top: 1px dashed #000; margin-top: 4px; padding-top: 4px; }
-						</style>
-						</head>
-						<body>
-						<div class="ticket">
-							<div class="title">IZIN KEPULANGAN</div>
-							<div class="info">
-								<div class="label">Nama</div><div>: ${d.nama}</div>
-								<div class="label">NIS</div><div>: ${d.nis}</div>
-								<div class="label">Kelas</div><div>: ${d.kelas}</div>
-								<div class="label">Asrama</div><div>: ${d.asrama}</div>
-								<div class="label">Jenis</div><div>: ${d.izin}</div>
-							</div>
-							<div class="barcode">
-								<img src="${barcodeSrc}">
-								<small>Scan saat keluar & masuk</small>
-							</div>
-							<div class="time">
-								<div><b>Mulai</b><br>${d.startAt}</div>
-								<div style="text-align:right"><b>Sampai</b><br>${d.endAt}</div>
-							</div>
-						</div>
-						<script>window.onload = function() { window.print(); window.close(); }<\/script>
-						</body>
-						</html>`);
+																										<html>
+																										<head>
+																										<title>Tiket Izin</title>
+																										<style>
+																										@page { size: 80mm auto; margin: 4mm; }
+																										body { margin: 0; font-family: Arial, sans-serif; padding: 6mm 0; }
+																										.ticket { border: 2px solid #000; padding: 6px 8px; max-width: 70mm; margin: 0 auto; font-size: 9px; }
+																										.title { text-align: center; font-weight: bold; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 4px; }
+																										.info { display: grid; grid-template-columns: 55px auto; row-gap: 2px; margin-bottom: 6px; }
+																										.label { font-weight: bold; }
+																										.barcode { text-align: center; border-top: 1px dashed #000; padding-top: 6px; }
+																										.barcode img { width: 180px; }
+																										.barcode small { display: block; font-size: 7px; margin-top: 2px; }
+																										.time { display: flex; justify-content: space-between; font-size: 8px; border-top: 1px dashed #000; margin-top: 4px; padding-top: 4px; }
+																										</style>
+																										</head>
+																										<body>
+																										<div class="ticket">
+																											<div class="title">IZIN KEPULANGAN</div>
+																											<div class="info">
+																												<div class="label">Nama</div><div>: ${d.nama}</div>
+																												<div class="label">NIS</div><div>: ${d.nis}</div>
+																												<div class="label">Kelas</div><div>: ${d.kelas}</div>
+																												<div class="label">Asrama</div><div>: ${d.asrama}</div>
+																												<div class="label">Jenis</div><div>: ${d.izin}</div>
+																											</div>
+																											<div class="barcode">
+																												<img src="${barcodeSrc}">
+																												<small>Scan saat keluar & masuk</small>
+																											</div>
+																											<div class="time">
+																												<div><b>Mulai</b><br>${d.startAt}</div>
+																												<div style="text-align:right"><b>Sampai</b><br>${d.endAt}</div>
+																											</div>
+																										</div>
+																										<script>window.onload = function() { window.print(); window.close(); }<\/script>
+																										</body>
+																										</html>`);
 
+				win.document.close();
+				win.focus();
+			}
+
+			// ===== QR MASSAL =====
+			let qrMassalRows = [];
+
+			function openQrMassalModal() {
+				$('#qrMassalModal').removeClass('hidden');
+				fetchQrMassal();
+			}
+			function closeQrMassalModal() {
+				$('#qrMassalModal').addClass('hidden');
+			}
+
+			document.addEventListener('DOMContentLoaded', function () {
+				document.getElementById('qrMassalDate')?.addEventListener('change', fetchQrMassal);
+			});
+
+			function fetchQrMassal() {
+				const tanggal = document.getElementById('qrMassalDate').value;
+				if (!tanggal) return;
+
+				$('#qrMassalPreview').removeClass('hidden');
+				$('#qrMassalLoader').removeClass('hidden');
+				$('#qrMassalCount').text('...');
+				$('#btnCetakQr').prop('disabled', true).addClass('opacity-60 cursor-not-allowed');
+
+				fetch(`/permissions/qr-massal?tanggal=${tanggal}`, {
+					headers: {
+						'X-Requested-With': 'XMLHttpRequest',
+						'Accept': 'application/json',
+					}
+				})
+					.then(res => {
+						if (!res.ok) throw new Error('Gagal fetch data');
+						return res.json();
+					})
+					.then(json => {
+						qrMassalRows = json.data;
+						$('#qrMassalCount').text(json.count);
+						$('#qrMassalLoader').addClass('hidden');
+						$('#btnCetakQr').prop('disabled', false).removeClass('opacity-60 cursor-not-allowed');
+					})
+					.catch(err => {
+						console.error(err);
+						$('#qrMassalLoader').addClass('hidden');
+						$('#qrMassalCount').text('Error');
+						Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: err.message, confirmButtonColor: '#4f46e5' });
+					});
+			}
+
+			function cetakQrMassal() {
+				const filterDate = document.getElementById('qrMassalDate').value;
+
+				if (!qrMassalRows.length) {
+					Swal.fire({ icon: 'info', title: 'Tidak ada data', text: 'Tidak ditemukan izin perpulangan yang sesuai filter.', confirmButtonColor: '#4f46e5' });
+					return;
+				}
+
+				const cards = qrMassalRows.map(d => {
+					const canvas = document.createElement('canvas');
+					let barcodeSrc = '';
+					try {
+						if (d.token) {
+							JsBarcode(canvas, d.token, {
+								format: 'CODE128',
+								width: 2,
+								height: 45,        // sedikit lebih pendek agar muat
+								displayValue: false,
+								margin: 3
+							});
+							barcodeSrc = canvas.toDataURL('image/png');
+						}
+					} catch (e) { }
+
+					const asramaHtml = (d.asrama && d.asrama !== '-')
+						? `<div class="label">Asrama</div><div>: ${d.asrama}</div>`
+						: '';
+
+					const barcodeHtml = barcodeSrc
+						? `<div class="barcode"><img src="${barcodeSrc}"><small>${d.token}</small></div>`
+						: `<div class="barcode no-qr"><i>Token tidak tersedia</i></div>`;
+
+					return `
+				<div class="card">
+					<div class="card-title">IZIN PERPULANGAN</div>
+					<div class="info">
+						<div class="label">Nama</div><div>: ${d.nama}</div>
+						<div class="label">NIS</div><div>: ${d.nis}</div>
+						<div class="label">Kelas</div><div>: ${d.kelas}</div>
+						${asramaHtml}
+					</div>
+					${barcodeHtml}
+					<div class="time">
+						<div><b>Mulai</b><br>${d.start_at}</div>
+						<div class="time-end"><b>Sampai</b><br>${d.end_at}</div>
+					</div>
+				</div>`;
+				}).join('');
+
+				const win = window.open('', '_blank', 'width=1000,height=750');
+				win.document.write(`<!DOCTYPE html>
+		<html>
+		<head>
+		<title>Cetak QR Massal - Perpulangan</title>
+		<style>
+		  @page {
+			size: 215mm 330mm portrait;  /* F4 */
+			margin: 8mm;
+		  }
+		  * { box-sizing: border-box; }
+		  body { margin: 0; font-family: Arial, sans-serif; background: white; }
+
+		  h2.print-title {
+			text-align: center;
+			font-size: 11px;
+			letter-spacing: 1px;
+			margin: 0 0 5px 0;
+			text-transform: uppercase;
+			font-weight: bold;
+		  }
+
+		  .grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);  /* 4 kolom */
+			gap: 5px;
+		  }
+
+		  .card {
+			border: 1.5px solid #333;
+			border-radius: 4px;
+			padding: 5px 6px;
+			font-size: 8px;
+			page-break-inside: avoid;
+			break-inside: avoid;
+		  }
+
+		  .card-title {
+			text-align: center;
+			font-weight: bold;
+			font-size: 8.5px;
+			letter-spacing: 0.5px;
+			border-bottom: 1px solid #333;
+			padding-bottom: 3px;
+			margin-bottom: 4px;
+			text-transform: uppercase;
+		  }
+
+		  .info {
+			display: grid;
+			grid-template-columns: 38px auto;
+			row-gap: 1.5px;
+			margin-bottom: 4px;
+			line-height: 1.4;
+		  }
+		  .label { font-weight: bold; }
+
+		  .barcode {
+			text-align: center;
+			border-top: 1px dashed #aaa;
+			padding-top: 4px;
+			margin-top: 3px;
+		  }
+		  .barcode img { width: 100%; }
+		  .barcode small {
+			display: block;
+			font-size: 6px;
+			color: #666;
+			margin-top: 1px;
+			word-break: break-all;
+		  }
+		  .barcode.no-qr {
+			color: #999;
+			font-style: italic;
+			font-size: 7px;
+			padding: 6px 0;
+		  }
+
+		  .time {
+			display: flex;
+			justify-content: space-between;
+			font-size: 7px;
+			border-top: 1px dashed #aaa;
+			margin-top: 3px;
+			padding-top: 3px;
+			line-height: 1.5;
+		  }
+		  .time-end { text-align: right; }
+		</style>
+		</head>
+		<body>
+		  <h2 class="print-title">Rekapitulasi QR Izin Perpulangan${filterDate ? ' — ' + filterDate : ''}</h2>
+		  <div class="grid">${cards}</div>
+		  <script>window.onload = function() { window.print(); }<\/script>
+		</body>
+		</html>`);
 				win.document.close();
 				win.focus();
 			}

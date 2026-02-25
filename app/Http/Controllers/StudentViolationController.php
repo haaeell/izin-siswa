@@ -20,12 +20,7 @@ class StudentViolationController extends Controller
             $classes = SchoolClass::orderBy('name')->get();
         }
 
-        $students = Student::when(
-            $user->role === 'wali_kelas',
-            fn($q) => $q->where('class_id', $user->class->id)
-        )
-            ->orderBy('name')
-            ->get();
+        $students = collect();
 
         $violations = StudentViolation::with(['student.class'])
             ->when(
@@ -145,5 +140,19 @@ class StudentViolationController extends Controller
         StudentViolation::findOrFail($id)->delete();
 
         return redirect()->back()->with('success', 'Pelanggaran berhasil dihapus');
+    }
+
+    public function studentsByClass($classId)
+    {
+        $students = Student::where('class_id', $classId)
+            ->orderBy('name')
+            ->select('id', 'name', 'nis')
+            ->get()
+            ->map(fn($s) => [
+                'id'   => $s->id,
+                'text' => $s->name . ' - ' . $s->nis,
+            ]);
+
+        return response()->json($students);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\SchoolClass;
 use App\Models\StudentPermission;
 use App\Models\StudentPermissionCheckin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StudentPermissionCheckinController extends Controller
 {
@@ -49,9 +50,7 @@ class StudentPermissionCheckinController extends Controller
     }
     public function checkout(Request $request)
     {
-        $request->validate([
-            'code' => 'required'
-        ]);
+        $request->validate(['code' => 'required']);
 
         $permission = $this->findPermission($request->code);
 
@@ -59,57 +58,80 @@ class StudentPermissionCheckinController extends Controller
             return $this->error('Data siswa / izin tidak ditemukan');
         }
 
-        if ($permission->checkin && $permission->checkin->checkout_at) {
-            return $this->error('Siswa sudah keluar');
+        try {
+            $result = DB::transaction(function () use ($permission) {
+                $checkin = StudentPermissionCheckin::where('student_permission_id', $permission->id)->lockForUpdate()->first();
+
+                if ($checkin && $checkin->checkout_at) {
+                    return ['error' => 'Siswa sudah melakukan check-out'];
+                }
+
+                StudentPermissionCheckin::updateOrCreate(
+                    ['student_permission_id' => $permission->id],
+                    [
+                        'checkout_at' => now(),
+                        'checkin_at'  => null,
+                        'status'      => 'DI LUAR',
+                    ]
+                );
+
+                return ['success' => true];
+            });
+
+            if (isset($result['error'])) {
+                return $this->error($result['error']);
+            }
+
+            return $this->success('Check-out berhasil', $permission);
+        } catch (\Exception $e) {
+            return $this->error('Terjadi kesalahan, silakan scan ulang');
         }
-
-        StudentPermissionCheckin::updateOrCreate(
-            ['student_permission_id' => $permission->id],
-            [
-                'checkout_at' => now(),
-                'checkin_at'  => null,
-                'status'      => 'DI LUAR'
-            ]
-        );
-
-        return $this->success(
-            'Check-out berhasil',
-            $permission
-        );
     }
 
     public function checkin(Request $request)
     {
-        $request->validate([
-            'code' => 'required'
-        ]);
+        $request->validate(['code' => 'required']);
 
         $permission = $this->findPermission($request->code);
 
-        if (!$permission || !$permission->checkin) {
-            return $this->error('Siswa belum melakukan check-out');
+        if (!$permission) {
+            return $this->error('Data siswa / izin tidak ditemukan');
         }
 
-        if ($permission->checkin->checkin_at) {
-            return $this->error('Siswa sudah check-in');
+        try {
+            $result = DB::transaction(function () use ($permission) {
+
+                $checkin = StudentPermissionCheckin::where('student_permission_id', $permission->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$checkin || !$checkin->checkout_at) {
+                    return ['error' => 'Siswa belum melakukan check-out'];
+                }
+
+                if ($checkin->checkin_at) {
+                    return ['error' => 'Siswa sudah check-in'];
+                }
+
+                $now    = now();
+                $status = $now->lte($permission->end_at) ? 'TEPAT WAKTU' : 'TERLAMBAT';
+
+                $checkin->update([
+                    'checkin_at' => $now,
+                    'status'     => $status,
+                ]);
+
+                return ['success' => true, 'status' => $status];
+            });
+
+            if (isset($result['error'])) {
+                return $this->error($result['error']);
+            }
+
+            return $this->success('Check-in berhasil', $permission->fresh(), $result['status']);
+        } catch (\Exception $e) {
+            return $this->error('Terjadi kesalahan, silakan scan ulang');
         }
-
-        $now = now();
-
-        $status = $now->lte($permission->end_at)
-            ? 'TEPAT WAKTU'
-            : 'TERLAMBAT';
-
-        $permission->checkin->update([
-            'checkin_at' => $now,
-            'status'     => $status
-        ]);
-
-        return $this->success(
-            'Check-in berhasil',
-            $permission,
-            $status
-        );
     }
 
     private function findPermission(string $code): ?StudentPermission

@@ -56,6 +56,7 @@ class StudentPermissionController extends Controller
             $activePermissions = StudentPermission::with('checkin')
                 ->where('wali_kelas_id', Auth::user()->id)
                 ->where('status', 'approved')
+                ->where('type', '!=', 'perpulangan')
                 ->where('start_at', '<=', now())
                 ->where('end_at', '>=', now())
                 ->where('type', '!=', 'sakit')
@@ -171,7 +172,7 @@ class StudentPermissionController extends Controller
         $nomorSurat = sprintf(
             '421.5/%03d/WK-%s/%d',
             $urut,
-            strtoupper(config('school.code', 'SMP')),
+            strtoupper(config('school.code', 'QR')),
             $year
         );
 
@@ -303,78 +304,75 @@ class StudentPermissionController extends Controller
             'end_at'   => 'required|date|after_or_equal:start_at',
             'reason'   => 'required|string|max:500',
         ], [
-            'start_at.required'        => 'Tanggal mulai wajib diisi',
-            'end_at.required'          => 'Tanggal selesai wajib diisi',
-            'end_at.after_or_equal'    => 'Tanggal selesai harus setelah tanggal mulai',
-            'reason.required'          => 'Alasan wajib diisi',
+            'start_at.required'     => 'Tanggal mulai wajib diisi',
+            'end_at.required'       => 'Tanggal selesai wajib diisi',
+            'end_at.after_or_equal' => 'Tanggal selesai harus setelah tanggal mulai',
+            'reason.required'       => 'Alasan wajib diisi',
         ]);
 
         $user = Auth::user();
 
-        // Ambil semua siswa di kelas wali kelas ini
-        $students = Student::whereHas(
-            'class',
-            fn($q) => $q->where('id', $user->class->id)
-        )->get();
+        $students = Student::where('class_id', $user->class->id)->select('id', 'name', 'nis', 'class_id', 'dormitory_id')->get();
 
-        $year  = now()->year;
-        $count = 0;
+        if ($students->isEmpty()) {
+            return redirect()->back()->with('info', 'Tidak ada siswa di kelas ini.');
+        }
 
-        foreach ($students as $student) {
+        $year       = now()->year;
+        $baseUrut   = StudentPermission::whereYear('created_at', $year)->count();
+        $guruId     = $user->id;
+        $timestamp  = now()->format('YmdHi');
+        $now        = now();
+        $schoolCode = strtoupper(config('school.code', 'QR'));
 
-            // Skip jika siswa masih punya izin aktif
-            $hasActive = StudentPermission::where('student_id', $student->id)
-                ->whereIn('status', ['pending', 'approved'])
-                ->where('start_at', '<=', $data['end_at'])
-                ->where('end_at', '>=', $data['start_at'])
-                ->exists();
+        $insertData = $students->map(fn($student) => [
+            'student_id'    => $student->id,
+            'wali_kelas_id' => $guruId,
+            'type'          => 'perpulangan',
+            'start_at'      => $data['start_at'],
+            'end_at'        => $data['end_at'],
+            'reason'        => $data['reason'],
+            'status'        => 'approved',
+            'address'       => '-',
+            'created_at'    => $now,
+            'updated_at'    => $now,
+        ])->toArray();
 
-            if ($hasActive) continue;
+        StudentPermission::insert($insertData);
 
-            // Nomor surat unik per siswa
-            $urut        = StudentPermission::whereYear('created_at', $year)->count() + 1 + $count;
-            $nomorSurat  = sprintf('421.5/%03d/WK-%s/%d', $urut, strtoupper(config('school.code', 'SMP')), $year);
+        $permissions = StudentPermission::whereIn('student_id', $students->pluck('id'))
+            ->where('wali_kelas_id', $guruId)
+            ->whereDate('created_at', $now->toDateString())
+            ->orderBy('id')
+            ->get()
+            ->keyBy('student_id');
 
-            // Generate QR
-            $guruId    = $user->id;
-            $timestamp = now()->format('YmdHi');
+        $updateBatch = [];
 
-            $permission = StudentPermission::create([
-                'student_id'    => $student->id,
-                'wali_kelas_id' => $user->id,
-                'type'          => 'pulang',
-                'start_at'      => $data['start_at'],
-                'end_at'        => $data['end_at'],
-                'reason'        => $data['reason'],
-                'status'        => 'approved', // langsung approved
-                'address'       => '-',
-            ]);
+        foreach ($students as $index => $student) {
+            $permission = $permissions->get($student->id);
+            if (!$permission) continue;
 
-            $signature = sha1(
-                $permission->id . '|' .
-                    $guruId . '|' .
-                    $timestamp . '|' .
-                    config('app.key')
-            );
+            $urut       = $baseUrut + 1 + $index;
+            $nomorSurat = sprintf('421.5/%03d/WK-%s/%d', $urut, $schoolCode, $year);
+            $qrToken    = base_convert($permission->id, 10, 36) . Str::random(3);
 
+            /*
+            ── SURAT WALAS (dikomentarin dulu) ──
+    
+            $signature = sha1($permission->id . '|' . $guruId . '|' . $timestamp . '|' . config('app.key'));
             $verifyUrl = route('verify.walas', [
                 'p' => $permission->id,
                 'g' => $guruId,
                 't' => $timestamp,
                 's' => $signature,
             ]);
-
+    
             $qrCode = 'data:image/png;base64,' . base64_encode(
-                file_get_contents(
-                    'https://api.qrserver.com/v1/create-qr-code/?' . http_build_query([
-                        'size' => '200x200',
-                        'data' => $verifyUrl,
-                    ])
-                )
+                QrCode::format('png')->size(200)->errorCorrection('M')->generate($verifyUrl)
             );
-
-
-            $pdf  = Pdf::loadView('pdf.surat-walas', [
+    
+            $pdf = Pdf::loadView('pdf.surat-walas', [
                 'student' => $student,
                 'wali'    => $user,
                 'type'    => 'pulang',
@@ -387,16 +385,25 @@ class StudentPermissionController extends Controller
                 'city'    => 'Yogyakarta',
                 'verify'  => $verifyUrl,
             ]);
-
-            $path = 'permissions/surat-walas/massal-' . $student->id . '-' . now()->format('YmdHis') . '.pdf';
+    
+            $path = 'permissions/surat-walas/massal-' . $student->id . '-' . $now->format('YmdHis') . '.pdf';
             Storage::disk('public')->put($path, $pdf->output());
+            */
 
-            $permission->update(['surat_walas' => $path]);
-
-            $count++;
+            $updateBatch[] = [
+                'id'       => $permission->id,
+                'qr_token' => $qrToken,
+                // 'surat_walas' => $path,
+            ];
         }
 
-        return redirect()->back()->with('success', "Izin perpulangan massal berhasil dibuat untuk {$count} siswa.");
+        foreach ($updateBatch as $upd) {
+            StudentPermission::where('id', $upd['id'])->update([
+                'qr_token' => $upd['qr_token'],
+            ]);
+        }
+
+        return redirect()->back()->with('success', "Izin perpulangan massal berhasil dibuat untuk {$students->count()} siswa.");
     }
 
     public function uploadTerlambat(Request $request, $id)
@@ -426,5 +433,40 @@ class StudentPermissionController extends Controller
         $permission->update(['surat_terlambat' => $path]);
 
         return redirect()->back()->with('success', 'Surat keterangan terlambat berhasil diupload.');
+    }
+
+    public function getQrMassal(Request $request)
+    {
+        abort_if(!in_array(auth()->user()->role, ['perizinan', 'wali_kelas']), 403);
+
+        $request->validate([
+            'tanggal' => 'required|date',
+        ]);
+
+        $data = StudentPermission::with(['student.class', 'student.dormitory'])
+            ->where('type', 'perpulangan')
+            ->where('status', 'approved')
+            ->whereDate('start_at', '<=', $request->tanggal)
+            ->whereDate('end_at', '>=', $request->tanggal)
+            ->join('students', 'student_permissions.student_id', '=', 'students.id')
+            ->join('classes', 'students.class_id', '=', 'classes.id')
+            ->orderBy('classes.name')
+            ->orderBy('students.name')
+            ->select('student_permissions.*')
+            ->get()
+            ->map(fn($p) => [
+                'token'    => $p->qr_token,
+                'nama'     => $p->student->name,
+                'nis'      => $p->student->nis,
+                'kelas'    => $p->student->class->name ?? '-',
+                'asrama'   => $p->student->dormitory->name ?? '-',
+                'start_at' => \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i'),
+                'end_at'   => \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i'),
+            ]);
+
+        return response()->json([
+            'count' => $data->count(),
+            'data'  => $data,
+        ]);
     }
 }
