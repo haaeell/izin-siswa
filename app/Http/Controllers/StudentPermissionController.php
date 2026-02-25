@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use App\Models\Student;
 use App\Models\StudentPermission;
+use App\Models\StudentPermissionCheckin;
 use App\Models\StudentViolation;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -408,8 +410,8 @@ class StudentPermissionController extends Controller
             'reason.required'       => 'Alasan wajib diisi',
         ]);
 
-        $user       = Auth::user();
-        $students   = Student::where('class_id', $user->class->id)
+        $user    = Auth::user();
+        $students = Student::where('class_id', $user->class->id)
             ->select('id', 'name', 'nis', 'class_id', 'dormitory_id')
             ->get();
 
@@ -417,42 +419,56 @@ class StudentPermissionController extends Controller
             return redirect()->back()->with('info', 'Tidak ada siswa di kelas ini.');
         }
 
-        $year       = now()->year;
-        $baseUrut   = StudentPermission::whereYear('created_at', $year)->count();
-        $guruId     = $user->id;
-        $now        = now();
-        $schoolCode = strtoupper(config('school.code', 'QR'));
+        $guruId = $user->id;
+        $now    = now();
 
-        StudentPermission::insert(
-            $students->map(fn($s) => [
-                'student_id'    => $s->id,
-                'wali_kelas_id' => $guruId,
-                'type'          => 'perpulangan',
-                'start_at'      => $data['start_at'],
-                'end_at'        => $data['end_at'],
-                'reason'        => $data['reason'],
-                'status'        => 'approved',
-                'address'       => '-',
-                'created_at'    => $now,
-                'updated_at'    => $now,
-            ])->toArray()
-        );
+        DB::transaction(function () use ($students, $data, $guruId, $now) {
+            StudentPermission::insert(
+                $students->map(fn($s) => [
+                    'student_id'    => $s->id,
+                    'wali_kelas_id' => $guruId,
+                    'type'          => 'perpulangan',
+                    'start_at'      => $data['start_at'],
+                    'end_at'        => $data['end_at'],
+                    'reason'        => $data['reason'],
+                    'status'        => 'approved',
+                    'address'       => '-',
+                    'created_at'    => $now,
+                    'updated_at'    => $now,
+                ])->toArray()
+            );
 
-        $permissions = StudentPermission::whereIn('student_id', $students->pluck('id'))
-            ->where('wali_kelas_id', $guruId)
-            ->whereDate('created_at', $now->toDateString())
-            ->orderBy('id')
-            ->get()
-            ->keyBy('student_id');
+            $permissions = StudentPermission::whereIn('student_id', $students->pluck('id'))
+                ->where('wali_kelas_id', $guruId)
+                ->whereDate('created_at', $now->toDateString())
+                ->orderBy('id')
+                ->get()
+                ->keyBy('student_id');
 
-        foreach ($students as $index => $student) {
-            $permission = $permissions->get($student->id);
-            if (!$permission) continue;
+            $checkinRows = [];
 
-            StudentPermission::where('id', $permission->id)->update([
-                'qr_token' => base_convert($permission->id, 10, 36) . Str::random(3),
-            ]);
-        }
+            foreach ($students as $student) {
+                $permission = $permissions->get($student->id);
+                if (!$permission) continue;
+
+                StudentPermission::where('id', $permission->id)->update([
+                    'qr_token' => strtoupper(base_convert($permission->id, 10, 36) . Str::random(4)),
+                ]);
+
+                $checkinRows[] = [
+                    'student_permission_id' => $permission->id,
+                    'checkout_at'           => $now,
+                    'checkin_at'            => null,
+                    'status'                => 'DI LUAR',
+                    'created_at'            => $now,
+                    'updated_at'            => $now,
+                ];
+            }
+
+            if (!empty($checkinRows)) {
+                StudentPermissionCheckin::insert($checkinRows);
+            }
+        });
 
         return redirect()->back()->with('success', "Izin perpulangan massal berhasil dibuat untuk {$students->count()} siswa.");
     }

@@ -21,7 +21,7 @@ class StudentPermissionApprovalController extends Controller
         $permission->update([
             'status'      => 'approved',
             'approved_by' => Auth::user()->id,
-            'qr_token' => base_convert($permission->id, 10, 36) . Str::random(3),
+            'qr_token' => strtoupper(base_convert($permission->id, 10, 36) . Str::random(4)),
         ]);
 
         return redirect()->back()
@@ -43,7 +43,6 @@ class StudentPermissionApprovalController extends Controller
             'status'        => 'rejected',
             'reject_reason' => $data['reject_reason'],
             'approved_by'   => Auth::user()->id,
-            'qr_token' => base_convert($permission->id, 10, 36) . Str::random(3),
         ]);
 
         return redirect()->back()->with('success', 'Permohonan izin ditolak');
