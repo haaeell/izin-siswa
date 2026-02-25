@@ -18,9 +18,6 @@ class ReportController extends Controller
             ? now()->parse($request->end_date)->endOfDay()
             : now()->endOfMonth();
 
-        /* ======================
-     * IZIN + CHECK-IN
-     * ====================== */
         $permissions = StudentPermission::with([
             'student.class',
             'checkin'
@@ -43,9 +40,6 @@ class ReportController extends Controller
             ->whereHas('checkin', fn($q) => $q->whereNotNull('checkout_at'))
             ->get();
 
-        /* ======================
-     * PELANGGARAN
-     * ====================== */
         $violations = DB::table('student_violations')
             ->join('students', 'students.id', '=', 'student_violations.student_id')
             ->join('classes', 'classes.id', '=', 'students.class_id')
@@ -62,9 +56,6 @@ class ReportController extends Controller
             ->orderBy('student_violations.occurred_at', 'desc')
             ->get();
 
-        /* ======================
-     * SUMMARY CARD
-     * ====================== */
         $summary = [
             'total_permission' => $permissions->count(),
             'total_late'       => $latePermissions->count(),
