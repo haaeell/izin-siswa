@@ -11,8 +11,9 @@ class StudentSeeder extends Seeder
 {
     public function run(): void
     {
-        $kelas  = SchoolClass::where('name', 'X IPA 1')->firstOrFail();
-        $asrama = Dormitory::where('name', 'Asrama Putra')->firstOrFail();
+        // ── DEBUG: tampilkan semua nama kelas & asrama yang ada di DB ─────────
+        $this->command->info('📋 Kelas tersedia: ' . SchoolClass::pluck('name')->join(', '));
+        $this->command->info('🏠 Asrama tersedia: ' . Dormitory::pluck('name')->join(', '));
 
         $namaDepan = [
             'Ahmad',
@@ -100,30 +101,48 @@ class StudentSeeder extends Seeder
             'Utomo',
         ];
 
-        $students = [];
-        $usedNis  = [];
-        $now      = now();
+        // Ambil semua NIS yang sudah ada agar tidak duplicate
+        $usedNis = DB::table('students')->pluck('nis')->toArray();
+        $now     = now();
 
-        for ($i = 1; $i <= 100; $i++) {
-            do {
-                $nis = (string) rand(10000000, 99999999);
-            } while (in_array($nis, $usedNis));
-            $usedNis[] = $nis;
+        $batches = [
+            ['class' => 'X IPA 1', 'dormitory' => 'Asrama Putra', 'count' => 100],
+            ['class' => 'X IPA 2', 'dormitory' => 'Heritage II',  'count' => 100],
+            ['class' => 'X IPA 3', 'dormitory' => 'Heritage II',  'count' => 100],
+        ];
 
-            $nama = $namaDepan[array_rand($namaDepan)] . ' ' . $namaBelakang[array_rand($namaBelakang)];
+        foreach ($batches as $batch) {
+            $kelas = SchoolClass::where('name', $batch['class'])->first();
+            if (! $kelas) {
+                $this->command->error("❌ Kelas '{$batch['class']}' tidak ditemukan! Lewati batch ini.");
+                continue;
+            }
 
-            $students[] = [
-                'nis'          => $nis,
-                'name'         => $nama,
-                'class_id'     => $kelas->id,
-                'dormitory_id' => $asrama->id,
-                'created_at'   => $now,
-                'updated_at'   => $now,
-            ];
+            $asrama = Dormitory::where('name', $batch['dormitory'])->first();
+            if (! $asrama) {
+                $this->command->error("❌ Asrama '{$batch['dormitory']}' tidak ditemukan! Lewati batch ini.");
+                continue;
+            }
+
+            $students = [];
+            for ($i = 1; $i <= $batch['count']; $i++) {
+                do {
+                    $nis = (string) rand(10000000, 99999999);
+                } while (in_array($nis, $usedNis));
+                $usedNis[] = $nis;
+
+                $students[] = [
+                    'nis'          => $nis,
+                    'name'         => $namaDepan[array_rand($namaDepan)] . ' ' . $namaBelakang[array_rand($namaBelakang)],
+                    'class_id'     => $kelas->id,
+                    'dormitory_id' => $asrama->id,
+                    'created_at'   => $now,
+                    'updated_at'   => $now,
+                ];
+            }
+
+            DB::table('students')->insert($students);
+            $this->command->info("✅ {$batch['count']} siswa berhasil di-seed ke kelas {$kelas->name} - {$asrama->name}!");
         }
-
-        DB::table('students')->insert($students);
-
-        $this->command->info("✅ 100 siswa berhasil di-seed ke kelas {$kelas->name} - {$asrama->name}!");
     }
 }

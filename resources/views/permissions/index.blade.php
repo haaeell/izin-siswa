@@ -11,7 +11,7 @@
 					Permohonan Izin
 				</h1>
 
-				<nav class="text-xs sm:text-sm mt-1 flex flex-wrap gap-1">
+				<nav class="text-xs sm:text-sm mt-1 ">
 					<ol class="flex flex-wrap items-center gap-2">
 						<li><a href="/home" class="hover:text-blue-600 transition">Dashboard</a></li>
 						<li class="text-slate-400">/</li>
@@ -23,26 +23,23 @@
 			@if (auth()->user()->role === 'wali_kelas')
 				<div class="flex gap-2 flex-shrink-0">
 					<button onclick="openCreateModal()" @disabled($activePermissionCount >= $maxActivePermissions) class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition
-																																													{{ $activePermissionCount >= $maxActivePermissions
+																																{{ $activePermissionCount >= $maxActivePermissions
 				? 'bg-slate-300 text-slate-500 cursor-not-allowed'
 				: 'bg-blue-600 text-white hover:bg-blue-700' }}">
-						<i class="fa-solid fa-plus text-xs"></i>
-						Ajukan Izin
+						<i class="fa-solid fa-plus text-xs"></i> Ajukan Izin
 					</button>
-
 					<button onclick="openMassalModal()"
 						class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition bg-emerald-600 text-white hover:bg-emerald-700">
-						<i class="fa-solid fa-users text-xs"></i>
-						Izin Perpulangan
+						<i class="fa-solid fa-users text-xs"></i> Izin Perpulangan
 					</button>
 				</div>
 			@endif
+
 			@if (auth()->user()->role === 'perizinan')
 				<div class="flex gap-2 flex-shrink-0">
 					<button onclick="openQrMassalModal()"
 						class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition bg-indigo-600 text-white hover:bg-indigo-700">
-						<i class="fa-solid fa-qrcode text-xs"></i>
-						Cetak QR Perpulangan
+						<i class="fa-solid fa-qrcode text-xs"></i> Cetak QR Perpulangan
 					</button>
 				</div>
 			@endif
@@ -63,32 +60,23 @@
 			<div class="p-4 sm:p-6">
 
 				@if (auth()->user()->role === 'wali_kelas')
-					@php
-						$isFull = $activePermissionCount >= $maxActivePermissions;
-					@endphp
-
-					<div class="mb-4 rounded-xl border
-																																								{{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}
-																																								px-4 py-3 flex flex-col sm:flex-row gap-3 items-start">
-
+					@php $isFull = $activePermissionCount >= $maxActivePermissions; @endphp
+					<div
+						class="mb-4 rounded-xl border px-4 py-3 flex flex-col sm:flex-row gap-3 items-start
+																													{{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
 						<div class="flex-shrink-0">
-							<div class="w-9 h-9 rounded-full flex items-center justify-center
-																																										{{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
+							<div
+								class="w-9 h-9 rounded-full flex items-center justify-center {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
 								<i
 									class="fa-solid {{ $isFull ? 'fa-circle-exclamation text-red-600' : 'fa-circle-info text-blue-600' }}"></i>
 							</div>
 						</div>
-
 						<div class="flex-1">
 							<h3 class="font-semibold text-sm mb-1">Status Izin Siswa Kelas</h3>
 							<p class="text-sm leading-relaxed">
-								Saat ini terdapat
-								<span class="font-bold">{{ $activePermissionCount }}</span>
-								dari
-								<span class="font-bold">{{ $maxActivePermissions }}</span>
-								siswa yang sedang izin.
+								Saat ini terdapat <span class="font-bold">{{ $activePermissionCount }}</span>
+								dari <span class="font-bold">{{ $maxActivePermissions }}</span> siswa yang sedang izin.
 							</p>
-
 							@if ($isFull)
 								<p class="text-xs mt-2 font-medium text-red-700">
 									<i class="fa-solid fa-circle-exclamation"></i> Batas izin tercapai. Tidak dapat mengajukan izin
@@ -97,63 +85,62 @@
 							@else
 								<p class="text-xs mt-2 text-blue-700">
 									<i class="fa-solid fa-circle-info"></i> Masih tersedia
-									<span class="font-semibold">{{ $maxActivePermissions - $activePermissionCount }}</span>
-									slot izin.
+									<span class="font-semibold">{{ $maxActivePermissions - $activePermissionCount }}</span> slot
+									izin.
 								</p>
 							@endif
 						</div>
 					</div>
 				@endif
 
-				<form method="GET"
-					class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 items-end">
-					<input type="hidden" name="filter" value="1">
-
-					@php
-						$start = request('start_date') ?? now()->startOfMonth()->format('Y-m-d');
-						$end = request('end_date') ?? now()->endOfMonth()->format('Y-m-d');
-					@endphp
+				{{-- Filter (tidak pakai form submit, langsung reload DataTable) --}}
+				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 items-end">
 
 					<div class="w-full">
 						<label class="block text-sm font-medium text-slate-700 mb-1">Filter Tanggal</label>
 						<input type="text" id="dateRange"
 							class="w-full pl-3 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							value="{{ $start . ' to ' . $end }}" placeholder="Pilih rentang tanggal">
+							placeholder="Pilih rentang tanggal">
+						<input type="hidden" id="startDate">
+						<input type="hidden" id="endDate">
 					</div>
-
-					<input type="hidden" name="start_date" id="startDate" value="{{ $start }}">
-					<input type="hidden" name="end_date" id="endDate" value="{{ $end }}">
 
 					<div class="w-full">
 						<label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
-						<select name="status"
+						<select id="filterStatus"
 							class="w-full py-2 px-3 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
 							<option value="">Semua Status</option>
-							<option value="pending" @selected(request('status') === 'pending')>Pending</option>
-							<option value="approved" @selected(request('status') === 'approved')>Disetujui</option>
-							<option value="rejected" @selected(request('status') === 'rejected')>Ditolak</option>
+							<option value="pending">Pending</option>
+							<option value="approved">Disetujui</option>
+							<option value="rejected">Ditolak</option>
 						</select>
 					</div>
 
-					<div class="flex gap-2 w-full sm:col-span-2 lg:col-span-1 xl:w-auto">
-						<button type="submit"
+					<div class="flex gap-2 w-full sm:col-span-2 lg:col-span-1 xl:w-auto items-end">
+						<button id="btnTerapkan" type="button"
 							class="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition">
 							<i class="fa-solid fa-filter"></i> Terapkan
 						</button>
 
-						<button type="submit" formaction="{{ route('permissions.pdf') }}" formmethod="GET"
-							class="flex-1 sm:flex-none px-4 py-2 bg-red-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-red-700 transition">
-							<i class="fa-solid fa-file-pdf"></i> Cetak PDF
-						</button>
+						<form method="GET" action="{{ route('permissions.pdf') }}" id="pdfForm" class="inline">
+							<input type="hidden" name="filter" value="1">
+							<input type="hidden" name="start_date" id="pdfStartDate">
+							<input type="hidden" name="end_date" id="pdfEndDate">
+							<input type="hidden" name="status" id="pdfStatus">
+							<div>
+								<button type="submit"
+									class="flex-1 sm:flex-none px-4 py-2 bg-red-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-red-700 transition">
+									<i class="fa-solid fa-file-pdf"></i> PDF
+								</button>
+							</div>
+						</form>
 
-						@if (request()->hasAny(['status', 'start_date']))
-							<a href="/permissions"
-								class="flex-1 sm:flex-none px-4 py-2 border rounded-lg text-center hover:bg-slate-50 transition">
-								<i class="fa-solid fa-xmark mr-1"></i> Reset
-							</a>
-						@endif
+						<button id="btnReset" type="button"
+							class="hidden flex-1 sm:flex-none px-4 py-2 border rounded-lg hover:bg-slate-50 transition">
+							<i class="fa-solid fa-xmark mr-1"></i> Reset
+						</button>
 					</div>
-				</form>
+				</div>
 
 				<div class="overflow-x-auto w-full">
 					<table id="datatable" class="w-full text-sm min-w-[700px] md:min-w-full table-auto">
@@ -176,188 +163,19 @@
 								@endif
 							</tr>
 						</thead>
-						<tbody>
-							@foreach ($permissions as $i => $p)
-								<tr class="border-b">
-									<td class="px-4 py-2 whitespace-nowrap">{{ $loop->iteration }}</td>
-									<td class="px-4 py-2">{{ $p->student->nis }}</td>
-									<td class="px-4 py-2 font-medium break-words">{{ $p->student->name }}</td>
-									<td class="px-4 py-2 capitalize whitespace-nowrap">{{ $p->student->class->name }}</td>
-									<td class="px-4 py-2 capitalize whitespace-nowrap">{{ $p->type }}</td>
-									<td class="px-4 py-2 whitespace-nowrap">
-										<button onclick="openReasonModal(`{{ addslashes($p->reason) }}`)"
-											class="text-blue-600 hover:text-blue-800 text-xs inline-flex items-center gap-1">
-											<i class="fa-solid fa-eye"></i>
-											Lihat Alasan
-										</button>
-									</td>
-
-									<td class="px-4 py-2 text-xs text-slate-700 ">
-										<i class="fa-regular fa-clock text-slate-400 mr-1"></i>
-										{{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}
-										<span class="mx-1 text-slate-400">→</span>
-										{{ \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i') }}
-									</td>
-
-									<td class="px-4 py-2">
-										<div class="flex items-center justify-center gap-2">
-											@if ($p->surat_walas)
-												<a href="{{ asset('storage/' . $p->surat_walas) }}" target="_blank"
-													class="text-blue-600 hover:text-blue-800 tooltip-icon"
-													data-title="Surat Wali Kelas" data-desc="Klik untuk melihat surat wali kelas">
-													<i class="fa-solid fa-user-tie"></i>
-												</a>
-											@endif
-
-											@if ($p->surat_ortu)
-												<a href="{{ asset('storage/' . $p->surat_ortu) }}" target="_blank"
-													class="text-green-600 hover:text-green-800 tooltip-icon"
-													data-title="Surat Orang Tua" data-desc="Klik untuk melihat surat orang tua">
-													<i class="fa-solid fa-people-roof"></i>
-												</a>
-											@endif
-
-											@if ($p->surat_dokter)
-												<a href="{{ asset('storage/' . $p->surat_dokter) }}" target="_blank"
-													class="text-red-600 hover:text-red-800 tooltip-icon" data-title="Surat Dokter"
-													data-desc="Klik untuk melihat surat dokter">
-													<i class="fa-solid fa-user-doctor"></i>
-												</a>
-											@endif
-
-											@if ($p->surat_terlambat)
-												<a href="{{ asset('storage/' . $p->surat_terlambat) }}" target="_blank"
-													class="text-orange-500 hover:text-orange-700 tooltip-icon"
-													data-title="Surat Terlambat"
-													data-desc="Klik untuk melihat surat keterangan terlambat">
-													<i class="fa-solid fa-clock-rotate-left"></i>
-												</a>
-											@endif
-
-											@if (!$p->surat_walas && !$p->surat_ortu && !$p->surat_dokter && !$p->surat_terlambat)
-												<span class="text-slate-400 text-xs">—</span>
-											@endif
-										</div>
-									</td>
-
-									<td class="px-4 py-2 whitespace-nowrap">
-										@if ($p->status === 'pending')
-											<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">
-												<i class="fa-regular fa-clock mr-1"></i> Pending
-											</span>
-										@elseif ($p->status === 'approved')
-											<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
-												<i class="fa-solid fa-check mr-1"></i> Disetujui
-											</span>
-										@else
-											<span
-												class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs inline-flex items-center">
-												<i class="fa-solid fa-xmark mr-1"></i> Ditolak
-											</span>
-										@endif
-									</td>
-
-									@if (auth()->user()->role === 'wali_kelas')
-										<td class="px-4 py-2 text-center">
-											<div class="flex items-center justify-center gap-1.5 flex-nowrap">
-
-												@if (in_array($p->status, ['approved', 'rejected']))
-													<a href="{{ route('permissions.surat', $p->id) }}" target="_blank"
-														class="inline-flex items-center gap-1 px-2.5 py-1.5
-																																																																																bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition whitespace-nowrap">
-														<i class="fa-solid fa-file-lines"></i>
-														Lihat Surat
-													</a>
-												@else
-													<span class="text-xs text-slate-400 whitespace-nowrap">Belum tersedia</span>
-												@endif
-
-												<button onclick="openTerlambatModal({{ $p->id }})"
-													class="inline-flex items-center gap-1 px-2.5 py-1.5
-																																																															bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-lg transition whitespace-nowrap">
-													<i class="fa-solid fa-clock-rotate-left"></i>
-													{{ $p->surat_terlambat ? 'Ganti File Terlambat' : 'Upload File Terlambat' }}
-												</button>
-
-											</div>
-										</td>
-									@endif
-
-									@if (auth()->user()->role === 'perizinan')
-										<td class="px-4 py-2">
-											<div class="flex items-center justify-start gap-2 whitespace-nowrap">
-
-												@if ($p->status === 'pending')
-													<button onclick="approvePermission({{ $p->id }})"
-														class="inline-flex items-center gap-1 px-3 py-1.5
-																																																																																bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition">
-														<i class="fa-solid fa-check"></i>
-														<span>Setujui</span>
-													</button>
-
-													<button onclick="openRejectModal({{ $p->id }})"
-														class="inline-flex items-center gap-1 px-3 py-1.5
-																																																																																bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
-														<i class="fa-solid fa-xmark"></i>
-														<span>Tolak</span>
-													</button>
-
-												@elseif ($p->status === 'rejected')
-													<button onclick="showRejectReason(`{{ addslashes($p->reject_reason) }}`)"
-														class="inline-flex items-center gap-1 px-3 py-1.5
-																																																																																bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition">
-														<i class="fa-solid fa-eye"></i>
-														<span>Alasan Ditolak</span>
-													</button>
-
-												@elseif ($p->status === 'approved' && $p->qr_token)
-													<button onclick="showBarcode(
-																																																																															'{{ $p->qr_token }}',
-																																																																															'{{ $p->student->name }}',
-																																																																															'{{ $p->student->nis }}',
-																																																																															'{{ $p->student->class->name }}',
-																																																																															'{{ $p->student->dormitory->name ?? '-' }}',
-																																																																															'{{ ucfirst($p->type) }}',
-																																																																															'{{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i') }}',
-																																																																															'{{ \Carbon\Carbon::parse($p->end_at)->format('d M Y H:i') }}'
-																																																																														)"
-														class="inline-flex items-center gap-1 px-3 py-1.5
-																																																																																bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg transition">
-														<i class="fa-solid fa-barcode"></i>
-														<span>Barcode</span>
-													</button>
-												@endif
-
-												@if (in_array($p->status, ['approved', 'rejected']))
-													<a href="{{ route('permissions.surat', $p->id) }}" target="_blank"
-														class="inline-flex items-center gap-1 px-3 py-1.5
-																																																																																bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition">
-														<i class="fa-solid fa-file-lines"></i>
-														<span>Surat</span>
-													</a>
-												@endif
-
-											</div>
-										</td>
-									@endif
-
-								</tr>
-							@endforeach
-						</tbody>
+						<tbody></tbody>
 					</table>
 				</div>
-
 			</div>
 		</div>
 	</div>
 
-	{{-- ================= MODAL ALASAN TOLAK ================= --}}
+	{{-- MODAL ALASAN TOLAK --}}
 	<div id="viewRejectModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50 p-4">
 		<div class="bg-white w-full max-w-md rounded-xl p-5 sm:p-6">
 			<div class="flex items-center justify-between mb-3">
 				<h2 class="text-lg font-semibold text-red-600 flex items-center gap-2">
-					<i class="fa-solid fa-circle-xmark"></i>
-					Alasan Penolakan
+					<i class="fa-solid fa-circle-xmark"></i> Alasan Penolakan
 				</h2>
 				<button onclick="closeViewRejectModal()" class="text-slate-400 hover:text-red-500">
 					<i class="fa-solid fa-xmark text-lg"></i>
@@ -367,14 +185,13 @@
 				<p id="rejectReasonText" class="whitespace-pre-line"></p>
 			</div>
 			<div class="mt-4 text-right">
-				<button onclick="closeViewRejectModal()" class="px-4 py-2 border rounded-lg hover:bg-slate-100">
-					Tutup
-				</button>
+				<button onclick="closeViewRejectModal()"
+					class="px-4 py-2 border rounded-lg hover:bg-slate-100">Tutup</button>
 			</div>
 		</div>
 	</div>
 
-	{{-- ================= MODAL ALASAN IZIN ================= --}}
+	{{-- MODAL ALASAN IZIN --}}
 	<div id="reasonModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50 p-4">
 		<div class="bg-white w-full max-w-md rounded-xl p-4 sm:p-6 relative">
 			<button onclick="closeReasonModal()"
@@ -382,41 +199,32 @@
 				<i class="fa-solid fa-xmark text-lg"></i>
 			</button>
 			<h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
-				<i class="fa-solid fa-comment-dots text-blue-600"></i>
-				Alasan Izin
+				<i class="fa-solid fa-comment-dots text-blue-600"></i> Alasan Izin
 			</h2>
 			<div class="text-sm text-slate-700 leading-relaxed break-words max-h-[60vh] overflow-y-auto" id="reasonContent">
 				-</div>
 			<button onclick="closeReasonModal()"
-				class="mt-4 w-full bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg py-2 transition">
-				Tutup
-			</button>
+				class="mt-4 w-full bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg py-2 transition">Tutup</button>
 		</div>
 	</div>
 
-	{{-- ================= MODAL CREATE ================= --}}
+	{{-- MODAL CREATE --}}
 	<div id="createModal" class="fixed inset-0 hidden bg-black/40 z-50 flex items-center justify-center p-2 sm:p-4">
 		<div
 			class="bg-white w-full max-w-4xl h-full sm:h-auto sm:max-h-[90vh] rounded-xl shadow-lg flex flex-col overflow-hidden">
-
 			<div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b bg-white sticky top-0 z-20">
 				<h2 class="text-lg font-semibold flex items-center gap-2">
-					<i class="fa-solid fa-file-circle-plus text-blue-600"></i>
-					Ajukan Izin
+					<i class="fa-solid fa-file-circle-plus text-blue-600"></i> Ajukan Izin
 				</h2>
 				<button onclick="closeCreateModal()" class="text-slate-400 hover:text-red-500 transition">
 					<i class="fa-solid fa-xmark text-xl"></i>
 				</button>
 			</div>
-
 			<form action="/permissions" method="POST" enctype="multipart/form-data" id="createForm"
 				class="flex-1 overflow-y-auto p-4 sm:p-6">
 				@csrf
-
 				<div id="violationAlert"
-					class="hidden mb-6 rounded-xl border border-rose-200 bg-rose-50 shadow-sm relative overflow-hidden transition-all duration-300">
-					<div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-rose-100 rounded-full opacity-50 blur-2xl">
-					</div>
+					class="hidden mb-6 rounded-xl border border-rose-200 bg-rose-50 shadow-sm relative overflow-hidden">
 					<div class="relative flex flex-col sm:flex-row gap-4 p-5">
 						<div class="flex-shrink-0">
 							<div
@@ -428,9 +236,8 @@
 							<div class="flex flex-wrap items-center gap-2 mb-3">
 								<h3 class="font-bold text-rose-900 tracking-tight text-base">Pengajuan Izin Terkunci</h3>
 								<span
-									class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-rose-200 text-rose-700">
-									Status: Pelanggaran
-								</span>
+									class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-rose-200 text-rose-700">Status:
+									Pelanggaran</span>
 							</div>
 							<div id="violationDetail" class="space-y-3"></div>
 						</div>
@@ -468,7 +275,7 @@
 						<div class="relative">
 							<i class="fa-regular fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
 							<input type="datetime-local" name="start_at"
-								class="border rounded-lg py-2 pl-10 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+								class="border rounded-lg py-2 pl-10 w-full focus:ring-2 focus:ring-blue-500">
 						</div>
 					</div>
 					<div>
@@ -476,7 +283,7 @@
 						<div class="relative">
 							<i class="fa-regular fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
 							<input type="datetime-local" name="end_at"
-								class="border rounded-lg py-2 pl-10 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+								class="border rounded-lg py-2 pl-10 w-full focus:ring-2 focus:ring-blue-500">
 						</div>
 					</div>
 				</div>
@@ -495,8 +302,8 @@
 				<div class="mb-6 space-y-4 hidden" id="attachmentFields">
 					<div>
 						<label class="text-sm font-medium mb-2 block">Surat Orang Tua</label>
-						<label class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl
-																								cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+						<label
+							class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
 							<i class="fa-solid fa-people-roof text-blue-600 text-xl"></i>
 							<div class="flex-1">
 								<p class="text-sm font-medium text-slate-700" id="ortuText">Klik untuk upload surat orang
@@ -507,11 +314,10 @@
 								onchange="updateFileLabel(this, 'ortuText')">
 						</label>
 					</div>
-
 					<div id="suratDokterWrap">
 						<label class="text-sm font-medium mb-2 block">Surat Dokter</label>
-						<label class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl
-																								cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+						<label
+							class="flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
 							<i class="fa-solid fa-user-doctor text-blue-600 text-xl"></i>
 							<div class="flex-1">
 								<p class="text-sm font-medium text-slate-700" id="dokterText">Klik untuk upload surat dokter
@@ -543,62 +349,52 @@
 		</div>
 	</div>
 
-	{{-- ================= MODAL IZIN MASSAL ================= --}}
+	{{-- MODAL IZIN MASSAL --}}
 	<div id="massalModal" class="fixed inset-0 hidden bg-black/40 z-50 flex items-center justify-center p-4">
 		<div class="bg-white w-full max-w-md rounded-xl shadow-lg flex flex-col overflow-hidden">
 			<div class="flex items-center justify-between px-5 py-4 border-b">
 				<h2 class="text-lg font-semibold flex items-center gap-2">
-					<i class="fa-solid fa-users text-emerald-600"></i>
-					Izin Perpulangan Massal
+					<i class="fa-solid fa-users text-emerald-600"></i> Izin Perpulangan Massal
 				</h2>
 				<button onclick="closeMassalModal()" class="text-slate-400 hover:text-red-500 transition">
 					<i class="fa-solid fa-xmark text-xl"></i>
 				</button>
 			</div>
-
 			<div class="px-5 pt-4">
 				<div
 					class="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800 flex gap-2">
 					<i class="fa-solid fa-circle-info mt-0.5 flex-shrink-0"></i>
-					<span>
-						Izin akan dibuat otomatis untuk <strong>seluruh siswa</strong> di kelas Anda
-						dan langsung berstatus <strong>Disetujui</strong>.
-						Siswa yang sudah memiliki izin aktif akan dilewati.
-					</span>
+					<span>Izin akan dibuat otomatis untuk <strong>seluruh siswa</strong> di kelas Anda dan langsung
+						berstatus <strong>Disetujui</strong>.</span>
 				</div>
 			</div>
-
 			<form action="{{ route('permissions.massal') }}" method="POST" id="massalForm" class="px-5 py-4 space-y-4">
 				@csrf
-
 				<div>
 					<label class="text-sm font-medium text-slate-700 mb-1 block">Tanggal Mulai</label>
 					<div class="relative">
 						<i class="fa-regular fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
 						<input type="datetime-local" name="start_at" required
-							class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+							class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
 					</div>
 				</div>
-
 				<div>
 					<label class="text-sm font-medium text-slate-700 mb-1 block">Tanggal Selesai</label>
 					<div class="relative">
 						<i class="fa-regular fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
 						<input type="datetime-local" name="end_at" required
-							class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+							class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
 					</div>
 				</div>
-
 				<div>
 					<label class="text-sm font-medium text-slate-700 mb-1 block">Alasan</label>
 					<div class="relative">
 						<i class="fa-solid fa-align-left absolute left-3 top-3 text-slate-400"></i>
 						<textarea name="reason" rows="3" required
-							class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+							class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
 							placeholder="Contoh: Libur semester, keperluan keluarga, dll"></textarea>
 					</div>
 				</div>
-
 				<div class="flex gap-2 pt-1">
 					<button type="button" onclick="closeMassalModal()"
 						class="flex-1 px-4 py-2 border rounded-lg hover:bg-slate-100 transition">Batal</button>
@@ -614,39 +410,34 @@
 			</form>
 		</div>
 	</div>
-	{{-- ================= MODAL QR MASSAL ================= --}}
+
+	{{-- MODAL QR MASSAL --}}
 	<div id="qrMassalModal" class="fixed inset-0 hidden bg-black/40 z-50 flex items-center justify-center p-4">
 		<div class="bg-white w-full max-w-md rounded-xl shadow-lg overflow-hidden">
 			<div class="flex items-center justify-between px-5 py-4 border-b">
 				<h2 class="text-lg font-semibold flex items-center gap-2">
-					<i class="fa-solid fa-qrcode text-indigo-600"></i>
-					Cetak QR Massal
+					<i class="fa-solid fa-qrcode text-indigo-600"></i> Cetak QR Massal
 				</h2>
 				<button onclick="closeQrMassalModal()" class="text-slate-400 hover:text-red-500 transition">
 					<i class="fa-solid fa-xmark text-xl"></i>
 				</button>
 			</div>
-
 			<div class="px-5 pt-4">
 				<div class="rounded-lg bg-indigo-50 border border-indigo-200 px-4 py-3 text-sm text-indigo-800 flex gap-2">
 					<i class="fa-solid fa-circle-info mt-0.5 flex-shrink-0"></i>
-					<span>Hanya izin <strong>perpulangan</strong> berstatus <strong>disetujui</strong> yang dicetak,
-						diurutkan per kelas.</span>
+					<span>Hanya izin <strong>perpulangan</strong> berstatus <strong>disetujui</strong> yang dicetak.</span>
 				</div>
 			</div>
-
 			<div class="px-5 py-4 space-y-4">
-
 				<div>
 					<label class="text-sm font-medium text-slate-700 mb-1 block">Tanggal</label>
 					<div class="relative">
 						<i class="fa-regular fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
 						<input type="date" id="qrMassalDate"
-							class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+							class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
 							value="{{ now()->format('Y-m-d') }}">
 					</div>
 				</div>
-
 				<div id="qrMassalPreview"
 					class="hidden rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 flex items-center gap-2">
 					<svg id="qrMassalLoader" class="hidden w-4 h-4 animate-spin text-indigo-600" viewBox="0 0 24 24"
@@ -656,39 +447,34 @@
 					</svg>
 					Ditemukan <span id="qrMassalCount" class="font-bold text-indigo-600 mx-1">0</span> siswa perpulangan
 				</div>
-
 				<div class="flex gap-2 pt-1">
 					<button type="button" onclick="closeQrMassalModal()"
 						class="flex-1 px-4 py-2 border rounded-lg hover:bg-slate-100 transition">Batal</button>
 					<button type="button" onclick="cetakQrMassal()" id="btnCetakQr"
 						class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2">
-						<i class="fa-solid fa-print"></i>
-						<span id="btnCetakQrText">Cetak QR</span>
+						<i class="fa-solid fa-print"></i> <span id="btnCetakQrText">Cetak QR</span>
 					</button>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	{{-- ================= MODAL SURAT TERLAMBAT ================= --}}
+	{{-- MODAL SURAT TERLAMBAT --}}
 	<div id="terlambatModal" class="fixed inset-0 hidden bg-black/40 z-50 flex items-center justify-center p-4">
 		<div class="bg-white w-full max-w-md rounded-xl shadow-lg overflow-hidden">
 			<div class="flex items-center justify-between px-5 py-4 border-b">
 				<h2 class="text-base font-semibold flex items-center gap-2">
-					<i class="fa-solid fa-clock-rotate-left text-orange-500"></i>
-					Upload Surat Keterangan Terlambat
+					<i class="fa-solid fa-clock-rotate-left text-orange-500"></i> Upload Surat Keterangan Terlambat
 				</h2>
 				<button onclick="closeTerlambatModal()" class="text-slate-400 hover:text-red-500 transition">
 					<i class="fa-solid fa-xmark text-xl"></i>
 				</button>
 			</div>
-
 			<form id="terlambatForm" method="POST" enctype="multipart/form-data" class="p-5 space-y-4">
 				@csrf
-
 				<div>
-					<label class="flex items-center gap-3 px-4 py-4 border-2 border-dashed border-orange-300 rounded-xl
-																							cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition">
+					<label
+						class="flex items-center gap-3 px-4 py-4 border-2 border-dashed border-orange-300 rounded-xl cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition">
 						<i class="fa-solid fa-cloud-arrow-up text-orange-500 text-2xl"></i>
 						<div class="flex-1">
 							<p class="text-sm font-medium text-slate-700" id="terlambatFileName">Klik untuk pilih file</p>
@@ -698,18 +484,16 @@
 							class="hidden" onchange="updateTerlambatLabel(this)">
 					</label>
 				</div>
-
 				<div
 					class="rounded-lg bg-orange-50 border border-orange-200 px-3 py-2.5 text-xs text-orange-700 flex gap-2">
 					<i class="fa-solid fa-circle-info mt-0.5 flex-shrink-0"></i>
-					<span>Jika sudah pernah upload sebelumnya, file lama akan digantikan dengan file baru.</span>
+					<span>Jika sudah pernah upload, file lama akan digantikan file baru.</span>
 				</div>
-
 				<div class="flex gap-2 pt-1">
 					<button type="button" onclick="closeTerlambatModal()"
 						class="flex-1 px-4 py-2 border rounded-lg hover:bg-slate-100 transition text-sm">Batal</button>
-					<button type="submit" id="btnTerlambat" class="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition
-																								flex items-center justify-center gap-2 text-sm">
+					<button type="submit" id="btnTerlambat"
+						class="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition flex items-center justify-center gap-2 text-sm">
 						<span id="btnTerlambatText">Upload</span>
 						<svg id="btnTerlambatLoader" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
 							<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.3" />
@@ -721,15 +505,14 @@
 		</div>
 	</div>
 
-	{{-- ================= MODAL QR ================= --}}
+	{{-- MODAL QR --}}
 	<div id="qrModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50 p-4">
 		<div class="bg-white w-full max-w-sm rounded-xl p-4 sm:p-6 relative">
 			<button onclick="closeQrModal()" class="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition">
 				<i class="fa-solid fa-xmark text-lg"></i>
 			</button>
 			<h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-				<i class="fa-solid fa-barcode text-indigo-600"></i>
-				Barcode Kepulangan
+				<i class="fa-solid fa-barcode text-indigo-600"></i> Barcode Kepulangan
 			</h2>
 			<div class="flex justify-center mb-4 relative">
 				<div id="qrLoader" class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
@@ -743,23 +526,21 @@
 			<p class="text-xs text-center text-slate-500 break-all mb-4" id="qrText"></p>
 			<button onclick="printQr()" id="printQrBtn" disabled
 				class="w-full bg-slate-300 text-slate-500 rounded-lg py-2 flex items-center justify-center gap-2 cursor-not-allowed transition mb-2">
-				<i class="fa-solid fa-print"></i>
-				Cetak QR
+				<i class="fa-solid fa-print"></i> Cetak QR
 			</button>
 		</div>
 	</div>
 
-	{{-- ================= MODAL REJECT ================= --}}
+	{{-- MODAL REJECT --}}
 	<div id="rejectModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50 p-4">
 		<div class="bg-white w-full max-w-md rounded-xl p-4 sm:p-6">
 			<h2 class="text-lg font-semibold mb-4 text-red-600 flex items-center gap-2">
-				<i class="fa-solid fa-circle-xmark"></i>
-				Tolak Permohonan
+				<i class="fa-solid fa-circle-xmark"></i> Tolak Permohonan
 			</h2>
 			<form method="POST" id="rejectForm">
 				@csrf
 				<textarea name="reject_reason" required rows="3"
-					class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+					class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500"
 					placeholder="Alasan penolakan"></textarea>
 				<div class="flex flex-col sm:flex-row justify-end gap-2 mt-4">
 					<button type="button" onclick="closeRejectModal()"
@@ -771,7 +552,7 @@
 		</div>
 	</div>
 
-	{{-- ================= GLOBAL TOOLTIP ================= --}}
+	{{-- GLOBAL TOOLTIP --}}
 	<div id="global-tooltip"
 		class="fixed z-[99999] hidden bg-slate-900 text-white text-xs rounded-lg px-3 py-2 shadow-xl whitespace-nowrap pointer-events-none">
 		<div id="tooltip-title" class="font-medium"></div>
@@ -781,106 +562,136 @@
 
 	@push('scripts')
 		<script>
-			// ===== TOOLTIP (FIXED) =====
+			// ── Tooltip ──────────────────────────────────────────────────────────
 			document.addEventListener('mouseenter', function (e) {
 				const el = e.target.closest('.tooltip-icon');
 				if (!el) return;
-
 				const tooltip = document.getElementById('global-tooltip');
-				const title = document.getElementById('tooltip-title');
-				const desc = document.getElementById('tooltip-desc');
-
-				title.textContent = el.dataset.title || '';
-				desc.textContent = el.dataset.desc || '';
-
+				document.getElementById('tooltip-title').textContent = el.dataset.title || '';
+				document.getElementById('tooltip-desc').textContent = el.dataset.desc || '';
 				tooltip.classList.remove('hidden');
-
-				positionTooltip(el, tooltip);
+				const rect = el.getBoundingClientRect();
+				tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 10}px`;
+				tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+				tooltip.style.transform = 'translateX(-50%)';
 			}, true);
-
 			document.addEventListener('mouseleave', function (e) {
 				if (!e.target.closest('.tooltip-icon')) return;
 				document.getElementById('global-tooltip')?.classList.add('hidden');
 			}, true);
 
-			function positionTooltip(el, tooltip) {
-				const rect = el.getBoundingClientRect();
+			// ── Filter state ──────────────────────────────────────────────────
+			let dtStartDate = '';
+			let dtEndDate = '';
+			let dtStatus = '';
 
-				const top = rect.top + window.scrollY - tooltip.offsetHeight - 10;
-				const left = rect.left + window.scrollX + rect.width / 2;
+			// ── DataTable ─────────────────────────────────────────────────────
+			const isWalikelas = {{ auth()->user()->role === 'wali_kelas' ? 'true' : 'false' }};
+			const isPerizinan = {{ auth()->user()->role === 'perizinan' ? 'true' : 'false' }};
 
-				tooltip.style.top = `${top}px`;
-				tooltip.style.left = `${left}px`;
-				tooltip.style.transform = 'translateX(-50%)';
-			}
-			// ===== REASON MODAL =====
-			function openReasonModal(reason) {
-				document.getElementById('reasonContent').innerText = reason;
-				document.getElementById('reasonModal').classList.remove('hidden');
-			}
-			function closeReasonModal() {
-				document.getElementById('reasonModal').classList.add('hidden');
-			}
+			const columns = [
+				{ data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+				{ data: 'nis', name: 'nis' },
+				{ data: 'student_name', name: 'name' },
+				{ data: 'class_name', name: 'class.name' },
+				{ data: 'type', name: 'type', className: 'capitalize' },
+				{ data: 'alasan', name: 'alasan', orderable: false, searchable: false },
+				{ data: 'waktu', name: 'start_at' },
+				{ data: 'file', name: 'file', orderable: false, searchable: false, className: 'text-center' },
+				{ data: 'status_badge', name: 'status' },
+			];
 
-			// ===== REJECT REASON MODAL =====
-			function showRejectReason(reason) {
-				$('#rejectReasonText').text(reason || '-');
-				$('#viewRejectModal').removeClass('hidden');
-			}
-			function closeViewRejectModal() {
-				$('#viewRejectModal').addClass('hidden');
-			}
+			if (isWalikelas) columns.push({ data: 'aksi_walas', name: 'aksi_walas', orderable: false, searchable: false });
+			if (isPerizinan) columns.push({ data: 'aksi_perizinan', name: 'aksi_perizinan', orderable: false, searchable: false });
 
-			// ===== FILE LABEL =====
-			function updateFileLabel(input, targetId) {
-				if (!input.files || !input.files[0]) return;
-				document.getElementById(targetId).innerText = input.files[0].name;
-			}
+			const table = $('#datatable').DataTable({
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: '{{ route('permissions.data') }}',
+					data: function (d) {
+						d.status = dtStatus;
+						d.start_date = dtStartDate;
+						d.end_date = dtEndDate;
+					}
+				},
+				columns: columns,
+				order: [[6, 'desc']],
+				pageLength: 10,
+				responsive: true,
+				scrollX: true,
+				autoWidth: false,
+			});
 
-			// ===== CREATE MODAL =====
-			function openCreateModal() {
-				$('#createModal').removeClass('hidden');
-			}
-			function closeCreateModal() {
-				$('#createModal').addClass('hidden');
-			}
+			// ── Flatpickr ─────────────────────────────────────────────────────
+			flatpickr("#dateRange", {
+				mode: "range",
+				dateFormat: "Y-m-d",
+				defaultDate: [
+					"{{ now()->startOfMonth()->format('Y-m-d') }}",
+					"{{ now()->endOfMonth()->format('Y-m-d') }}"
+				],
+				onClose: function (dates) {
+					if (dates.length === 2) {
+						dtStartDate = dates[0].toISOString().slice(0, 10);
+						dtEndDate = dates[1].toISOString().slice(0, 10);
+						document.getElementById('startDate').value = dtStartDate;
+						document.getElementById('endDate').value = dtEndDate;
+					}
+				}
+			});
 
-			// ===== MASSAL MODAL =====
-			function openMassalModal() {
-				$('#massalModal').removeClass('hidden');
-			}
-			function closeMassalModal() {
-				$('#massalModal').addClass('hidden');
-				$('#massalForm')[0].reset();
-			}
+			// Inisialisasi default nilai flatpickr ke filter
+			dtStartDate = "{{ now()->startOfMonth()->format('Y-m-d') }}";
+			dtEndDate = "{{ now()->endOfMonth()->format('Y-m-d') }}";
+			document.getElementById('startDate').value = dtStartDate;
+			document.getElementById('endDate').value = dtEndDate;
 
-			// ===== TERLAMBAT MODAL =====
-			function openTerlambatModal(id) {
-				$('#terlambatForm').attr('action', `/permissions/upload-terlambat/${id}`);
-				$('#terlambatFileName').text('Klik untuk pilih file');
-				$('#terlambatFile').val('');
-				$('#terlambatModal').removeClass('hidden');
-			}
-			function closeTerlambatModal() {
-				$('#terlambatModal').addClass('hidden');
-				$('#terlambatForm')[0].reset();
-				$('#terlambatFileName').text('Klik untuk pilih file');
-			}
-			function updateTerlambatLabel(input) {
-				if (!input.files || !input.files[0]) return;
-				$('#terlambatFileName').text(input.files[0].name);
-			}
+			// ── Tombol Terapkan ───────────────────────────────────────────────
+			document.getElementById('btnTerapkan').addEventListener('click', function () {
+				dtStatus = document.getElementById('filterStatus').value;
+				table.ajax.reload();
 
-			// ===== REJECT MODAL =====
-			function openRejectModal(id) {
-				$('#rejectForm').attr('action', `/permissions/${id}/reject`);
-				$('#rejectModal').removeClass('hidden');
-			}
-			function closeRejectModal() {
-				$('#rejectModal').addClass('hidden');
-			}
+				// Sync ke form PDF
+				document.getElementById('pdfStartDate').value = dtStartDate;
+				document.getElementById('pdfEndDate').value = dtEndDate;
+				document.getElementById('pdfStatus').value = dtStatus;
 
-			// ===== APPROVE =====
+				// Tampilkan tombol reset
+				document.getElementById('btnReset').classList.remove('hidden');
+			});
+
+			// ── Tombol Reset ──────────────────────────────────────────────────
+			document.getElementById('btnReset').addEventListener('click', function () {
+				dtStatus = '';
+				dtStartDate = '';
+				dtEndDate = '';
+				document.getElementById('filterStatus').value = '';
+				document.getElementById('startDate').value = '';
+				document.getElementById('endDate').value = '';
+				table.ajax.reload();
+				this.classList.add('hidden');
+			});
+
+			// ── Modal helpers ─────────────────────────────────────────────────
+			function openReasonModal(reason) { document.getElementById('reasonContent').innerText = reason; $('#reasonModal').removeClass('hidden'); }
+			function closeReasonModal() { $('#reasonModal').addClass('hidden'); }
+			function showRejectReason(reason) { $('#rejectReasonText').text(reason || '-'); $('#viewRejectModal').removeClass('hidden'); }
+			function closeViewRejectModal() { $('#viewRejectModal').addClass('hidden'); }
+			function updateFileLabel(input, id) { if (input.files?.[0]) document.getElementById(id).innerText = input.files[0].name; }
+			function openCreateModal() { $('#createModal').removeClass('hidden'); }
+			function closeCreateModal() { $('#createModal').addClass('hidden'); }
+			function openMassalModal() { $('#massalModal').removeClass('hidden'); }
+			function closeMassalModal() { $('#massalModal').addClass('hidden'); $('#massalForm')[0].reset(); }
+			function openTerlambatModal(id) { $('#terlambatForm').attr('action', `/permissions/upload-terlambat/${id}`); $('#terlambatFileName').text('Klik untuk pilih file'); $('#terlambatFile').val(''); $('#terlambatModal').removeClass('hidden'); }
+			function closeTerlambatModal() { $('#terlambatModal').addClass('hidden'); $('#terlambatForm')[0].reset(); $('#terlambatFileName').text('Klik untuk pilih file'); }
+			function updateTerlambatLabel(input) { if (input.files?.[0]) $('#terlambatFileName').text(input.files[0].name); }
+			function openRejectModal(id) { $('#rejectForm').attr('action', `/permissions/${id}/reject`); $('#rejectModal').removeClass('hidden'); }
+			function closeRejectModal() { $('#rejectModal').addClass('hidden'); }
+			function closeQrModal() { $('#qrModal').addClass('hidden'); }
+			function openQrMassalModal() { $('#qrMassalModal').removeClass('hidden'); fetchQrMassal(); }
+			function closeQrMassalModal() { $('#qrMassalModal').addClass('hidden'); }
+
 			function approvePermission(id) {
 				Swal.fire({
 					title: 'Setujui izin?',
@@ -903,171 +714,93 @@
 				});
 			}
 
-			// ===== FLATPICKR =====
-			flatpickr("#dateRange", {
-				mode: "range",
-				dateFormat: "Y-m-d",
-				defaultDate: ["{{ $start }}", "{{ $end }}"],
-				onClose: function (dates) {
-					if (dates.length === 2) {
-						document.getElementById('startDate').value = dates[0].toISOString().slice(0, 10);
-						document.getElementById('endDate').value = dates[1].toISOString().slice(0, 10);
-					}
-				}
-			});
-
+			// ── Submit loaders ────────────────────────────────────────────────
 			$(document).ready(function () {
-				$('#datatable').DataTable({ responsive: true, scrollX: true, autoWidth: false });
 				$('.select2').select2({ width: '100%' });
 
-				// ===== STUDENT SELECT =====
+				$('#createModal form').on('submit', function () {
+					$('#submitCreateBtn').prop('disabled', true).addClass('opacity-70');
+					$('#submitCreateText').text('Mengirim...');
+					$('#submitCreateLoader').removeClass('hidden');
+				});
+				$('#massalForm').on('submit', function () {
+					$('#btnMassal').prop('disabled', true).addClass('opacity-70');
+					$('#btnMassalText').text('Memproses...');
+					$('#btnMassalLoader').removeClass('hidden');
+				});
+				$('#terlambatForm').on('submit', function () {
+					$('#btnTerlambat').prop('disabled', true).addClass('opacity-70');
+					$('#btnTerlambatText').text('Mengupload...');
+					$('#btnTerlambatLoader').removeClass('hidden');
+				});
+
+				// Violation check
 				$('select[name="student_id"]').on('change', function () {
 					const studentId = $(this).val();
 					$('#violationAlert').addClass('hidden');
 					$('#violationDetail').html('');
-
 					if (!studentId) {
 						$('#typeField, #timeFields, #reasonField, #attachmentFields, #addressField').addClass('hidden');
 						$('#submitCreateBtn').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
 						return;
 					}
-
 					$('#typeField, #timeFields, #reasonField, #attachmentFields, #addressField').removeClass('hidden');
 					$('#submitCreateBtn').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
 				});
 
-				// ===== TOGGLE SURAT DOKTER =====
 				const $typeField = $('select[name="type"]');
 				const $suratDokterWrap = $('#suratDokterWrap');
-
 				function toggleDokterField() {
-					if ($typeField.val() === 'sakit') {
-						$suratDokterWrap.show();
-					} else {
-						$suratDokterWrap.hide();
-						$suratDokterWrap.find('input').val('');
-						$('#dokterText').text('Klik untuk upload surat dokter');
-					}
+					$typeField.val() === 'sakit' ? $suratDokterWrap.show() : $suratDokterWrap.hide();
 				}
-
 				toggleDokterField();
 				$typeField.on('change', toggleDokterField);
 
-				// ===== CEK VIOLATION =====
 				$('select[name="type"]').on('change', function () {
 					const type = $(this).val();
 					const studentId = $('select[name="student_id"]').val();
-					const $alert = $('#violationAlert');
-					const $submitBtn = $('#submitCreateBtn');
-
-					$alert.addClass('hidden');
-					$submitBtn.prop('disabled', false).removeClass('opacity-50 grayscale cursor-not-allowed');
+					$('#violationAlert').addClass('hidden');
+					$('#submitCreateBtn').prop('disabled', false).removeClass('opacity-50 grayscale cursor-not-allowed');
 					$('#violationDetail').html('');
-
 					if (!studentId || type === 'sakit') return;
-
 					$.get(`/permissions/check-violation/${studentId}`, function (res) {
 						if (!res.has_violation) return;
-
 						let html = '<div class="grid gap-3">';
 						for (const [vType, data] of Object.entries(res.details)) {
 							const isPengasuhan = vType === 'pengasuhan';
 							const icon = isPengasuhan ? 'fa-user-shield' : 'fa-calendar-check';
-							const accentColor = isPengasuhan ? 'text-rose-600' : 'text-amber-600';
-
-							html += `<div class="bg-white/80 backdrop-blur-sm p-4 rounded-lg border border-rose-100 shadow-sm">
-																																											<div class="flex gap-3">
-																																												<i class="fa-solid ${icon} ${accentColor} mt-1"></i>
-																																												<div class="flex-1 text-sm text-slate-700">
-																																													${isPengasuhan ? `
-																																														<div class="font-bold text-slate-900 mb-1">Pelanggaran Pengasuhan: ${data.type}</div>
-																																														<div class="italic text-slate-600 mb-2">"${data.description}"</div>
-																																														<div class="text-[11px] font-medium text-slate-500 uppercase">
-																																															<i class="fa-regular fa-clock mr-1"></i>Hingga: ${data.until}
-																																														</div>
-																																													` : `
-																																														<div class="font-bold text-slate-900 mb-1">Pelanggaran ${data.handling_type}</div>
-																																														<div class="mb-2">Kehadiran: <span class="font-bold text-rose-600">${data.attendance_percentage}%</span></div>
-																																														<div class="text-[11px] font-medium text-slate-500 uppercase">
-																																															<i class="fa-regular fa-calendar-xmark mr-1"></i>Berlaku Sampai: ${data.until}
-																																														</div>
-																																													`}
-																																												</div>
-																																											</div>
-																																										</div>`;
+							const color = isPengasuhan ? 'text-rose-600' : 'text-amber-600';
+							html += `<div class="bg-white/80 p-4 rounded-lg border border-rose-100 shadow-sm"><div class="flex gap-3"><i class="fa-solid ${icon} ${color} mt-1"></i><div class="flex-1 text-sm text-slate-700">${isPengasuhan ? `<div class="font-bold text-slate-900 mb-1">Pelanggaran Pengasuhan: ${data.type}</div><div class="italic text-slate-600 mb-2">"${data.description}"</div><div class="text-[11px] font-medium text-slate-500 uppercase"><i class="fa-regular fa-clock mr-1"></i>Hingga: ${data.until}</div>` : `<div class="font-bold text-slate-900 mb-1">Pelanggaran ${data.handling_type}</div><div class="mb-2">Kehadiran: <span class="font-bold text-rose-600">${data.attendance_percentage}%</span></div><div class="text-[11px] font-medium text-slate-500 uppercase"><i class="fa-regular fa-calendar-xmark mr-1"></i>Berlaku Sampai: ${data.until}</div>`}</div></div></div>`;
 						}
 						html += '</div>';
-
 						$('#violationDetail').html(html);
-						$alert.removeClass('hidden').hide().slideDown(300);
-						$submitBtn.prop('disabled', true).addClass('opacity-50 grayscale cursor-not-allowed');
+						$('#violationAlert').removeClass('hidden').hide().slideDown(300);
+						$('#submitCreateBtn').prop('disabled', true).addClass('opacity-50 grayscale cursor-not-allowed');
 					});
-				});
-
-				// ===== SUBMIT LOADING =====
-				$('#createModal form').on('submit', function () {
-					$('#submitCreateBtn').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
-					$('#submitCreateText').text('Mengirim...');
-					$('#submitCreateLoader').removeClass('hidden');
-				});
-
-				$('#massalForm').on('submit', function () {
-					$('#btnMassal').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
-					$('#btnMassalText').text('Memproses...');
-					$('#btnMassalLoader').removeClass('hidden');
-				});
-
-				$('#terlambatForm').on('submit', function () {
-					$('#btnTerlambat').prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
-					$('#btnTerlambatText').text('Mengupload...');
-					$('#btnTerlambatLoader').removeClass('hidden');
 				});
 			});
 
-			// ===== BARCODE =====
+			// ── Barcode & Print QR ────────────────────────────────────────────
 			let barcodeData = {};
 			let barcodeReady = false;
-
-
-			function closeQrModal() {
-				$('#qrModal').addClass('hidden');
-			}
 
 			function showBarcode(token, nama, nis, kelas, asrama, izin, startAt, endAt) {
 				barcodeReady = false;
 				barcodeData = { token, nama, nis, kelas, asrama, izin, startAt, endAt };
-
 				$('#qrModal').removeClass('hidden');
 				$('#qrLoader').removeClass('hidden');
 				$('#qrImage').addClass('hidden');
 				$('#qrText').text('');
-				$('#printQrBtn')
-					.prop('disabled', true)
-					.removeClass('bg-blue-600 hover:bg-blue-700 text-white')
-					.addClass('bg-slate-300 text-slate-500 cursor-not-allowed');
-
-				// Generate barcode pakai canvas (offline, tidak hit internet)
+				$('#printQrBtn').prop('disabled', true).removeClass('bg-blue-600 hover:bg-blue-700 text-white').addClass('bg-slate-300 text-slate-500 cursor-not-allowed');
 				const canvas = document.createElement('canvas');
 				try {
-					JsBarcode(canvas, token, {
-						format: 'CODE128',
-						width: 2,
-						height: 50,
-						displayValue: false,
-						margin: 5,
-					});
-
+					JsBarcode(canvas, token, { format: 'CODE128', width: 2, height: 50, displayValue: false, margin: 5 });
 					const dataUrl = canvas.toDataURL('image/png');
 					$('#qrImage').attr('src', dataUrl).removeClass('hidden');
 					$('#qrLoader').addClass('hidden');
 					$('#qrText').text(token);
-
 					barcodeReady = true;
-					$('#printQrBtn')
-						.prop('disabled', false)
-						.removeClass('bg-slate-300 text-slate-500 cursor-not-allowed')
-						.addClass('bg-blue-600 hover:bg-blue-700 text-white');
-
+					$('#printQrBtn').prop('disabled', false).removeClass('bg-slate-300 text-slate-500 cursor-not-allowed').addClass('bg-blue-600 hover:bg-blue-700 text-white');
 				} catch (e) {
 					$('#qrLoader').addClass('hidden');
 					$('#qrText').text('Gagal generate barcode');
@@ -1075,255 +808,46 @@
 			}
 
 			function printQr() {
-				if (!barcodeReady) {
-					Swal.fire({ icon: 'warning', title: 'Barcode belum siap', confirmButtonColor: '#2563eb' });
-					return;
-				}
-
-				// barcodeSrc sudah berupa data:image/png base64 — tidak perlu internet
+				if (!barcodeReady) { Swal.fire({ icon: 'warning', title: 'Barcode belum siap', confirmButtonColor: '#2563eb' }); return; }
 				const barcodeSrc = document.getElementById('qrImage').src;
 				const d = barcodeData;
 				const win = window.open('', '_blank', 'width=360,height=520');
-
-				win.document.write(`<!DOCTYPE html>
-																										<html>
-																										<head>
-																										<title>Tiket Izin</title>
-																										<style>
-																										@page { size: 80mm auto; margin: 4mm; }
-																										body { margin: 0; font-family: Arial, sans-serif; padding: 6mm 0; }
-																										.ticket { border: 2px solid #000; padding: 6px 8px; max-width: 70mm; margin: 0 auto; font-size: 9px; }
-																										.title { text-align: center; font-weight: bold; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 4px; }
-																										.info { display: grid; grid-template-columns: 55px auto; row-gap: 2px; margin-bottom: 6px; }
-																										.label { font-weight: bold; }
-																										.barcode { text-align: center; border-top: 1px dashed #000; padding-top: 6px; }
-																										.barcode img { width: 180px; }
-																										.barcode small { display: block; font-size: 7px; margin-top: 2px; }
-																										.time { display: flex; justify-content: space-between; font-size: 8px; border-top: 1px dashed #000; margin-top: 4px; padding-top: 4px; }
-																										</style>
-																										</head>
-																										<body>
-																										<div class="ticket">
-																											<div class="title">IZIN KEPULANGAN</div>
-																											<div class="info">
-																												<div class="label">Nama</div><div>: ${d.nama}</div>
-																												<div class="label">NIS</div><div>: ${d.nis}</div>
-																												<div class="label">Kelas</div><div>: ${d.kelas}</div>
-																												<div class="label">Asrama</div><div>: ${d.asrama}</div>
-																												<div class="label">Jenis</div><div>: ${d.izin}</div>
-																											</div>
-																											<div class="barcode">
-																												<img src="${barcodeSrc}">
-																												<small>Scan saat keluar & masuk</small>
-																											</div>
-																											<div class="time">
-																												<div><b>Mulai</b><br>${d.startAt}</div>
-																												<div style="text-align:right"><b>Sampai</b><br>${d.endAt}</div>
-																											</div>
-																										</div>
-																										<script>window.onload = function() { window.print(); window.close(); }<\/script>
-																										</body>
-																										</html>`);
-
-				win.document.close();
-				win.focus();
+				win.document.write(`<!DOCTYPE html><html><head><title>Tiket Izin</title><style>@page{size:80mm auto;margin:4mm}body{margin:0;font-family:Arial,sans-serif;padding:6mm 0}.ticket{border:2px solid #000;padding:6px 8px;max-width:70mm;margin:0 auto;font-size:9px}.title{text-align:center;font-weight:bold;font-size:11px;letter-spacing:1px;border-bottom:1px solid #000;padding-bottom:3px;margin-bottom:4px}.info{display:grid;grid-template-columns:55px auto;row-gap:2px;margin-bottom:6px}.label{font-weight:bold}.barcode{text-align:center;border-top:1px dashed #000;padding-top:6px}.barcode img{width:180px}.barcode small{display:block;font-size:7px;margin-top:2px}.time{display:flex;justify-content:space-between;font-size:8px;border-top:1px dashed #000;margin-top:4px;padding-top:4px}</style></head><body><div class="ticket"><div class="title">IZIN KEPULANGAN</div><div class="info"><div class="label">Nama</div><div>: ${d.nama}</div><div class="label">NIS</div><div>: ${d.nis}</div><div class="label">Kelas</div><div>: ${d.kelas}</div><div class="label">Asrama</div><div>: ${d.asrama}</div><div class="label">Jenis</div><div>: ${d.izin}</div></div><div class="barcode"><img src="${barcodeSrc}"><small>Scan saat keluar & masuk</small></div><div class="time"><div><b>Mulai</b><br>${d.startAt}</div><div style="text-align:right"><b>Sampai</b><br>${d.endAt}</div></div></div><script>window.onload=function(){window.print();window.close()}<\/script></body></html>`);
+				win.document.close(); win.focus();
 			}
 
-			// ===== QR MASSAL =====
+			// ── QR Massal ─────────────────────────────────────────────────────
 			let qrMassalRows = [];
-
-			function openQrMassalModal() {
-				$('#qrMassalModal').removeClass('hidden');
-				fetchQrMassal();
-			}
-			function closeQrMassalModal() {
-				$('#qrMassalModal').addClass('hidden');
-			}
-
 			document.addEventListener('DOMContentLoaded', function () {
 				document.getElementById('qrMassalDate')?.addEventListener('change', fetchQrMassal);
 			});
-
 			function fetchQrMassal() {
 				const tanggal = document.getElementById('qrMassalDate').value;
 				if (!tanggal) return;
-
 				$('#qrMassalPreview').removeClass('hidden');
 				$('#qrMassalLoader').removeClass('hidden');
 				$('#qrMassalCount').text('...');
 				$('#btnCetakQr').prop('disabled', true).addClass('opacity-60 cursor-not-allowed');
-
-				fetch(`/permissions/qr-massal?tanggal=${tanggal}`, {
-					headers: {
-						'X-Requested-With': 'XMLHttpRequest',
-						'Accept': 'application/json',
-					}
-				})
-					.then(res => {
-						if (!res.ok) throw new Error('Gagal fetch data');
-						return res.json();
-					})
-					.then(json => {
-						qrMassalRows = json.data;
-						$('#qrMassalCount').text(json.count);
-						$('#qrMassalLoader').addClass('hidden');
-						$('#btnCetakQr').prop('disabled', false).removeClass('opacity-60 cursor-not-allowed');
-					})
-					.catch(err => {
-						console.error(err);
-						$('#qrMassalLoader').addClass('hidden');
-						$('#qrMassalCount').text('Error');
-						Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: err.message, confirmButtonColor: '#4f46e5' });
-					});
+				fetch(`/permissions/qr-massal?tanggal=${tanggal}`, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
+					.then(r => { if (!r.ok) throw new Error('Gagal fetch data'); return r.json(); })
+					.then(json => { qrMassalRows = json.data; $('#qrMassalCount').text(json.count); $('#qrMassalLoader').addClass('hidden'); $('#btnCetakQr').prop('disabled', false).removeClass('opacity-60 cursor-not-allowed'); })
+					.catch(err => { $('#qrMassalLoader').addClass('hidden'); $('#qrMassalCount').text('Error'); Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: err.message, confirmButtonColor: '#4f46e5' }); });
 			}
 
 			function cetakQrMassal() {
 				const filterDate = document.getElementById('qrMassalDate').value;
-
-				if (!qrMassalRows.length) {
-					Swal.fire({ icon: 'info', title: 'Tidak ada data', text: 'Tidak ditemukan izin perpulangan yang sesuai filter.', confirmButtonColor: '#4f46e5' });
-					return;
-				}
-
+				if (!qrMassalRows.length) { Swal.fire({ icon: 'info', title: 'Tidak ada data', confirmButtonColor: '#4f46e5' }); return; }
 				const cards = qrMassalRows.map(d => {
 					const canvas = document.createElement('canvas');
 					let barcodeSrc = '';
-					try {
-						if (d.token) {
-							JsBarcode(canvas, d.token, {
-								format: 'CODE128',
-								width: 2,
-								height: 45,        // sedikit lebih pendek agar muat
-								displayValue: false,
-								margin: 3
-							});
-							barcodeSrc = canvas.toDataURL('image/png');
-						}
-					} catch (e) { }
-
-					const asramaHtml = (d.asrama && d.asrama !== '-')
-						? `<div class="label">Asrama</div><div>: ${d.asrama}</div>`
-						: '';
-
-					const barcodeHtml = barcodeSrc
-						? `<div class="barcode"><img src="${barcodeSrc}"><small>${d.token}</small></div>`
-						: `<div class="barcode no-qr"><i>Token tidak tersedia</i></div>`;
-
-					return `
-				<div class="card">
-					<div class="card-title">IZIN PERPULANGAN</div>
-					<div class="info">
-						<div class="label">Nama</div><div>: ${d.nama}</div>
-						<div class="label">NIS</div><div>: ${d.nis}</div>
-						<div class="label">Kelas</div><div>: ${d.kelas}</div>
-						${asramaHtml}
-					</div>
-					${barcodeHtml}
-					<div class="time">
-						<div><b>Mulai</b><br>${d.start_at}</div>
-						<div class="time-end"><b>Sampai</b><br>${d.end_at}</div>
-					</div>
-				</div>`;
+					try { if (d.token) { JsBarcode(canvas, d.token, { format: 'CODE128', width: 2, height: 45, displayValue: false, margin: 3 }); barcodeSrc = canvas.toDataURL('image/png'); } } catch (e) { }
+					const asramaHtml = (d.asrama && d.asrama !== '-') ? `<div class="label">Asrama</div><div>: ${d.asrama}</div>` : '';
+					const barcodeHtml = barcodeSrc ? `<div class="barcode"><img src="${barcodeSrc}"><small>${d.token}</small></div>` : `<div class="barcode no-qr"><i>Token tidak tersedia</i></div>`;
+					return `<div class="card"><div class="card-title">IZIN PERPULANGAN</div><div class="info"><div class="label">Nama</div><div>: ${d.nama}</div><div class="label">NIS</div><div>: ${d.nis}</div><div class="label">Kelas</div><div>: ${d.kelas}</div>${asramaHtml}</div>${barcodeHtml}<div class="time"><div><b>Mulai</b><br>${d.start_at}</div><div class="time-end"><b>Sampai</b><br>${d.end_at}</div></div></div>`;
 				}).join('');
-
 				const win = window.open('', '_blank', 'width=1000,height=750');
-				win.document.write(`<!DOCTYPE html>
-		<html>
-		<head>
-		<title>Cetak QR Massal - Perpulangan</title>
-		<style>
-		  @page {
-			size: 215mm 330mm portrait;  /* F4 */
-			margin: 8mm;
-		  }
-		  * { box-sizing: border-box; }
-		  body { margin: 0; font-family: Arial, sans-serif; background: white; }
-
-		  h2.print-title {
-			text-align: center;
-			font-size: 11px;
-			letter-spacing: 1px;
-			margin: 0 0 5px 0;
-			text-transform: uppercase;
-			font-weight: bold;
-		  }
-
-		  .grid {
-			display: grid;
-			grid-template-columns: repeat(4, 1fr);  /* 4 kolom */
-			gap: 5px;
-		  }
-
-		  .card {
-			border: 1.5px solid #333;
-			border-radius: 4px;
-			padding: 5px 6px;
-			font-size: 8px;
-			page-break-inside: avoid;
-			break-inside: avoid;
-		  }
-
-		  .card-title {
-			text-align: center;
-			font-weight: bold;
-			font-size: 8.5px;
-			letter-spacing: 0.5px;
-			border-bottom: 1px solid #333;
-			padding-bottom: 3px;
-			margin-bottom: 4px;
-			text-transform: uppercase;
-		  }
-
-		  .info {
-			display: grid;
-			grid-template-columns: 38px auto;
-			row-gap: 1.5px;
-			margin-bottom: 4px;
-			line-height: 1.4;
-		  }
-		  .label { font-weight: bold; }
-
-		  .barcode {
-			text-align: center;
-			border-top: 1px dashed #aaa;
-			padding-top: 4px;
-			margin-top: 3px;
-		  }
-		  .barcode img { width: 100%; }
-		  .barcode small {
-			display: block;
-			font-size: 6px;
-			color: #666;
-			margin-top: 1px;
-			word-break: break-all;
-		  }
-		  .barcode.no-qr {
-			color: #999;
-			font-style: italic;
-			font-size: 7px;
-			padding: 6px 0;
-		  }
-
-		  .time {
-			display: flex;
-			justify-content: space-between;
-			font-size: 7px;
-			border-top: 1px dashed #aaa;
-			margin-top: 3px;
-			padding-top: 3px;
-			line-height: 1.5;
-		  }
-		  .time-end { text-align: right; }
-		</style>
-		</head>
-		<body>
-		  <h2 class="print-title">Rekapitulasi QR Izin Perpulangan${filterDate ? ' — ' + filterDate : ''}</h2>
-		  <div class="grid">${cards}</div>
-		  <script>window.onload = function() { window.print(); }<\/script>
-		</body>
-		</html>`);
-				win.document.close();
-				win.focus();
+				win.document.write(`<!DOCTYPE html><html><head><title>Cetak QR Massal</title><style>@page{size:215mm 330mm portrait;margin:8mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:white}h2.print-title{text-align:center;font-size:11px;letter-spacing:1px;margin:0 0 5px;text-transform:uppercase;font-weight:bold}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.card{border:1.5px solid #333;border-radius:4px;padding:5px 6px;font-size:8px;page-break-inside:avoid;break-inside:avoid}.card-title{text-align:center;font-weight:bold;font-size:8.5px;letter-spacing:.5px;border-bottom:1px solid #333;padding-bottom:3px;margin-bottom:4px;text-transform:uppercase}.info{display:grid;grid-template-columns:38px auto;row-gap:1.5px;margin-bottom:4px;line-height:1.4}.label{font-weight:bold}.barcode{text-align:center;border-top:1px dashed #aaa;padding-top:4px;margin-top:3px}.barcode img{width:100%}.barcode small{display:block;font-size:6px;color:#666;margin-top:1px;word-break:break-all}.barcode.no-qr{color:#999;font-style:italic;font-size:7px;padding:6px 0}.time{display:flex;justify-content:space-between;font-size:7px;border-top:1px dashed #aaa;margin-top:3px;padding-top:3px;line-height:1.5}.time-end{text-align:right}</style></head><body><h2 class="print-title">Rekapitulasi QR Izin Perpulangan${filterDate ? ' — ' + filterDate : ''}</h2><div class="grid">${cards}</div><script>window.onload=function(){window.print()}<\/script></body></html>`);
+				win.document.close(); win.focus();
 			}
 		</script>
 	@endpush

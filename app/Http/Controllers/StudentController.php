@@ -9,24 +9,57 @@ use App\Models\Student;
 use App\Models\SchoolClass;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
 
 class StudentController extends Controller
 {
     public function index(Request $request)
     {
-        $isWalikelas = Auth()->user()->role == 'wali_kelas';
-
-        $query = Student::with(['class', 'dormitory']);
+        $isWalikelas = auth()->user()->role == 'wali_kelas';
 
         if ($isWalikelas) {
-            $query->where('class_id', Auth()->user()->class->id);
-            $classes = SchoolClass::where('id', Auth()->user()->class->id)->get();
+            $classes = SchoolClass::where('id', auth()->user()->class->id)->get();
         } else {
-            $classes = SchoolClass::all();
+            $classes = SchoolClass::orderBy('name')->get();
+        }
 
-            if ($request->class_id) {
-                $query->where('class_id', $request->class_id);
-            }
+        $dormitories = Dormitory::orderBy('name')->get();
+
+        // Hitung sedang pulang
+        $pulangQuery = Student::whereHas('permissions', function ($q) {
+            $q->where('status', 'approved')
+                ->where('start_at', '<=', now())
+                ->where('end_at', '>=', now())
+                ->whereDoesntHave('checkin');
+        });
+
+        if ($isWalikelas) {
+            $pulangQuery->where('class_id', auth()->user()->class->id);
+        } elseif ($request->class_id) {
+            $pulangQuery->where('class_id', $request->class_id);
+        }
+
+        $sedangPulangCount = $pulangQuery->count();
+
+        return view('master.students.index', [
+            'classes'           => $classes,
+            'dormitories'       => $dormitories,
+            'sedangPulangCount' => $sedangPulangCount,
+            'filterPulang'      => $request->filter === 'pulang',
+            'filterClass'       => $request->class_id,
+        ]);
+    }
+
+    public function data(Request $request)
+    {
+        $isWalikelas = auth()->user()->role == 'wali_kelas';
+
+        $query = Student::with(['class', 'dormitory'])->select('students.*');
+
+        if ($isWalikelas) {
+            $query->where('class_id', auth()->user()->class->id);
+        } elseif ($request->class_id) {
+            $query->where('class_id', $request->class_id);
         }
 
         if ($request->filter === 'pulang') {
@@ -38,40 +71,35 @@ class StudentController extends Controller
             });
         }
 
-        $students    = $query->get();
-        $dormitories = Dormitory::all();
-
-        $pulangQuery = Student::whereHas('permissions', function ($q) {
-            $q->where('status', 'approved')
-                ->where('start_at', '<=', now())
-                ->where('end_at', '>=', now())
-                ->whereDoesntHave('checkin');
-        });
-
-        if ($isWalikelas) {
-            $pulangQuery->where('class_id', Auth()->user()->class->id);
-        } elseif ($request->class_id) {
-            $pulangQuery->where('class_id', $request->class_id);
-        }
-
-        $sedangPulangCount = $pulangQuery->count();
-
-        return view('master.students.index', [
-            'students'          => $students,
-            'classes'           => $classes,
-            'dormitories'       => $dormitories,
-            'sedangPulangCount' => $sedangPulangCount,
-            'filterPulang'      => $request->filter === 'pulang',
-            'filterClass'       => $request->class_id,
-        ]);
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('class_name', fn($row) => $row->class->name ?? '-')
+            ->addColumn('dormitory_name', fn($row) => $row->dormitory->name ?? '-')
+            ->addColumn('aksi', function ($row) {
+                $edit   = json_encode($row);
+                return '
+                    <div class="flex justify-center gap-2">
+                        <button onclick=\'openEditModal(' . $edit . ')\'
+                            class="px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteStudent(' . $row->id . ')"
+                            class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nis' => 'required|unique:students,nis',
-            'name' => 'required',
-            'class_id' => 'required|exists:classes,id',
+            'nis'          => 'required|unique:students,nis',
+            'name'         => 'required',
+            'class_id'     => 'required|exists:classes,id',
             'dormitory_id' => 'nullable|exists:dormitories,id',
         ]);
 
@@ -83,9 +111,9 @@ class StudentController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nis' => 'required|unique:students,nis,' . $id,
-            'name' => 'required',
-            'class_id' => 'required|exists:classes,id',
+            'nis'          => 'required|unique:students,nis,' . $id,
+            'name'         => 'required',
+            'class_id'     => 'required|exists:classes,id',
             'dormitory_id' => 'nullable|exists:dormitories,id',
         ]);
 
@@ -102,29 +130,19 @@ class StudentController extends Controller
 
     public function template()
     {
-        return Excel::download(
-            new StudentsTemplateExport,
-            'template_import_siswa.xlsx'
-        );
+        return Excel::download(new StudentsTemplateExport, 'template_import_siswa.xlsx');
     }
 
     public function import(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:xlsx'
-        ]);
+        $request->validate(['file' => 'required|mimes:xlsx']);
 
         try {
             Excel::import(new StudentsImport, $request->file('file'));
         } catch (\Throwable $e) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('import_error', $e->getMessage());
+            return redirect()->back()->withInput()->with('import_error', $e->getMessage());
         }
 
-        return redirect()
-            ->back()
-            ->with('success', 'Data siswa berhasil diimport');
+        return redirect()->back()->with('success', 'Data siswa berhasil diimport');
     }
 }

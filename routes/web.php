@@ -59,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::prefix('students')->controller(StudentController::class)->group(function () {
+            Route::get('/data', 'data')->name('master.students.data');
             Route::get('/template', 'template');
             Route::post('/import', 'import');
             Route::get('/', 'index')->name('master.students.index');
@@ -83,6 +84,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/permissions/pdf', [StudentPermissionController::class, 'pdf'])->name('permissions.pdf');
+    Route::get('/permissions/data', [StudentPermissionController::class, 'data'])->name('permissions.data');
     Route::prefix('permissions')->group(function () {
 
         Route::controller(StudentPermissionController::class)->group(function () {
@@ -107,6 +109,9 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/checkout',  [StudentPermissionCheckinController::class, 'checkoutView']);
         Route::post('/checkout', [StudentPermissionCheckinController::class, 'checkout']);
+
+        Route::get('/checkin/data',  [StudentPermissionCheckinController::class, 'checkinData'])->name('checkin.data');
+        Route::get('/checkout/data', [StudentPermissionCheckinController::class, 'checkoutData'])->name('checkout.data');
     });
 
     Route::prefix('violations')->controller(StudentViolationController::class)->group(function () {
