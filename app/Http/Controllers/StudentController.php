@@ -25,12 +25,12 @@ class StudentController extends Controller
 
         $dormitories = Dormitory::orderBy('name')->get();
 
-        // Hitung sedang pulang
         $pulangQuery = Student::whereHas('permissions', function ($q) {
             $q->where('status', 'approved')
-                ->where('start_at', '<=', now())
-                ->where('end_at', '>=', now())
-                ->whereDoesntHave('checkin');
+                ->whereHas('checkin', function ($q2) {
+                    $q2->whereNotNull('checkout_at')
+                        ->whereNull('checkin_at');
+                });
         });
 
         if ($isWalikelas) {
@@ -47,6 +47,7 @@ class StudentController extends Controller
             'sedangPulangCount' => $sedangPulangCount,
             'filterPulang'      => $request->filter === 'pulang',
             'filterClass'       => $request->class_id,
+            'filterDormitory'   => $request->dormitory_id,
         ]);
     }
 
@@ -60,6 +61,10 @@ class StudentController extends Controller
             $query->where('class_id', auth()->user()->class->id);
         } elseif ($request->class_id) {
             $query->where('class_id', $request->class_id);
+        }
+
+        if ($request->dormitory_id) {
+            $query->where('dormitory_id', $request->dormitory_id);
         }
 
         if ($request->filter === 'pulang') {

@@ -31,17 +31,30 @@
                             @endforeach
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Filter Barak</label>
+                        <select id="filterBarak"
+                            class="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[160px]">
+                            <option value="">Semua Barak</option>
+                            @foreach ($dormitories as $dorm)
+                                <option value="{{ $dorm->id }}" @selected($filterDormitory == $dorm->id)>
+                                    {{ $dorm->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             @endif
 
             <div class="flex flex-col sm:flex-row gap-2">
                 <button id="btnFilterPulang" data-active="{{ $filterPulang ? 'true' : 'false' }}"
                     class="w-full sm:w-auto px-4 py-2 rounded-lg transition flex items-center justify-center gap-2
-                                    {{ $filterPulang ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-orange-100 text-orange-700 hover:bg-orange-200' }}">
+                                                {{ $filterPulang ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-orange-100 text-orange-700 hover:bg-orange-200' }}">
                     <i class="fa-solid fa-person-walking-arrow-right"></i>
                     Sedang Pulang
-                    <span id="pulangBadge" class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full
-                                    {{ $filterPulang ? 'bg-white text-orange-600' : 'bg-orange-600 text-white' }}">
+                    <span id="pulangBadge"
+                        class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full
+                                                {{ $filterPulang ? 'bg-white text-orange-600' : 'bg-orange-600 text-white' }}">
                         {{ $sedangPulangCount }}
                     </span>
                 </button>
@@ -193,6 +206,7 @@
 
                 let filterPulang = {{ $filterPulang ? 'true' : 'false' }};
                 let filterKelas = '{{ $filterClass ?? '' }}';
+                let filterBarak = '{{ $filterDormitory ?? '' }}';
 
                 const isTherePerizinan = {{ Auth::user()->role === 'perizinan' ? 'true' : 'false' }};
 
@@ -216,6 +230,7 @@
                         data: function (d) {
                             d.filter = filterPulang ? 'pulang' : '';
                             d.class_id = filterKelas;
+                            d.dormitory_id = filterBarak;
                         }
                     },
                     columns: columns,
@@ -227,6 +242,11 @@
                     filterKelas = $(this).val();
                     table.ajax.reload();
                 }).val(filterKelas);
+
+                $('#filterBarak').on('change', function () {
+                    filterBarak = $(this).val();
+                    table.ajax.reload();
+                }).val(filterBarak);
 
                 $('#btnFilterPulang').on('click', function () {
                     filterPulang = !filterPulang;
@@ -316,9 +336,9 @@
                             form.method = 'POST';
                             form.action = `/master/students/${id}`;
                             form.innerHTML = `
-                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                        <input type="hidden" name="_method" value="DELETE">
-                                                    `;
+                                                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                <input type="hidden" name="_method" value="DELETE">
+                                                                            `;
                             document.body.appendChild(form);
                             form.submit();
                         }
