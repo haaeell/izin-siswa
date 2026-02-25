@@ -188,10 +188,12 @@ class StudentPermissionController extends Controller
                                 <i class="fa-solid fa-barcode"></i> <span>Barcode</span></button>';
                 }
 
-                if (in_array($p->status, ['approved', 'rejected'])) {
-                    $html .= '<a href="' . route('permissions.surat', $p->id) . '" target="_blank"
+                if ($p->type !== 'perpulangan') {
+                    if (in_array($p->status, ['approved', 'rejected'])) {
+                        $html .= '<a href="' . route('permissions.surat', $p->id) . '" target="_blank"
                                 class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition">
                                 <i class="fa-solid fa-file-lines"></i> <span>Surat</span></a>';
+                    }
                 }
 
                 $html .= '</div>';
