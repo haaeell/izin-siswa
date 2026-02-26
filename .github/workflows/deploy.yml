@@ -21,11 +21,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd ~/public_html
+            cd ~/public_html/pengasuhan.smaplusasthahannas.id
             git pull origin main
-            composer install --no-dev --optimize-autoloader --no-interaction
-            php artisan migrate --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan queue:restart
+            ~/bin/composer install --no-dev --optimize-autoloader --no-interaction
+            /usr/local/bin/php artisan migrate --force
+            /usr/local/bin/php artisan config:cache
+            /usr/local/bin/php artisan route:cache
+            /usr/local/bin/php artisan view:cache
+            /usr/local/bin/php artisan queue:restart
