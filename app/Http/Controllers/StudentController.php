@@ -70,9 +70,10 @@ class StudentController extends Controller
         if ($request->filter === 'pulang') {
             $query->whereHas('permissions', function ($q) {
                 $q->where('status', 'approved')
-                    ->where('start_at', '<=', now())
-                    ->where('end_at', '>=', now())
-                    ->whereDoesntHave('checkin');
+                    ->whereHas('checkin', function ($q2) {
+                        $q2->whereNotNull('checkout_at')
+                            ->whereNull('checkin_at');
+                    });
             });
         }
 
