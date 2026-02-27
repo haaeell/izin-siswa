@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SchoolClass;
 use App\Models\Setting;
 use App\Models\Student;
 use App\Models\StudentPermission;
@@ -45,10 +46,17 @@ class StudentPermissionController extends Controller
             )->count();
         }
 
+        $classes = SchoolClass::when(
+            $isWalikelas,
+            fn($q) => $q->where('wali_kelas_id', $user->id)
+        )->orderBy('name')->get();
+
         return view('permissions.index', [
             'students'             => $students,
             'activePermissionCount' => $activePermissionCount,
             'maxActivePermissions' => $maxActivePermissions,
+            'classes'              => $classes,
+            'isWalikelas'           => $isWalikelas,
         ]);
     }
 
@@ -73,6 +81,27 @@ class StudentPermissionController extends Controller
                 $request->start_date . ' 00:00:00',
                 $request->end_date   . ' 23:59:59',
             ]);
+        }
+
+        if ($request->filled('class_id')) {
+            $query->whereHas('student', fn($q) => $q->where('class_id', $request->class_id));
+        }
+
+        if ($request->filled('checkin_status')) {
+
+            if ($request->checkin_status === 'belum_checkout') {
+                $query->where('status', 'approved')->whereDoesntHave('checkin');
+            } elseif ($request->checkin_status === 'dirumah') {
+                $query->whereHas('checkin', function ($q) {
+                    $q->whereNotNull('checkout_at')
+                        ->whereNull('checkin_at');
+                });
+            } elseif ($request->checkin_status === 'kembali') {
+                $query->whereHas('checkin', function ($q) {
+                    $q->whereNotNull('checkout_at')
+                        ->whereNotNull('checkin_at');
+                });
+            }
         }
 
         return DataTables::of($query)
@@ -221,21 +250,48 @@ class StudentPermissionController extends Controller
             $query->where('status', $request->status);
         }
 
+        $kelasName = null;
+
+        if ($request->filled('kelas')) {
+            $kelas = SchoolClass::find($request->kelas);
+            $kelasName = $kelas?->name;
+        }
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('start_at', [
-                $request->start_date,
-                $request->end_date,
+                $request->start_date . ' 00:00:00',
+                $request->end_date   . ' 23:59:59',
             ]);
+        }
+
+        if ($request->filled('checkin_status')) {
+            if ($request->checkin_status === 'belum_checkout') {
+                $query->whereDoesntHave('checkin');
+            } elseif ($request->checkin_status === 'dirumah') {
+                $query->whereHas('checkin', function ($q) {
+                    $q->whereNotNull('checkout_at')->whereNull('checkin_at');
+                });
+            } elseif ($request->checkin_status === 'kembali') {
+                $query->whereHas('checkin', function ($q) {
+                    $q->whereNotNull('checkout_at')->whereNotNull('checkin_at');
+                });
+            }
         }
 
         $permissions = $query->latest()->get();
 
+        $tanggal = date('Y-m-d');
+        $namaKelasFile = $kelasName ? str_replace(' ', '-', $kelasName) : 'Semua-Kelas';
+
+        $fileName = "laporan-perizinan-{$namaKelasFile}-{$tanggal}.pdf";
+
         $pdf = Pdf::loadView('permissions.pdf', [
             'permissions' => $permissions,
             'request'     => $request,
+            'kelas'       => $kelasName,
         ])->setPaper('A4', 'portrait');
 
-        return $pdf->download('laporan-perizinan.pdf');
+        return $pdf->download($fileName);
     }
 
     public function store(Request $request)
@@ -524,6 +580,7 @@ class StudentPermissionController extends Controller
                 'nis'      => $p->student->nis,
                 'kelas'    => $p->student->class->name ?? '-',
                 'asrama'   => $p->student->dormitory->name ?? '-',
+                'izin'     => $p->type,
                 'start_at' => Carbon::parse($p->start_at)->format('d M Y H:i'),
                 'end_at'   => Carbon::parse($p->end_at)->format('d M Y H:i'),
             ]);

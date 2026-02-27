@@ -23,7 +23,7 @@
 			@if (auth()->user()->role === 'wali_kelas')
 				<div class="flex gap-2 flex-shrink-0">
 					<button onclick="openCreateModal()" @disabled($activePermissionCount >= $maxActivePermissions) class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition
-																																{{ $activePermissionCount >= $maxActivePermissions
+																																																																																																								{{ $activePermissionCount >= $maxActivePermissions
 				? 'bg-slate-300 text-slate-500 cursor-not-allowed'
 				: 'bg-blue-600 text-white hover:bg-blue-700' }}">
 						<i class="fa-solid fa-plus text-xs"></i> Ajukan Izin
@@ -63,7 +63,7 @@
 					@php $isFull = $activePermissionCount >= $maxActivePermissions; @endphp
 					<div
 						class="mb-4 rounded-xl border px-4 py-3 flex flex-col sm:flex-row gap-3 items-start
-																													{{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
+																																																																																																					{{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
 						<div class="flex-shrink-0">
 							<div
 								class="w-9 h-9 rounded-full flex items-center justify-center {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
@@ -93,7 +93,6 @@
 					</div>
 				@endif
 
-				{{-- Filter (tidak pakai form submit, langsung reload DataTable) --}}
 				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 items-end">
 
 					<div class="w-full">
@@ -116,6 +115,43 @@
 						</select>
 					</div>
 
+					<div class="w-full">
+						<label class="block text-sm font-medium text-slate-700 mb-1">
+							Status Keberadaan
+						</label>
+						<select id="filterCheckinStatus"
+							class="w-full py-2 px-3 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+							<option value="">Semua</option>
+							<option value="belum_checkout">Belum Checkout</option>
+							<option value="dirumah">Dirumah</option>
+							<option value="kembali">Sudah Kembali</option>
+						</select>
+					</div>
+
+					<div class="w-full">
+						<label class="block text-sm font-medium text-slate-700 mb-1">Kelas</label>
+
+						<select id="filterKelas" name="kelas" class="w-full py-2 px-3 border rounded-lg text-sm 
+														   focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+														   {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}" {{ $isWalikelas ? 'disabled' : '' }}>
+
+							@if(!$isWalikelas)
+								<option value="">Semua Kelas</option>
+							@endif
+
+							@foreach ($classes as $class)
+								<option value="{{ $class->id }}" @if($isWalikelas) selected
+								@elseif(request('kelas') == $class->id) selected @endif>
+									{{ $class->name }}
+								</option>
+							@endforeach
+						</select>
+
+						@if($isWalikelas)
+							<input type="hidden" name="kelas" value="{{ $classes->first()->id }}">
+						@endif
+					</div>
+
 					<div class="flex gap-2 w-full sm:col-span-2 lg:col-span-1 xl:w-auto items-end">
 						<button id="btnTerapkan" type="button"
 							class="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition">
@@ -127,6 +163,8 @@
 							<input type="hidden" name="start_date" id="pdfStartDate">
 							<input type="hidden" name="end_date" id="pdfEndDate">
 							<input type="hidden" name="status" id="pdfStatus">
+							<input type="hidden" name="checkin_status" id="pdfCheckinStatus">
+							<input type="hidden" name="kelas" id="pdfKelas">
 							<div>
 								<button type="submit"
 									class="flex-1 sm:flex-none px-4 py-2 bg-red-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-red-700 transition">
@@ -584,10 +622,17 @@
 			let dtStartDate = '';
 			let dtEndDate = '';
 			let dtStatus = '';
+			let dtKelas = '';
+			let dtCheckinStatus = '';
 
 			// ── DataTable ─────────────────────────────────────────────────────
 			const isWalikelas = {{ auth()->user()->role === 'wali_kelas' ? 'true' : 'false' }};
 			const isPerizinan = {{ auth()->user()->role === 'perizinan' ? 'true' : 'false' }};
+
+			if (isWalikelas) {
+				dtKelas = document.getElementById('filterKelas').value;
+				document.getElementById('pdfKelas').value = dtKelas;
+			}
 
 			const columns = [
 				{ data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
@@ -613,6 +658,8 @@
 						d.status = dtStatus;
 						d.start_date = dtStartDate;
 						d.end_date = dtEndDate;
+						d.class_id = dtKelas;
+						d.checkin_status = dtCheckinStatus;
 					}
 				},
 				columns: columns,
@@ -621,6 +668,10 @@
 				responsive: true,
 				scrollX: true,
 				autoWidth: false,
+			});
+
+			$('#filterKelas').on('change', function () {
+				dtKelas = $(this).val();
 			});
 
 			// ── Flatpickr ─────────────────────────────────────────────────────
@@ -649,15 +700,19 @@
 
 			// ── Tombol Terapkan ───────────────────────────────────────────────
 			document.getElementById('btnTerapkan').addEventListener('click', function () {
+
 				dtStatus = document.getElementById('filterStatus').value;
+				dtCheckinStatus = document.getElementById('filterCheckinStatus').value;
+				dtKelas = document.getElementById('filterKelas').value;
+
 				table.ajax.reload();
 
-				// Sync ke form PDF
 				document.getElementById('pdfStartDate').value = dtStartDate;
 				document.getElementById('pdfEndDate').value = dtEndDate;
 				document.getElementById('pdfStatus').value = dtStatus;
+				document.getElementById('pdfKelas').value = dtKelas;
+				document.getElementById('pdfCheckinStatus').value = dtCheckinStatus;
 
-				// Tampilkan tombol reset
 				document.getElementById('btnReset').classList.remove('hidden');
 			});
 
@@ -666,9 +721,13 @@
 				dtStatus = '';
 				dtStartDate = '';
 				dtEndDate = '';
+				dtKelas = '';
+				dtCheckinStatus = '';
 				document.getElementById('filterStatus').value = '';
 				document.getElementById('startDate').value = '';
 				document.getElementById('endDate').value = '';
+				document.getElementById('filterCheckinStatus').value = '';
+				$('#filterKelas').val('');
 				table.ajax.reload();
 				this.classList.add('hidden');
 			});
@@ -808,12 +867,121 @@
 			}
 
 			function printQr() {
-				if (!barcodeReady) { Swal.fire({ icon: 'warning', title: 'Barcode belum siap', confirmButtonColor: '#2563eb' }); return; }
+				if (!barcodeReady) {
+					Swal.fire({ icon: 'warning', title: 'Barcode belum siap', confirmButtonColor: '#2563eb' });
+					return;
+				}
+
 				const barcodeSrc = document.getElementById('qrImage').src;
 				const d = barcodeData;
-				const win = window.open('', '_blank', 'width=360,height=520');
-				win.document.write(`<!DOCTYPE html><html><head><title>Tiket Izin</title><style>@page{size:80mm auto;margin:4mm}body{margin:0;font-family:Arial,sans-serif;padding:6mm 0}.ticket{border:2px solid #000;padding:6px 8px;max-width:70mm;margin:0 auto;font-size:9px}.title{text-align:center;font-weight:bold;font-size:11px;letter-spacing:1px;border-bottom:1px solid #000;padding-bottom:3px;margin-bottom:4px}.info{display:grid;grid-template-columns:55px auto;row-gap:2px;margin-bottom:6px}.label{font-weight:bold}.barcode{text-align:center;border-top:1px dashed #000;padding-top:6px}.barcode img{width:180px}.barcode small{display:block;font-size:7px;margin-top:2px}.time{display:flex;justify-content:space-between;font-size:8px;border-top:1px dashed #000;margin-top:4px;padding-top:4px}</style></head><body><div class="ticket"><div class="title">IZIN KEPULANGAN</div><div class="info"><div class="label">Nama</div><div>: ${d.nama}</div><div class="label">NIS</div><div>: ${d.nis}</div><div class="label">Kelas</div><div>: ${d.kelas}</div><div class="label">Asrama</div><div>: ${d.asrama}</div><div class="label">Jenis</div><div>: ${d.izin}</div></div><div class="barcode"><img src="${barcodeSrc}"><small>Scan saat keluar & masuk</small></div><div class="time"><div><b>Mulai</b><br>${d.startAt}</div><div style="text-align:right"><b>Sampai</b><br>${d.endAt}</div></div></div><script>window.onload=function(){window.print();window.close()}<\/script></body></html>`);
-				win.document.close(); win.focus();
+				const win = window.open('', '_blank', 'width=500,height=300');
+
+				win.document.write(`
+																																																					<!DOCTYPE html>
+																																																					<html>
+																																																					<head>
+																																																						<title>Tiket Izin</title>
+																																																						<style>
+																																																							/* Ukuran Kertas 5cm x 3cm */
+																																																							@page {
+																																																								size: 58mm auto;
+																																																								margin: 0;
+																																																							}
+																																																							body { 
+																																																								margin: 0; 
+																																																								padding: 1mm;
+																																																								font-family: 'Arial Narrow', Arial, sans-serif; 
+																																																								width: 50mm;
+																																																								height: 30mm;
+																																																								box-sizing: border-box;
+																																																							}
+																																																							.ticket {
+																																																								border: 1px solid #000;
+																																																								height: 100%;
+																																																								display: flex;
+																																																								flex-direction: column;
+																																																								padding: 1mm;
+																																																								box-sizing: border-box;
+																																																							}
+																																																							.title {
+																																																								text-align: center;
+																																																								font-weight: bold;
+																																																								font-size: 8px;
+																																																								border-bottom: 0.5px solid #000;
+																																																								margin-bottom: 2px;
+																																																								padding-bottom: 1px;
+																																																							}
+																																																							/* Layout Biodata: 2 Kolom */
+																																																							.info-container {
+																																																								display: grid;
+																																																								grid-template-columns: 1.5fr 1fr; /* Kolom kiri lebih lebar */
+																																																								gap: 2px;
+																																																								font-size: 6.5px;
+																																																								line-height: 1.1;
+																																																							}
+																																																							.col { display: flex; flex-direction: column; }
+																																																							.item { display: flex; margin-bottom: 1px; }
+																																																							.label { font-weight: bold; width: 10mm; }
+
+																																																							.barcode-section {
+																																																								flex-grow: 1;
+																																																								text-align: center;
+																																																								display: flex;
+																																																								flex-direction: column;
+																																																								justify-content: center;
+																																																								align-items: center;
+																																																								border-top: 0.5px dashed #000;
+																																																								margin-top: 2px;
+																																																							}
+																																																							.barcode-section img {
+																																																								width: 35mm; /* Menyesuaikan lebar kertas */
+																																																								height: auto;
+																																																							}
+																																																							.time {
+																																																								display: flex;
+																																																								justify-content: space-between;
+																																																								font-size: 5.5px;
+																																																								margin-top: 1px;
+																																																								border-top: 0.5px solid #eee;
+																																																							}
+																																																						</style>
+																																																					</head>
+																																																					<body>
+																																																						<div class="ticket">
+																																																							<div class="title">IZIN KEPULANGAN</div>
+
+																																																							<div class="info-container">
+																																																								<div class="col">
+																																																									<div class="item"><span class="label">Nama</span>: ${d.nama}</div>
+																																																									<div class="item"><span class="label">NIS</span>: ${d.nis}</div>
+																																																									<div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
+																																																								</div>
+																																																								<div class="col">
+																																																									<div class="item"><span class="label">Asrama</span>: ${d.asrama}</div>
+																																																									<div class="item"><span class="label">Izin</span>: ${d.izin}</div>
+																																																								</div>
+																																																							</div>
+
+																																																							<div class="barcode-section">
+																																																								<img src="${barcodeSrc}">
+																																																							</div>
+
+																																																							<div class="time">
+																																																								<div><b>Mulai:</b> ${d.startAt}</div>
+																																																								<div style="text-align:right"><b>Sampai:</b> ${d.endAt}</div>
+																																																							</div>
+																																																						</div>
+																																																						<script>
+																																																							window.onload = function() {
+																																																								window.print();
+																																																								setTimeout(() => { window.close(); }, 500);
+																																																							}
+																																																						<\/script>
+																																																					</body>
+																																																					</html>`);
+
+				win.document.close();
+				win.focus();
 			}
 
 			// ── QR Massal ─────────────────────────────────────────────────────
@@ -836,18 +1004,152 @@
 
 			function cetakQrMassal() {
 				const filterDate = document.getElementById('qrMassalDate').value;
-				if (!qrMassalRows.length) { Swal.fire({ icon: 'info', title: 'Tidak ada data', confirmButtonColor: '#4f46e5' }); return; }
+				if (!qrMassalRows.length) {
+					Swal.fire({ icon: 'info', title: 'Tidak ada data', confirmButtonColor: '#4f46e5' });
+					return;
+				}
+
 				const cards = qrMassalRows.map(d => {
 					const canvas = document.createElement('canvas');
 					let barcodeSrc = '';
-					try { if (d.token) { JsBarcode(canvas, d.token, { format: 'CODE128', width: 2, height: 45, displayValue: false, margin: 3 }); barcodeSrc = canvas.toDataURL('image/png'); } } catch (e) { }
-					const asramaHtml = (d.asrama && d.asrama !== '-') ? `<div class="label">Asrama</div><div>: ${d.asrama}</div>` : '';
-					const barcodeHtml = barcodeSrc ? `<div class="barcode"><img src="${barcodeSrc}"><small>${d.token}</small></div>` : `<div class="barcode no-qr"><i>Token tidak tersedia</i></div>`;
-					return `<div class="card"><div class="card-title">IZIN PERPULANGAN</div><div class="info"><div class="label">Nama</div><div>: ${d.nama}</div><div class="label">NIS</div><div>: ${d.nis}</div><div class="label">Kelas</div><div>: ${d.kelas}</div>${asramaHtml}</div>${barcodeHtml}<div class="time"><div><b>Mulai</b><br>${d.start_at}</div><div class="time-end"><b>Sampai</b><br>${d.end_at}</div></div></div>`;
+
+					try {
+						if (d.token) {
+							JsBarcode(canvas, d.token, {
+								format: 'CODE128',
+								width: 2,
+								height: 50,
+								displayValue: false,
+								margin: 0
+							});
+							barcodeSrc = canvas.toDataURL('image/png');
+						}
+					} catch (e) { console.error(e); }
+
+					return `
+																																																			<div class="ticket">
+																																																				<div class="ticket-border">
+																																																					<div class="title">IZIN KEPULANGAN</div>
+
+																																																					<div class="info-container">
+																																																						<div class="col">
+																																																							<div class="item"><span class="label">Nama</span>: ${d.nama}</div>
+																																																							<div class="item"><span class="label">NIS</span>: ${d.nis}</div>
+																																																							<div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
+																																																						</div>
+																																																						<div class="col">
+																																																							<div class="item"><span class="label">Asrama</span>: ${d.asrama || '-'}</div>
+																																																							<div class="item"><span class="label">Izin</span>: ${d.izin || 'Perpulangan'}</div>
+																																																						</div>
+																																																					</div>
+
+																																																					<div class="barcode-section">
+																																																						${barcodeSrc ? `<img src="${barcodeSrc}">` : '<i>Token Error</i>'}
+																																																						<div style="font-size: 5px; margin-top: 1px;">${d.token}</div>
+																																																					</div>
+
+																																																					<div class="time">
+																																																						<div><b>Mulai:</b> ${d.start_at}</div>
+																																																						<div style="text-align:right"><b>Sampai:</b> ${d.end_at}</div>
+																																																					</div>
+																																																				</div>
+																																																			</div>
+																																																		`;
 				}).join('');
-				const win = window.open('', '_blank', 'width=1000,height=750');
-				win.document.write(`<!DOCTYPE html><html><head><title>Cetak QR Massal</title><style>@page{size:215mm 330mm portrait;margin:8mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:white}h2.print-title{text-align:center;font-size:11px;letter-spacing:1px;margin:0 0 5px;text-transform:uppercase;font-weight:bold}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.card{border:1.5px solid #333;border-radius:4px;padding:5px 6px;font-size:8px;page-break-inside:avoid;break-inside:avoid}.card-title{text-align:center;font-weight:bold;font-size:8.5px;letter-spacing:.5px;border-bottom:1px solid #333;padding-bottom:3px;margin-bottom:4px;text-transform:uppercase}.info{display:grid;grid-template-columns:38px auto;row-gap:1.5px;margin-bottom:4px;line-height:1.4}.label{font-weight:bold}.barcode{text-align:center;border-top:1px dashed #aaa;padding-top:4px;margin-top:3px}.barcode img{width:100%}.barcode small{display:block;font-size:6px;color:#666;margin-top:1px;word-break:break-all}.barcode.no-qr{color:#999;font-style:italic;font-size:7px;padding:6px 0}.time{display:flex;justify-content:space-between;font-size:7px;border-top:1px dashed #aaa;margin-top:3px;padding-top:3px;line-height:1.5}.time-end{text-align:right}</style></head><body><h2 class="print-title">Rekapitulasi QR Izin Perpulangan${filterDate ? ' — ' + filterDate : ''}</h2><div class="grid">${cards}</div><script>window.onload=function(){window.print()}<\/script></body></html>`);
-				win.document.close(); win.focus();
+
+				const win = window.open('', '_blank', 'width=500,height=600');
+				win.document.write(`
+																																																		<!DOCTYPE html>
+																																																		<html>
+																																																		<head>
+																																																			<title>Cetak Massal Thermal</title>
+																																																			<style>
+																																																				@page {
+																																																					size: 58mm auto;
+																																																					margin: 0;
+																																																				}
+																																																				body { 
+																																																					margin: 0; 
+																																																					padding: 0;
+																																																					font-family: 'Arial Narrow', Arial, sans-serif; 
+																																																				}
+
+																																																				.ticket {
+																																																					width: 50mm;
+																																																					height: 30mm;
+																																																					padding: 1mm; /* Jarak aman dari pinggir kertas thermal */
+																																																					box-sizing: border-box;
+																																																					page-break-after: always;
+																																																				}
+
+																																																				/* Border Utama Sesuai printQr */
+																																																				.ticket-border {
+																																																					border: 1px solid #000;
+																																																					height: 100%;
+																																																					display: flex;
+																																																					flex-direction: column;
+																																																					padding: 1mm;
+																																																					box-sizing: border-box;
+																																																				}
+
+																																																				.title {
+																																																					text-align: center;
+																																																					font-weight: bold;
+																																																					font-size: 8px;
+																																																					border-bottom: 0.5px solid #000;
+																																																					margin-bottom: 2px;
+																																																					padding-bottom: 1px;
+																																																				}
+
+																																																				.info-container {
+																																																					display: grid;
+																																																					grid-template-columns: 1.5fr 1fr;
+																																																					gap: 2px;
+																																																					font-size: 6.5px;
+																																																					line-height: 1.1;
+																																																				}
+																																																				.col { display: flex; flex-direction: column; }
+																																																				.item { display: flex; margin-bottom: 1px; }
+																																																				.label { font-weight: bold; width: 9mm; }
+
+																																																				.barcode-section {
+																																																					flex-grow: 1;
+																																																					text-align: center;
+																																																					display: flex;
+																																																					flex-direction: column;
+																																																					justify-content: center;
+																																																					align-items: center;
+																																																					border-top: 0.5px dashed #000;
+																																																					margin-top: 2px;
+																																																				}
+																																																				.barcode-section img {
+																																																					width: 85%;
+																																																					height: 8mm;
+																																																				}
+
+																																																				.time {
+																																																					display: flex;
+																																																					justify-content: space-between;
+																																																					font-size: 5.5px;
+																																																					margin-top: auto;
+																																																					border-top: 0.5px solid #eee;
+																																																				}
+																																																			</style>
+																																																		</head>
+																																																		<body>
+																																																			${cards}
+																																																			<script>
+																																																				window.onload = function() {
+																																																					window.print();
+																																																					setTimeout(() => { window.close(); }, 500);
+																																																				}
+																																																			<\/script>
+																																																		</body>
+																																																		</html>
+																																																	`);
+
+				win.document.close();
+				win.focus();
 			}
 		</script>
 	@endpush

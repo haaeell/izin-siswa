@@ -6,93 +6,107 @@
     <title>Laporan Perizinan Siswa</title>
     <style>
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 11px;
-            color: #333;
-            line-height: 1.5;
-            margin: 30px;
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 9.5px;
+            color: #111827;
+            margin: 18px;
         }
 
         .header {
             text-align: center;
-            border-bottom: 2px solid #4f46e5;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 12px;
         }
 
         h2 {
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #1f2937;
             margin: 0;
-            font-size: 18px;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: .5px;
+            text-transform: uppercase;
         }
 
         .info-box {
-            background: #f9fafb;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #e5e7eb;
-            display: inline-block;
-            min-width: 250px;
-        }
-
-        .info-box table {
-            border: none;
-            width: auto;
+            font-size: 9px;
+            margin-bottom: 10px;
         }
 
         .info-box td {
-            border: none;
-            padding: 1px 10px 1px 0;
+            padding: 1px 8px 1px 0;
         }
 
         .label-filter {
-            color: #6b7280;
+            color: #555;
+            width: 70px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
         }
 
         th {
-            background-color: #4f46e5;
-            color: white;
-            text-align: left;
-            padding: 12px 10px;
+            background: #000;
+            color: #fff;
+            font-size: 8.5px;
+            padding: 5px;
             text-transform: uppercase;
-            font-size: 10px;
+            letter-spacing: .3px;
         }
 
         td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 5px;
+            border-bottom: 0.5px solid #ddd;
+            vertical-align: top;
         }
 
         tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-
-        .date-range {
-            white-space: nowrap;
-            font-weight: bold;
-        }
-
-        .reason-text {
-            color: #4b5563;
-            font-style: italic;
+            background: #f5f5f5;
         }
 
         .student-name {
             font-weight: bold;
-            color: #111827;
         }
 
         .nis-text {
-            color: #4b5563;
+            font-size: 8.5px;
+            color: #555;
+        }
+
+        .reason-text {
+            font-size: 8.5px;
+            line-height: 1.2;
+        }
+
+        .badge {
+            padding: 1px 4px;
+            font-size: 8px;
+            font-weight: bold;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .approved {
+            background: #e6f4ea;
+            color: #1b5e20;
+        }
+
+        .rejected {
+            background: #fdecea;
+            color: #b71c1c;
+        }
+
+        .pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .footer {
+            margin-top: 15px;
+            text-align: right;
+            font-size: 8px;
+            color: #666;
         }
     </style>
 </head>
@@ -103,80 +117,112 @@
         <h2>Laporan Perizinan Siswa</h2>
     </div>
 
-    <div class="info-box">
-        <table>
-            <tr>
-                <td class="label-filter">Periode</td>
-                <td>: <strong>{{ $request->start_date && $request->end_date
-                    ? \Carbon\Carbon::parse($request->start_date)->format('d/m/Y') . ' - ' . \Carbon\Carbon::parse($request->end_date)->format('d/m/Y')
-                    : 'Semua Tanggal' }}</strong>
-                </td>
-            </tr>
-            <tr>
-                <td class="label-filter">Status</td>
-                <td>: <strong>
-                    @if ($request->status === 'approved') Disetujui
-                    @elseif ($request->status === 'rejected') Ditolak
-                    @elseif ($request->status === 'pending') Pending
-                    @else Semua Status
-                    @endif
-                </strong></td>
-            </tr>
-        </table>
+    <div class="info-box" style="font-size:9px; margin-bottom:8px;">
+        <strong>Filter:</strong>
+
+        Periode:
+        <span>
+            {{ $request->start_date && $request->end_date
+    ? \Carbon\Carbon::parse($request->start_date)->format('d/m/Y') . ' - ' .
+    \Carbon\Carbon::parse($request->end_date)->format('d/m/Y')
+    : 'Semua Tanggal' }}
+        </span>
+
+        &nbsp; | &nbsp;
+
+        @if($request->status)
+            Status:
+            <span>
+                @if ($request->status === 'approved')
+                    Disetujui
+                @elseif ($request->status === 'rejected')
+                    Ditolak
+                @elseif ($request->status === 'pending')
+                    Pending
+                @else
+                    Semua
+                @endif
+            </span>
+        @endif
+
+
+        @if($request->checkin_status)
+            &nbsp; | &nbsp;
+            Keberadaan:
+            <span>
+                @if($request->checkin_status === 'belum_checkout')
+                    Belum Checkout
+                @elseif($request->checkin_status === 'dirumah')
+                    Dirumah
+                @elseif($request->checkin_status === 'kembali')
+                    Sudah Kembali
+                @endif
+            </span>
+        @endif
+        &nbsp; | &nbsp;
+
+        Kelas: <span>{{ $kelas ?? 'Semua Kelas' }}</span>
+
     </div>
 
     <table>
         <thead>
             <tr>
                 <th width="4%">No</th>
-                <th width="11%">NIS</th>
-                <th width="16%">Nama Siswa</th>
-                <th width="9%">Kelas</th>
+                <th width="22%">Siswa</th>
+                <th width="8%">Kelas</th>
                 <th width="8%">Jenis</th>
-                <th width="18%">Tanggal</th>
-                <th width="20%">Alasan</th>
-                <th width="14%">Status</th>
+                <th width="18%">Periode</th>
+                <th width="22%">Alasan</th>
+                <th width="18%">Status</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($permissions as $i => $p)
                 <tr>
                     <td align="center">{{ $i + 1 }}</td>
-                    <td class="nis-text">{{ $p->student->nis ?? '-' }}</td>
-                    <td class="student-name">{{ $p->student->name }}</td>
-                    <td>{{ $p->student->class->name ?? '-' }}</td>
-                    <td>{{ ucfirst($p->type) }}</td>
-                    <td class="date-range">
-                        {{ \Carbon\Carbon::parse($p->start_at)->format('d M Y') }}
-                        —
-                        {{ \Carbon\Carbon::parse($p->end_at)->format('d M Y') }}
+
+                    <td>
+                        <div class="student-name">{{ $p->student->name }}</div>
+                        <div class="nis-text">NIS: {{ $p->student->nis ?? '-' }}</div>
                     </td>
-                    <td class="reason-text">"{{ $p->reason ?: '-' }}"</td>
+
+                    <td>{{ $p->student->class->name ?? '-' }}</td>
+
+                    <td>{{ ucfirst($p->type) }}</td>
+
+                    <td>
+                        {{ \Carbon\Carbon::parse($p->start_at)->format('d/m/y') }}
+                        -
+                        {{ \Carbon\Carbon::parse($p->end_at)->format('d/m/y') }}
+                    </td>
+
+                    <td class="reason-text">
+                        {{ \Illuminate\Support\Str::limit($p->reason, 80) }}
+                    </td>
+
                     <td>
                         @if ($p->status === 'approved')
-                            <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:10px; white-space:nowrap;">
-                                Disetujui
-                            </span>
+                            <span class="badge approved">Disetujui</span>
+
                         @elseif ($p->status === 'rejected')
-                            <span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:10px; white-space:nowrap;">
-                                Ditolak
-                            </span>
-                            @if ($p->reject_reason)
-                                <div style="font-size:10px; color:#b91c1c; margin-top:4px; font-style:italic;">
-                                    {{ $p->reject_reason }}
+                            <span class="badge rejected">Ditolak</span>
+
+                            @if($p->reject_reason)
+                                <div style="font-size:8px; color:#b71c1c; margin-top:2px; font-style:italic; line-height:1.2;">
+                                    {{ \Illuminate\Support\Str::limit($p->reject_reason, 90) }}
                                 </div>
                             @endif
+
                         @else
-                            <span style="background:#fef9c3; color:#854d0e; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:10px; white-space:nowrap;">
-                                Pending
-                            </span>
+                            <span class="badge pending">Pending</span>
                         @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" align="center" style="padding:30px; color:#9ca3af;">
-                        Tidak ada data perizinan.
+                    <td colspan="7" align="center" style="padding:15px; color:#999;">
+                        Tidak ada data.
                     </td>
                 </tr>
             @endforelse

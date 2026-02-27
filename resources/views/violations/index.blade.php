@@ -22,7 +22,7 @@
                 <p class="text-sm text-slate-500">Manajemen pelanggaran dan hukuman</p>
             </div>
 
-            @if ($role !== 'wali_kelas')
+            @if ($role !== 'wali_kelas' && $role !== 'smaplusasthahannas')
                 <button onclick="openCreateModal()"
                     class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     + Tambah Pelanggaran
@@ -111,7 +111,7 @@
                                 <td>
                                     <span
                                         class="px-2 py-1 rounded text-white text-xs
-                                                                                                                                                                                                                                        {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                                                                                                                                                                                                                                                                                                {{ $v->type == 'ringan' ? 'bg-green-500' : ($v->type == 'sedang' ? 'bg-yellow-500' : 'bg-red-500') }}">
                                         {{ ucfirst($v->type) }}
                                     </span>
                                 </td>
@@ -416,7 +416,7 @@
                     @if ($role === 'perizinan')
                         $('#no_phone_until, #no_permission_until').prop('disabled', true);
                     @endif
-                                                            };
+                                                                                                            };
 
                 window.openEditModal = (d) => {
                     $('#modal').removeClass('hidden');
@@ -450,7 +450,7 @@
                         $('#attendance_percentage').val(d.attendance_percentage);
                         $('#attendance_until').val(d.attendance_until);
                     @endif
-                                                            };
+                                                                                                            };
 
                 window.closeModal = () => $('#modal').addClass('hidden');
 
@@ -469,7 +469,7 @@
                                 method: 'POST',
                                 action: `/violations/${id}`,
                                 html: `<input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                                                   <input type="hidden" name="_method" value="DELETE">`
+                                                                                                                                   <input type="hidden" name="_method" value="DELETE">`
                             }).appendTo('body').submit();
                         }
                     });

@@ -11,21 +11,28 @@
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     Check-out Siswa
                 </h1>
-                <p class="text-sm text-slate-500 mt-1">
-                    Scan QR atau input NIS untuk mengembalikan siswa ke kelas
-                </p>
+
+                @if (Auth::user()->role !== 'smaplusasthahannas')
+
+                    <p class="text-sm text-slate-500 mt-1">
+                        Scan QR atau input NIS untuk mengembalikan siswa ke kelas
+                    </p>
+                @endif
             </div>
         </div>
 
-        <div class="p-4 bg-slate-50 border rounded-2xl flex flex-col md:flex-row gap-3">
-            <input id="barcodeInput" autofocus
-                class="flex-1 px-4 py-3 border rounded-xl text-lg focus:ring focus:ring-blue-200"
-                placeholder="Scan QR / input NIS">
-            <button id="btnCheckout"
-                class="px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> Check-out
-            </button>
-        </div>
+        @if (Auth::user()->role !== 'smaplusasthahannas')
+            <div class="p-4 bg-slate-50 border rounded-2xl flex flex-col md:flex-row gap-3">
+                <input id="barcodeInput" autofocus
+                    class="flex-1 px-4 py-3 border rounded-xl text-lg focus:ring focus:ring-blue-200"
+                    placeholder="Scan QR / input NIS">
+                <button id="btnCheckout"
+                    class="px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Check-out
+                </button>
+            </div>
+        @endif
+
 
         <div class="bg-white border rounded-2xl overflow-hidden p-4">
             <table id="checkoutTable" class="w-full text-sm">

@@ -5,6 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png"
+        href="https://yt3.googleusercontent.com/aqwnd_6PPBpG0PqWP1QMcBjJZX0GwVYQCmJ0_r0pdJPrAgiqjH3TaxhHCF9a-oHRbhk90Bpz=s900-c-k-c0x00ffffff-no-rj">
 
     <title>PERIZINAN | @yield('title')</title>
 
@@ -23,6 +25,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
 
     <style>
@@ -97,20 +102,48 @@
             background: #b91c1c !important;
         }
 
-        button.buttons-print {
-            background: #2563eb !important;
-            color: #fff !important;
+        .gender-btn {
+            color: #64748b;
+            background: transparent;
+            border: none;
+            cursor: pointer;
         }
 
-        button.buttons-print:hover {
-            background: #1d4ed8 !important;
+        .gender-btn:hover {
+            background: white;
+            color: #334155;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
         }
 
-        button.dt-button:focus {
-            outline: none !important;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, .25) !important;
+        #btn-gender-all.active {
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
+        }
+
+        #btn-gender-l.active {
+            background: #eff6ff;
+            color: #2563eb;
+            box-shadow: 0 1px 4px rgba(37, 99, 235, .15);
+        }
+
+        #btn-gender-p.active {
+            background: #fdf2f8;
+            color: #db2777;
+            box-shadow: 0 1px 4px rgba(219, 39, 119, .15);
+        }
+
+        /* Offcanvas open/close */
+        #filterPanel.is-open {
+            transform: translateX(0) !important;
+        }
+
+        #filterBackdrop.is-open {
+            display: block !important;
         }
     </style>
+
+    @stack('styles')
 </head>
 
 <body class="bg-slate-100">
@@ -138,6 +171,8 @@
             @include('layouts.sidebar.pengajaran')
         @elseif (auth()->user()->role == 'pelatihan')
             @include('layouts.sidebar.pelatihan')
+        @elseif(auth()->user()->role == 'smaplusasthahannas')
+            @include('layouts.sidebar.asthahannas')
         @else
             @include('layouts.sidebar.admin')
         @endif
@@ -206,6 +241,13 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
 
     @stack('scripts')

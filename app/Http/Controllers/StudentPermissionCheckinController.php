@@ -15,10 +15,7 @@ class StudentPermissionCheckinController extends Controller
 {
     public function checkinView()
     {
-        $classes     = SchoolClass::orderBy('name')->get();
-        $dormitories = Dormitory::orderBy('name')->get();
-
-        return view('checkin.checkin', compact('classes', 'dormitories'));
+        return view('checkin.checkin');
     }
 
     public function checkinData(Request $request)
@@ -35,12 +32,6 @@ class StudentPermissionCheckinController extends Controller
         }
         if ($request->end_date) {
             $query->whereDate('checkin_at', '<=', $request->end_date);
-        }
-        if ($request->class_id) {
-            $query->whereHas('permission.student', fn($q) => $q->where('class_id', $request->class_id));
-        }
-        if ($request->dormitory_id) {
-            $query->whereHas('permission.student', fn($q) => $q->where('dormitory_id', $request->dormitory_id));
         }
 
         return DataTables::of($query)
@@ -63,6 +54,16 @@ class StudentPermissionCheckinController extends Controller
                     . Carbon::parse($i->checkout_at)->translatedFormat('l, d F Y H:i')
                     . '</span>'
                     : '<span class="text-slate-400">-</span>';
+            })
+            ->addColumn('gender_badge', function ($p) {
+                $g = $p->student->gender ?? null;
+                if ($g === 'L') {
+                    return '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Laki Laki</span>';
+                }
+                if ($g === 'P') {
+                    return '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-pink-100 text-pink-700">Perempuan</span>';
+                }
+                return '<span class="text-slate-400 text-xs">—</span>';
             })
             ->addColumn('status_badge', function ($i) {
                 if ($i->status === 'TERLAMBAT') {

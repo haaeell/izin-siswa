@@ -102,6 +102,7 @@
                                 <option value="security">Security</option>
                                 <option value="pelatihan">Pelatihan</option>
                                 <option value="pengajaran">Pengajaran</option>
+                                <option value="smaplusasthahannas">SMA Plus Asthahannas</option>
                             </select>
                         </div>
                     </div>
@@ -196,9 +197,9 @@
                         form.method = "POST";
                         form.action = `/master/users/${id}`;
                         form.innerHTML = `
-                                                                                            <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]').content}">
-                                                                                            <input type="hidden" name="_method" value="DELETE">
-                                                                                        `;
+                                                                                                    <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]').content}">
+                                                                                                    <input type="hidden" name="_method" value="DELETE">
+                                                                                                `;
                         document.body.appendChild(form);
                         form.submit();
                     }

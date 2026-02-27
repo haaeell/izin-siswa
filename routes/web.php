@@ -105,10 +105,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(StudentPermissionCheckinController::class)->group(function () {
         Route::get('/checkin',  [StudentPermissionCheckinController::class, 'checkinView']);
-        Route::post('/checkin', [StudentPermissionCheckinController::class, 'checkin']);
+        Route::post('/checkin', [StudentPermissionCheckinController::class, 'checkin'])->name('checkin.store');
 
         Route::get('/checkout',  [StudentPermissionCheckinController::class, 'checkoutView']);
-        Route::post('/checkout', [StudentPermissionCheckinController::class, 'checkout']);
+        Route::post('/checkout', [StudentPermissionCheckinController::class, 'checkout'])->name('checkout.store');
 
         Route::get('/checkin/data',  [StudentPermissionCheckinController::class, 'checkinData'])->name('checkin.data');
         Route::get('/checkout/data', [StudentPermissionCheckinController::class, 'checkoutData'])->name('checkout.data');
@@ -123,9 +123,13 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('reports')->controller(ReportController::class)->group(function () {
-        Route::get('/', 'index');
-        Route::get('/pdf', 'exportPdf');
-        Route::get('/excel', 'exportExcel');
+        Route::get('/', 'index')->name('reports.index');
+        Route::get('/export-pdf', 'exportPdf')->name('reports.export-pdf');
+        Route::prefix('data')->name('reports.data.')->group(function () {
+            Route::get('/checkin',      [ReportController::class, 'dataCheckin'])->name('checkin');
+            Route::get('/terlambat',    [ReportController::class, 'dataTerlambat'])->name('terlambat');
+            Route::get('/pelanggaran',  [ReportController::class, 'dataPelanggaran'])->name('pelanggaran');
+        });
     });
 
     Route::get('/permissions/{id}/surat', [StudentPermissionLetterController::class, 'show'])->name('permissions.surat');
