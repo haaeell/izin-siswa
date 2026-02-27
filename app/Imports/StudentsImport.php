@@ -20,6 +20,7 @@ class StudentsImport implements ToCollection, WithHeadingRow
             $validator = Validator::make($row->toArray(), [
                 'nis' => 'required',
                 'nama_siswa' => 'required',
+                'jenis_kelamin' => 'required|in:L,P',
                 'kelas' => 'required',
                 'barak' => 'nullable',
             ]);
@@ -44,6 +45,10 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 throw new \Exception('Barak tidak ditemukan pada baris ' . ($index + 2));
             }
 
+            if ($row['jenis_kelamin'] != 'L' && $row['jenis_kelamin'] != 'P') {
+                throw new \Exception('Jenis kelamin tidak valid pada baris ' . ($index + 2));
+            }
+
             $nisInFile[] = $row['nis'];
         }
 
@@ -54,6 +59,7 @@ class StudentsImport implements ToCollection, WithHeadingRow
             Student::create([
                 'nis' => $row['nis'],
                 'name' => $row['nama_siswa'],
+                'gender' => $row['jenis_kelamin'],
                 'class_id' => $class->id,
                 'dormitory_id' => $dormitory ? $dormitory->id : null,
             ]);

@@ -49,12 +49,12 @@
             <div class="flex flex-col sm:flex-row gap-2">
                 <button id="btnFilterPulang" data-active="{{ $filterPulang ? 'true' : 'false' }}"
                     class="w-full sm:w-auto px-4 py-2 rounded-lg transition flex items-center justify-center gap-2
-                                                {{ $filterPulang ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-orange-100 text-orange-700 hover:bg-orange-200' }}">
+                                                            {{ $filterPulang ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-orange-100 text-orange-700 hover:bg-orange-200' }}">
                     <i class="fa-solid fa-person-walking-arrow-right"></i>
                     Sedang Pulang
                     <span id="pulangBadge"
                         class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full
-                                                {{ $filterPulang ? 'bg-white text-orange-600' : 'bg-orange-600 text-white' }}">
+                                                            {{ $filterPulang ? 'bg-white text-orange-600' : 'bg-orange-600 text-white' }}">
                         {{ $sedangPulangCount }}
                     </span>
                 </button>
@@ -141,6 +141,7 @@
                         <th>#</th>
                         <th>NIS</th>
                         <th>Nama</th>
+                        <th>Jenis Kelamin</th>
                         <th>Kelas</th>
                         <th>Barak</th>
                         @if (Auth::user()->role === 'perizinan')
@@ -166,6 +167,14 @@
                 <div class="mb-3">
                     <label class="text-sm font-medium">Nama</label>
                     <input type="text" name="name" id="name" required class="w-full px-3 py-2 border rounded-lg">
+                </div>
+                <div class="mb-3">
+                    <label class="text-sm font-medium">Jenis Kelamin</label>
+                    <select name="gender" id="gender" required class="w-full px-3 py-2 border rounded-lg">
+                        <option value="">- Pilih -</option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label class="text-sm font-medium">Kelas</label>
@@ -214,6 +223,7 @@
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                     { data: 'nis', name: 'nis' },
                     { data: 'name', name: 'name' },
+                    { data: 'gender', name: 'gender' },
                     { data: 'class_name', name: 'class.name' },
                     { data: 'dormitory_name', name: 'dormitory.name' },
                 ];
@@ -297,6 +307,7 @@
                     $method.val('');
                     $('#nis').val('');
                     $('#name').val('');
+                    $('#gender').val('');
                     $('#class_id').val('');
                     $('#dormitory_id').val('').trigger('change');
                 };
@@ -308,6 +319,7 @@
                     $method.val('PUT');
                     $('#nis').val(data.nis);
                     $('#name').val(data.name);
+                    $('#gender').val(data.gender);
                     $('#class_id').val(data.class_id);
                     $('#dormitory_id').val(data.dormitory_id).trigger('change');
                 };
@@ -336,9 +348,9 @@
                             form.method = 'POST';
                             form.action = `/master/students/${id}`;
                             form.innerHTML = `
-                                                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                                                <input type="hidden" name="_method" value="DELETE">
-                                                                            `;
+                                                                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                                        <input type="hidden" name="_method" value="DELETE">
+                                                                                                    `;
                             document.body.appendChild(form);
                             form.submit();
                         }

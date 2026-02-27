@@ -135,6 +135,7 @@ class StudentSeeder extends Seeder
                     'nis'          => $nis,
                     'name'         => $namaDepan[array_rand($namaDepan)] . ' ' . $namaBelakang[array_rand($namaBelakang)],
                     'class_id'     => $kelas->id,
+                    'gender' => rand(0, 1) ? 'L' : 'P',
                     'dormitory_id' => $asrama->id,
                     'created_at'   => $now,
                     'updated_at'   => $now,

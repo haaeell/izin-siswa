@@ -80,6 +80,7 @@ class StudentController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('class_name', fn($row) => $row->class->name ?? '-')
+            ->addColumn('gender', fn($row) => $row->gender == 'L' ? 'Laki-laki' : 'Perempuan')
             ->addColumn('dormitory_name', fn($row) => $row->dormitory->name ?? '-')
             ->addColumn('aksi', function ($row) {
                 $edit   = json_encode($row);
@@ -105,6 +106,7 @@ class StudentController extends Controller
         $request->validate([
             'nis'          => 'required|unique:students,nis',
             'name'         => 'required',
+            'gender'       => 'required|in:L,P',
             'class_id'     => 'required|exists:classes,id',
             'dormitory_id' => 'nullable|exists:dormitories,id',
         ]);
@@ -119,6 +121,7 @@ class StudentController extends Controller
         $request->validate([
             'nis'          => 'required|unique:students,nis,' . $id,
             'name'         => 'required',
+            'gender'       => 'required|in:L,P',
             'class_id'     => 'required|exists:classes,id',
             'dormitory_id' => 'nullable|exists:dormitories,id',
         ]);

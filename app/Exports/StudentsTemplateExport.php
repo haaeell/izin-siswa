@@ -19,6 +19,7 @@ class StudentsTemplateExport implements
         return [
             'NIS',
             'Nama Siswa',
+            'Jenis Kelamin (L/P)',
             'Kelas',
             'Barak'
         ];
@@ -27,7 +28,7 @@ class StudentsTemplateExport implements
     public function array(): array
     {
         return [
-            ['123456', 'Contoh Nama Siswa', 'X IPA 1', 'Asrama Putra'],
+            ['123456', 'Contoh Nama Siswa', 'L', 'X IPA 1', 'Asrama Putra'],
         ];
     }
 
@@ -67,7 +68,8 @@ class StudentsTemplateExport implements
             'A' => 20,
             'B' => 30,
             'C' => 20,
-            'D' => 25,
+            'D' => 20,
+            'E' => 25,
         ];
     }
 }
