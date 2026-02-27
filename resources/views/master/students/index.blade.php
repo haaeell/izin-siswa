@@ -49,12 +49,12 @@
             <div class="flex flex-col sm:flex-row gap-2">
                 <button id="btnFilterPulang" data-active="{{ $filterPulang ? 'true' : 'false' }}"
                     class="w-full sm:w-auto px-4 py-2 rounded-lg transition flex items-center justify-center gap-2
-                                                            {{ $filterPulang ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-orange-100 text-orange-700 hover:bg-orange-200' }}">
+                                                                            {{ $filterPulang ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-orange-100 text-orange-700 hover:bg-orange-200' }}">
                     <i class="fa-solid fa-person-walking-arrow-right"></i>
                     Sedang Pulang
                     <span id="pulangBadge"
                         class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full
-                                                            {{ $filterPulang ? 'bg-white text-orange-600' : 'bg-orange-600 text-white' }}">
+                                                                            {{ $filterPulang ? 'bg-white text-orange-600' : 'bg-orange-600 text-white' }}">
                         {{ $sedangPulangCount }}
                     </span>
                 </button>
@@ -223,7 +223,7 @@
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                     { data: 'nis', name: 'nis' },
                     { data: 'name', name: 'name' },
-                    { data: 'gender', name: 'gender' },
+                    { data: 'gender_badge', name: 'gender_badge' },
                     { data: 'class_name', name: 'class.name' },
                     { data: 'dormitory_name', name: 'dormitory.name' },
                 ];
@@ -348,9 +348,9 @@
                             form.method = 'POST';
                             form.action = `/master/students/${id}`;
                             form.innerHTML = `
-                                                                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                                                                        <input type="hidden" name="_method" value="DELETE">
-                                                                                                    `;
+                                                                                                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                                                                        <input type="hidden" name="_method" value="DELETE">
+                                                                                                                                    `;
                             document.body.appendChild(form);
                             form.submit();
                         }

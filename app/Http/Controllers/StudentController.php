@@ -80,7 +80,22 @@ class StudentController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('class_name', fn($row) => $row->class->name ?? '-')
-            ->addColumn('gender', fn($row) => $row->gender == 'L' ? 'Laki-laki' : 'Perempuan')
+            ->addColumn('gender_badge', function ($row) {
+
+                if ($row->gender === 'L') {
+                    return '<span class="inline-flex items-center px-3 font-bold py-1 text-xs rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                                Laki-Laki
+                            </span>';
+                }
+
+                if ($row->gender === 'P') {
+                    return '<span class="inline-flex items-center px-3 font-bold py-1 text-xs rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                                Perempuan
+                            </span>';
+                }
+
+                return '<span class="text-slate-300">—</span>';
+            })
             ->addColumn('dormitory_name', fn($row) => $row->dormitory->name ?? '-')
             ->addColumn('aksi', function ($row) {
                 $edit   = json_encode($row);
@@ -97,7 +112,7 @@ class StudentController extends Controller
                     </div>
                 ';
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['aksi', 'gender_badge'])
             ->make(true);
     }
 
