@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -16,7 +17,7 @@ class ReportController extends Controller
     {
         $startDate   = $request->start_date ? Carbon::parse($request->start_date)->startOfDay() : now()->startOfMonth();
         $endDate     = $request->end_date   ? Carbon::parse($request->end_date)->endOfDay()     : now()->endOfMonth();
-        $classId     = $request->class_id;
+        $classId = $this->getClassIdForUser($request);
         $dormitoryId = $request->dormitory_id;
         $jamMulai    = $request->jam_mulai ?? '00:00';
         $jamAkhir    = $request->jam_akhir ?? '23:59';
@@ -71,7 +72,12 @@ class ReportController extends Controller
             'total_violation' => $violationCount,
         ];
 
-        $classes     = SchoolClass::orderBy('name')->get();
+        $user = Auth::user();
+        if ($user->role === 'wali_kelas') {
+            $classes = SchoolClass::where('id', $user->class->id)->get();
+        } else {
+            $classes = SchoolClass::orderBy('name')->get();
+        }
         $dormitories = Dormitory::orderBy('name')->get();
 
         return view('reports.index', compact(
@@ -90,7 +96,7 @@ class ReportController extends Controller
     {
         $startDate   = $request->start_date ? Carbon::parse($request->start_date)->startOfDay() : now()->startOfMonth();
         $endDate     = $request->end_date   ? Carbon::parse($request->end_date)->endOfDay()     : now()->endOfMonth();
-        $classId     = $request->class_id;
+        $classId = $this->getClassIdForUser($request);
         $dormitoryId = $request->dormitory_id;
         $jamMulai    = $request->jam_mulai ?? '00:00';
         $jamAkhir    = $request->jam_akhir ?? '23:59';
@@ -184,7 +190,7 @@ class ReportController extends Controller
     {
         $startDate   = $request->start_date ? Carbon::parse($request->start_date)->startOfDay() : now()->startOfMonth();
         $endDate     = $request->end_date   ? Carbon::parse($request->end_date)->endOfDay()     : now()->endOfMonth();
-        $classId     = $request->class_id;
+        $classId = $this->getClassIdForUser($request);
         $dormitoryId = $request->dormitory_id;
         $gender      = $request->gender;
 
@@ -233,7 +239,7 @@ class ReportController extends Controller
     {
         $startDate   = $request->start_date ? Carbon::parse($request->start_date)->startOfDay() : now()->startOfMonth();
         $endDate     = $request->end_date   ? Carbon::parse($request->end_date)->endOfDay()     : now()->endOfMonth();
-        $classId     = $request->class_id;
+        $classId = $this->getClassIdForUser($request);
         $dormitoryId = $request->dormitory_id;
         $gender      = $request->gender;
 
@@ -276,7 +282,7 @@ class ReportController extends Controller
     {
         $startDate   = $request->start_date ? Carbon::parse($request->start_date)->startOfDay() : now()->startOfMonth();
         $endDate     = $request->end_date   ? Carbon::parse($request->end_date)->endOfDay()     : now()->endOfMonth();
-        $classId     = $request->class_id;
+        $classId = $this->getClassIdForUser($request);
         $dormitoryId = $request->dormitory_id;
         $jamMulai    = $request->jam_mulai ?? '00:00';
         $jamAkhir    = $request->jam_akhir ?? '23:59';
@@ -329,5 +335,16 @@ class ReportController extends Controller
         if ($classId)     $query->whereHas('student', fn($q) => $q->where('class_id', $classId));
         if ($dormitoryId) $query->whereHas('student', fn($q) => $q->where('dormitory_id', $dormitoryId));
         if ($gender)      $query->whereHas('student', fn($q) => $q->where('gender', $gender));
+    }
+
+    private function getClassIdForUser(Request $request): ?int
+    {
+        $user = auth()->user();
+
+        if ($user->role === 'wali_kelas') {
+            return $user->class->id;
+        }
+
+        return $request->class_id ?: null;
     }
 }
