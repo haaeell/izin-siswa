@@ -454,7 +454,7 @@
                                 @endif
                             </td>
                             <td>
-                                {{ \Carbon\Carbon::parse($p->checkin->checkout_at)->format('d M Y H:i') }}
+                                {{ $p->checkin->checkout_at ? \Carbon\Carbon::parse($p->checkin->checkout_at)->format('d M Y H:i') : '-' }}
                             </td>
                             <td style="text-align:center">
                                 @if($kembali)
