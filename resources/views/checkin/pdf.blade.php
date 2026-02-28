@@ -412,62 +412,64 @@
                 </thead>
                 <tbody>
                     @foreach ($siswaList as $i => $p)
-                        @php
-                            $gender = $p->student->gender ?? null;
-                            $sudah = $p->checkin && $p->checkin->checkin_at;
-                            $kembali = $sudah && $p->checkin->checkout_at;
-                            $typeMap = [
-                                'sakit' => ['label' => 'Sakit', 'class' => 'kep-sakit'],
-                                'pulang' => ['label' => 'Pulang', 'class' => 'kep-pulang'],
-                                'pesiar' => ['label' => 'Pesiar', 'class' => 'kep-pesiar'],
-                                'perpulangan' => ['label' => 'Perpulangan', 'class' => 'kep-perpulangan'],
-                            ];
-                            $typeInfo = $typeMap[$p->type] ?? ['label' => ucfirst($p->type), 'class' => ''];
-                        @endphp
-                        <tr class="{{ $i % 2 === 1 ? 'even' : '' }}">
-                            <td style="text-align:center">{{ $i + 1 }}</td>
-                            <td>{{ $p->student->nis ?? '-' }}</td>
-                            <td>
-                                <div style="font-weight: bold;">{{ $p->student->name ?? '-' }}</div>
-                                <div style="font-size: 10px; color: #64748b;">
-                                    {{ $p->student->dormitory->name ?? 'Tanpa Asrama' }}
-                                </div>
-                            </td>
-                            <td style="text-align:center">
-                                @if($gender === 'L')
-                                    <span class="badge badge-l">L</span>
-                                @elseif($gender === 'P')
-                                    <span class="badge badge-p">P</span>
-                                @else
-                                    <span style="color:#94a3b8">&#8212;</span>
-                                @endif
-                            </td>
-                            <td>{{ $p->reason ?? '-' }}</td>
-                            <td style="text-align:center">
-                                <span class="badge {{ $typeInfo['class'] }}">{{ $typeInfo['label'] }}</span>
-                            </td>
-                            <td>
-                                @if($sudah)
-                                    {{ \Carbon\Carbon::parse($p->checkin->checkin_at)->format('d M Y H:i') }}
-                                @else
-                                    <span style="color:#94a3b8">&#8212;</span>
-                                @endif
-                            </td>
-                            <td>
-                                {{ $p->checkin->checkout_at ? \Carbon\Carbon::parse($p->checkin->checkout_at)->format('d M Y H:i') : '-' }}
-                            </td>
-                            <td style="text-align:center">
-                                @if($kembali)
-                                    <span class="badge badge-kembali" style="white-space: nowrap;">Sudah Kembali</span>
-                                @elseif($sudah)
-                                    <span class="badge badge-sudah-ci" style="white-space: nowrap;">Sudah Check-in</span>
-                                @else
-                                    <span class="badge badge-belum" style="white-space: nowrap;">Belum Check-in</span>
-                                @endif
-                            </td>
+                            @php
+                                $gender = $p->student->gender ?? null;
+                                $sudah = $p->checkin && $p->checkin->checkin_at;
+                                $kembali = $sudah && $p->checkin->checkout_at;
+                                $typeMap = [
+                                    'sakit' => ['label' => 'Sakit', 'class' => 'kep-sakit'],
+                                    'pulang' => ['label' => 'Pulang', 'class' => 'kep-pulang'],
+                                    'pesiar' => ['label' => 'Pesiar', 'class' => 'kep-pesiar'],
+                                    'perpulangan' => ['label' => 'Perpulangan', 'class' => 'kep-perpulangan'],
+                                ];
+                                $typeInfo = $typeMap[$p->type] ?? ['label' => ucfirst($p->type), 'class' => ''];
+                            @endphp
+                            <tr class="{{ $i % 2 === 1 ? 'even' : '' }}">
+                                <td style="text-align:center">{{ $i + 1 }}</td>
+                                <td>{{ $p->student->nis ?? '-' }}</td>
+                                <td>
+                                    <div style="font-weight: bold;">{{ $p->student->name ?? '-' }}</div>
+                                    <div style="font-size: 10px; color: #64748b;">
+                                        {{ $p->student->dormitory->name ?? 'Tanpa Asrama' }}
+                                    </div>
+                                </td>
+                                <td style="text-align:center">
+                                    @if($gender === 'L')
+                                        <span class="badge badge-l">L</span>
+                                    @elseif($gender === 'P')
+                                        <span class="badge badge-p">P</span>
+                                    @else
+                                        <span style="color:#94a3b8">&#8212;</span>
+                                    @endif
+                                </td>
+                                <td>{{ $p->reason ?? '-' }}</td>
+                                <td style="text-align:center">
+                                    <span class="badge {{ $typeInfo['class'] }}">{{ $typeInfo['label'] }}</span>
+                                </td>
+                                <td>
+                                    @if($sudah)
+                                        {{ \Carbon\Carbon::parse($p->checkin->checkin_at)->format('d M Y H:i') }}
+                                    @else
+                                        <span style="color:#94a3b8">&#8212;</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    {{ $p->checkin?->checkout_at
+                        ? \Carbon\Carbon::parse($p->checkin->checkout_at)->format('d M Y H:i')
+                        : '-' }}
+                                </td>
+                                <td style="text-align:center">
+                                    @if($kembali)
+                                        <span class="badge badge-kembali" style="white-space: nowrap;">Sudah Kembali</span>
+                                    @elseif($sudah)
+                                        <span class="badge badge-sudah-ci" style="white-space: nowrap;">Sudah Check-in</span>
+                                    @else
+                                        <span class="badge badge-belum" style="white-space: nowrap;">Belum Check-in</span>
+                                    @endif
+                                </td>
 
 
-                        </tr>
+                            </tr>
                     @endforeach
                 </tbody>
             </table>
