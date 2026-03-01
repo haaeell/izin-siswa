@@ -867,122 +867,116 @@
 			}
 
 			function printQr() {
-				if (!barcodeReady) {
-					Swal.fire({ icon: 'warning', title: 'Barcode belum siap', confirmButtonColor: '#2563eb' });
-					return;
-				}
+    if (!barcodeReady) {
+        Swal.fire({ icon: 'warning', title: 'Barcode belum siap', confirmButtonColor: '#2563eb' });
+        return;
+    }
 
-				const barcodeSrc = document.getElementById('qrImage').src;
-				const d = barcodeData;
-				const win = window.open('', '_blank', 'width=500,height=300');
+    const barcodeSrc = document.getElementById('qrImage').src;
+    const d = barcodeData;
+    const win = window.open('', '_blank', 'width=500,height=300');
 
-				win.document.write(`
-																																																					<!DOCTYPE html>
-																																																					<html>
-																																																					<head>
-																																																						<title>Tiket Izin</title>
-																																																						<style>
-																																																							/* Ukuran Kertas 5cm x 3cm */
-																																																							@page {
-																																																								size: 58mm auto;
-																																																								margin: 0;
-																																																							}
-																																																							body { 
-																																																								margin: 0; 
-																																																								padding: 1mm;
-																																																								font-family: 'Arial Narrow', Arial, sans-serif; 
-																																																								width: 50mm;
-																																																								height: 30mm;
-																																																								box-sizing: border-box;
-																																																							}
-																																																							.ticket {
-																																																								border: 1px solid #000;
-																																																								height: 100%;
-																																																								display: flex;
-																																																								flex-direction: column;
-																																																								padding: 1mm;
-																																																								box-sizing: border-box;
-																																																							}
-																																																							.title {
-																																																								text-align: center;
-																																																								font-weight: bold;
-																																																								font-size: 8px;
-																																																								border-bottom: 0.5px solid #000;
-																																																								margin-bottom: 2px;
-																																																								padding-bottom: 1px;
-																																																							}
-																																																							/* Layout Biodata: 2 Kolom */
-																																																							.info-container {
-																																																								display: grid;
-																																																								grid-template-columns: 1.5fr 1fr; /* Kolom kiri lebih lebar */
-																																																								gap: 2px;
-																																																								font-size: 6.5px;
-																																																								line-height: 1.1;
-																																																							}
-																																																							.col { display: flex; flex-direction: column; }
-																																																							.item { display: flex; margin-bottom: 1px; }
-																																																							.label { font-weight: bold; width: 10mm; }
+    win.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Tiket Izin</title>
+            <style>
+                @page {
+                    size: 58mm auto;
+                    margin: 0;
+                }
+                body { 
+                    margin: 0; 
+                    padding: 1mm;
+                    font-family: 'Arial Narrow', Arial, sans-serif; 
+                    width: 56mm;
+                    box-sizing: border-box;
+                }
+                .ticket {
+                    border: 1px solid #000;
+                    padding: 1mm;
+                    box-sizing: border-box;
+                }
+                .title {
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 8px;
+                    border-bottom: 0.5px solid #000;
+                    margin-bottom: 2px;
+                    padding-bottom: 1px;
+                }
+                .info-container {
+                    display: grid;
+                    grid-template-columns: 1.5fr 1fr;
+                    gap: 2px;
+                    font-size: 6.5px;
+                    line-height: 1.1;
+                }
+                .col { display: flex; flex-direction: column; }
+                .item { display: flex; margin-bottom: 1px; }
+                .label { font-weight: bold; width: 10mm; }
 
-																																																							.barcode-section {
-																																																								flex-grow: 1;
-																																																								text-align: center;
-																																																								display: flex;
-																																																								flex-direction: column;
-																																																								justify-content: center;
-																																																								align-items: center;
-																																																								border-top: 0.5px dashed #000;
-																																																								margin-top: 2px;
-																																																							}
-																																																							.barcode-section img {
-																																																								width: 35mm; /* Menyesuaikan lebar kertas */
-																																																								height: auto;
-																																																							}
-																																																							.time {
-																																																								display: flex;
-																																																								justify-content: space-between;
-																																																								font-size: 5.5px;
-																																																								margin-top: 1px;
-																																																								border-top: 0.5px solid #eee;
-																																																							}
-																																																						</style>
-																																																					</head>
-																																																					<body>
-																																																						<div class="ticket">
-																																																							<div class="title">IZIN KEPULANGAN</div>
+                .barcode-section {
+                    text-align: center;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    border-top: 0.5px dashed #000;
+                    margin-top: 2px;
+                    padding: 2px 0;
+                }
+                .barcode-section img {
+                    width: 35mm;
+                    height: auto;
+                }
+                .time {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 5.5px;
+                    margin-top: 1px;
+                    border-top: 0.5px solid #eee;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="ticket">
+                <div class="title">IZIN KEPULANGAN</div>
 
-																																																							<div class="info-container">
-																																																								<div class="col">
-																																																									<div class="item"><span class="label">Nama</span>: ${d.nama}</div>
-																																																									<div class="item"><span class="label">NIS</span>: ${d.nis}</div>
-																																																									<div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
-																																																								</div>
-																																																								<div class="col">
-																																																									<div class="item"><span class="label">Asrama</span>: ${d.asrama}</div>
-																																																									<div class="item"><span class="label">Izin</span>: ${d.izin}</div>
-																																																								</div>
-																																																							</div>
+                <div class="info-container">
+                    <div class="col">
+                        <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
+                        <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
+                        <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
+                    </div>
+                    <div class="col">
+                        <div class="item"><span class="label">Asrama</span>: ${d.asrama}</div>
+                        <div class="item"><span class="label">Izin</span>: ${d.izin}</div>
+                    </div>
+                </div>
 
-																																																							<div class="barcode-section">
-																																																								<img src="${barcodeSrc}">
-																																																							</div>
+                <div class="barcode-section">
+                    <img src="${barcodeSrc}">
+                </div>
 
-																																																							<div class="time">
-																																																								<div><b>Mulai:</b> ${d.startAt}</div>
-																																																								<div style="text-align:right"><b>Sampai:</b> ${d.endAt}</div>
-																																																							</div>
-																																																						</div>
-																																																						<script>
-																																																							window.onload = function() {
-																																																								window.print();
-																																																								setTimeout(() => { window.close(); }, 500);
-																																																							}
-																																																						<\/script>
-																																																					</body>
-																																																					</html>`);
+                <div class="time">
+                    <div><b>Mulai:</b> ${d.startAt}</div>
+                    <div style="text-align:right"><b>Sampai:</b> ${d.endAt}</div>
+                </div>
+            </div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(() => { window.close(); }, 500);
+                }
+            <\/script>
+        </body>
+        </html>`);
 
-				win.document.close();
-				win.focus();
-			}
+    win.document.close();
+    win.focus();
+}
 
 			// ── QR Massal ─────────────────────────────────────────────────────
 			let qrMassalRows = [];
