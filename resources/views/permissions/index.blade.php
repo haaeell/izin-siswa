@@ -23,7 +23,7 @@
             @if (auth()->user()->role === 'wali_kelas')
                 <div class="flex gap-2 flex-shrink-0">
                     <button onclick="openCreateModal()" @disabled($activePermissionCount >= $maxActivePermissions) class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {{ $activePermissionCount >= $maxActivePermissions
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {{ $activePermissionCount >= $maxActivePermissions
                 ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                         <i class="fa-solid fa-plus text-xs"></i> Ajukan Izin
@@ -63,7 +63,7 @@
                     @php $isFull = $activePermissionCount >= $maxActivePermissions; @endphp
                     <div
                         class="mb-4 rounded-xl border px-4 py-3 flex flex-col sm:flex-row gap-3 items-start
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
                         <div class="flex-shrink-0">
                             <div
                                 class="w-9 h-9 rounded-full flex items-center justify-center {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
@@ -133,8 +133,8 @@
 
                         <select id="filterKelas" name="kelas"
                             class="w-full py-2 px-3 border rounded-lg text-sm 
-                                                                                                                                                                                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                                                                                                                                                                           {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
+                                                                                                                                                                                                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                                                                                                                                                                       {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
                             {{ $isWalikelas ? 'disabled' : '' }}>
 
                             @if(!$isWalikelas)
@@ -895,25 +895,22 @@
             }
 
             function buildTicketHtml(d, isMassal = false) {
-                let barcodeHtml = '';
+                let barcodeImg = '';
                 try {
                     if (d.token) {
-                        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                        JsBarcode(svg, d.token, {
+                        const canvas = document.createElement("canvas");
+                        JsBarcode(canvas, d.token, {
                             format: "CODE128",
-                            width: 2.2,
+                            width: 2,
                             height: 60,
                             displayValue: false,
                             margin: 0
                         });
-                        // Sanitasi SVG
-                        let svgString = svg.outerHTML;
-                        if (!svgString.includes('</svg>')) svgString += '</svg>';
-                        barcodeHtml = svgString;
+                        barcodeImg = canvas.toDataURL("image/png");
                     }
                 } catch (e) {
                     console.error(e);
-                    barcodeHtml = '<i style="font-size:6px">Token Error</i>';
+                    barcodeImg = '';
                 }
 
                 const startAt = isMassal ? d.start_at : d.startAt;
@@ -934,7 +931,7 @@
                                         </div>
                                     </div>
                                     <div class="barcode-section">
-                                        ${barcodeHtml}
+                                        <img src="${barcodeImg}" style="width: 40mm; height: auto; display: block; margin: 0 auto;" />
                                     </div>
                                     <div class="time">
                                         <div class="time-label">Mulai: ${escapeHtml(startAt)}</div>
@@ -946,101 +943,88 @@
 
             function buildPrintWindow(cardsHtml) {
                 const win = window.open('', '_blank', 'width=400,height=600');
-                if (!win) {
-                    Swal.fire({ icon: 'warning', title: 'Popup diblokir', text: 'Izinkan popup di browser Anda.', confirmButtonColor: '#2563eb' });
-                    return null;
-                }
+                if (!win) return null;
 
                 win.document.write(`<!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                            <title>Cetak Tiket</title>
-                            <style>
-                                @page { size: 50mm 45mm; margin: 0; }
-                                * { box-sizing: border-box; margin: 0; padding: 0; }
+                                <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <title>Cetak Tiket</title>
+                                    <style>
+                                        @page { size: 50mm 45mm; margin: 0; }
+                                        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-                                html, body {
-                                    width: 50mm;
-                                    font-family: Arial, sans-serif;
-                                    -webkit-print-color-adjust: exact;
-                                    print-color-adjust: exact;
-                                }
+                                        html, body {
+                                            width: 50mm;
+                                            font-family: Arial, sans-serif;
+                                            -webkit-print-color-adjust: exact;
+                                        }
 
-                                .ticket {
-                                    width: 46mm;
-                                    margin: 2mm;
-                                    border: 1px solid #000;
-                                    padding: 2mm;
-                                    page-break-after: always;
-                                }
+                                        .ticket {
+                                            width: 46mm; /* Disesuaikan agar center di printer 58mm */
+                                            margin: 2mm auto;
+                                            border: 1px solid #000;
+                                            padding: 2mm;
+                                            page-break-after: always;
+                                        }
 
-                                .ticket:last-child {
-                                    page-break-after: avoid;
-                                }
+                                        .ticket:last-child { page-break-after: avoid; }
 
-                                .title {
-                                    text-align: center;
-                                    font-weight: bold;
-                                    font-size: 7px;
-                                    border-bottom: 0.5px solid #000;
-                                    margin-bottom: 1px;
-                                    padding-bottom: 1px;
-                                }
+                                        .title {
+                                            text-align: center;
+                                            font-weight: bold;
+                                            font-size: 7px;
+                                            border-bottom: 0.5px solid #000;
+                                            margin-bottom: 1px;
+                                            padding-bottom: 1px;
+                                        }
 
-                                .info-container {
-                                    display: grid;
-                                    grid-template-columns: 1.5fr 1fr;
-                                    font-size: 6px;
-                                    line-height: 1.2;
-                                    margin-bottom: 1px;
-                                }
+                                        .info-container {
+                                            display: grid;
+                                            grid-template-columns: 1.5fr 1fr;
+                                            font-size: 6px;
+                                            line-height: 1.2;
+                                            margin-bottom: 1px;
+                                        }
 
-                                .col { display: flex; flex-direction: column; }
-                                .item { display: flex; margin-bottom: 0.5px; }
-                                .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
+                                        .col { display: flex; flex-direction: column; }
+                                        .item { display: flex; margin-bottom: 0.5px; }
+                                        .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
 
-                                .barcode-section {
-                                    text-align: center;
-                                    border-top: 0.5px dashed #000;
-                                    padding-top: 1px;
-                                    margin-bottom: 1px;
-                                }
+                                        .barcode-section {
+                                            text-align: center;
+                                            border-top: 0.5px dashed #000;
+                                            padding-top: 1px;
+                                            margin-bottom: 1px;
+                                        }
 
-                                .barcode-section svg {
-                                    width: 40mm;
-                                    height: auto;
-                                    display: block;
-                                    margin: 0 auto;
-                                }
+                                        .time {
+                                            display: flex;
+                                            justify-content: space-between;
+                                            border-top: 0.5px solid #ccc;
+                                            padding-top: 1px;
+                                            margin-top: 1px;
+                                        }
 
-                                .time {
-                                    display: flex;
-                                    justify-content: space-between;
-                                    border-top: 0.5px solid #ccc;
-                                    padding-top: 1px;
-                                    margin-top: 1px;
-                                }
-
-                                .time-label {
-                                    font-size: 5px;
-                                    font-weight: bold;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            ${cardsHtml}
-                            <script>
-                                window.onload = function () {
-                                    requestAnimationFrame(function() {
-                                        window.print();
-                                        setTimeout(function() { window.close(); }, 800);
-                                    });
-                                };
-                            <\/script>
-                        </body>
-                        </html>`);
+                                        .time-label {
+                                            font-size: 5px;
+                                            font-weight: bold;
+                                        }
+                                    </style>
+                                </head>
+                                <body>
+                                    ${cardsHtml}
+                                    <script>
+                                        window.onload = function () {
+                                            // Beri waktu browser memuat gambar barcode
+                                            setTimeout(function() {
+                                                window.print();
+                                                setTimeout(function() { window.close(); }, 500);
+                                            }, 500);
+                                        };
+                                    <\/script>
+                                </body>
+                                </html>`);
 
                 win.document.close();
                 win.focus();
