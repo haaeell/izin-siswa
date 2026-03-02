@@ -23,7 +23,7 @@
             @if (auth()->user()->role === 'wali_kelas')
                 <div class="flex gap-2 flex-shrink-0">
                     <button onclick="openCreateModal()" @disabled($activePermissionCount >= $maxActivePermissions) class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {{ $activePermissionCount >= $maxActivePermissions
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {{ $activePermissionCount >= $maxActivePermissions
                 ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                         <i class="fa-solid fa-plus text-xs"></i> Ajukan Izin
@@ -63,7 +63,7 @@
                     @php $isFull = $activePermissionCount >= $maxActivePermissions; @endphp
                     <div
                         class="mb-4 rounded-xl border px-4 py-3 flex flex-col sm:flex-row gap-3 items-start
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
                         <div class="flex-shrink-0">
                             <div
                                 class="w-9 h-9 rounded-full flex items-center justify-center {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
@@ -133,8 +133,8 @@
 
                         <select id="filterKelas" name="kelas"
                             class="w-full py-2 px-3 border rounded-lg text-sm 
-                                                                                                                                                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                                                                                                                                           {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
+                                                                                                                                                                               focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                                                                                                                                               {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
                             {{ $isWalikelas ? 'disabled' : '' }}>
 
                             @if(!$isWalikelas)
@@ -883,6 +883,15 @@
                 }
             }
 
+            function escapeHtml(str) {
+                return String(str ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
             function printQr() {
                 if (!barcodeReady) {
                     Swal.fire({ icon: 'warning', title: 'Barcode belum siap', confirmButtonColor: '#2563eb' });
@@ -897,7 +906,7 @@
                         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
                         JsBarcode(svg, d.token, {
                             format: "CODE128",
-                            width: 2.5,
+                            width: 2.2,
                             height: 60,
                             displayValue: false,
                             margin: 0
@@ -909,116 +918,118 @@
                 }
 
                 const card = `
-                        <div class="ticket">
-                            <div class="title">IZIN KEPULANGAN</div>
-                            <div class="info-container">
-                                <div class="col">
-                                    <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
-                                    <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
-                                    <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
-                                </div>
-                                <div class="col">
-                                    <div class="item"><span class="label">Asrama</span>: ${d.asrama || '-'}</div>
-                                    <div class="item"><span class="label">Izin</span>: ${d.izin || 'Perpulangan'}</div>
-                                </div>
-                            </div>
-                            <div class="barcode-section">
-                                ${barcodeHtml || '<i style="font-size:6px">Token Error</i>'}
-                            </div>
-                            <div class="time">
-                                <div><b>Mulai:</b> ${d.startAt}</div>
-                                <div style="text-align:right"><b>Sampai:</b> ${d.endAt}</div>
-                            </div>
-                        </div>
-                    `;
+            <div class="ticket">
+              <div class="title">IZIN KEPULANGAN</div>
+              <div class="info-container">
+                <div class="col">
+                  <div class="item"><span class="label">Nama</span>: ${escapeHtml(d.nama)}</div>
+                  <div class="item"><span class="label">NIS</span>: ${escapeHtml(d.nis)}</div>
+                  <div class="item"><span class="label">Kelas</span>: ${escapeHtml(d.kelas)}</div>
+                </div>
+                <div class="col">
+                  <div class="item"><span class="label">Asrama</span>: ${escapeHtml(d.asrama || '-')}</div>
+                  <div class="item"><span class="label">Izin</span>: ${escapeHtml(d.izin || 'Perpulangan')}</div>
+                </div>
+              </div>
+              <div class="barcode-section">
+                ${barcodeHtml || '<i style="font-size:6px">Token Error</i>'}
+              </div>
+              <div class="time">
+                <div><b>Mulai:</b> ${escapeHtml(d.startAt)}</div>
+                <div style="text-align:right"><b>Sampai:</b> ${escapeHtml(d.endAt)}</div>
+              </div>
+            </div>
+          `;
 
                 const win = window.open('', '_blank', 'width=400,height=600');
+                if (!win) return;
 
                 win.document.write(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <title>Tiket Izin</title>
-                            <style>
-                                @page { size: 58mm 45mm; margin: 0; }
-                                * { box-sizing: border-box; margin: 0; padding: 0; }
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <title>Tiket Izin</title>
+              <style>
+                @page { size: 50mm 45mm; margin: 0; }
+                * { box-sizing: border-box; margin: 0; padding: 0; }
 
-                                html, body {
-                                    width: 58mm;
-                                    font-family: 'Arial Narrow', Arial, sans-serif;
-                                    -webkit-print-color-adjust: exact;
-                                    print-color-adjust: exact;
-                                }
+                html, body {
+                  width: 50mm;
+                  font-family: 'Arial Narrow', Arial, sans-serif;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
 
-                                .ticket {
-                                    width: 54mm;
-                                    margin: 2mm;
-                                    border: 1px solid #000;
-                                    padding: 2mm;
-                                    page-break-after: always;
-                                }
+                .ticket {
+                  width: 46mm;
+                  margin: 2mm;
+                  border: 1px solid #000;
+                  padding: 2mm;
+                  page-break-after: always;
+                }
 
-                                .ticket:last-child {
-                                    page-break-after: avoid;
-                                }
+                .ticket:last-child {
+                  page-break-after: avoid;
+                }
 
-                                .title {
-                                    text-align: center;
-                                    font-weight: bold;
-                                    font-size: 7px;
-                                    border-bottom: 0.5px solid #000;
-                                    margin-bottom: 1px;
-                                    padding-bottom: 1px;
-                                }
+                .title {
+                  text-align: center;
+                  font-weight: bold;
+                  font-size: 7px;
+                  border-bottom: 0.5px solid #000;
+                  margin-bottom: 1px;
+                  padding-bottom: 1px;
+                }
 
-                                .info-container {
-                                    display: grid;
-                                    grid-template-columns: 1.5fr 1fr;
-                                    font-size: 6px;
-                                    line-height: 1.2;
-                                    margin-bottom: 1px;
-                                }
+                .info-container {
+                  display: grid;
+                  grid-template-columns: 1.5fr 1fr;
+                  font-size: 6px;
+                  line-height: 1.2;
+                  margin-bottom: 1px;
+                }
 
-                                .col { display: flex; flex-direction: column; }
-                                .item { display: flex; margin-bottom: 0.5px; }
-                                .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
+                .col { display: flex; flex-direction: column; }
+                .item { display: flex; margin-bottom: 0.5px; }
+                .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
 
-                                .barcode-section {
-                                    text-align: center;
-                                    border-top: 0.5px dashed #000;
-                                    padding-top: 1px;
-                                }
+                .barcode-section {
+                  text-align: center;
+                  border-top: 0.5px dashed #000;
+                  padding-top: 1px;
+                }
 
-                                .barcode-section svg {
-                                    width: 48mm;
-                                    height: auto;
-                                    display: block;
-                                    margin: 0 auto;
-                                }
+                .barcode-section svg {
+                  width: 40mm;
+                  height: auto;
+                  display: block;
+                  margin: 0 auto;
+                }
 
-                                .time {
-                                    display: flex;
-                                    justify-content: space-between;
-                                    font-size: 5px;
-                                    border-top: 0.5px solid #ccc;
-                                    padding-top: 1px;
-                                    margin-top: 1px;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            ${card}
-                            <script>
-                                window.onload = function () {
-                                    setTimeout(function() {
-                                        window.print();
-                                        setTimeout(() => window.close(), 800);
-                                    }, 500);
-                                }
-                            <\/script>
-                        </body>
-                        </html>
-                    `);
+                .time {
+                  display: flex;
+                  justify-content: space-between;
+                  font-size: 5px;
+                  border-top: 0.5px solid #ccc;
+                  padding-top: 1px;
+                  margin-top: 1px;
+                }
+              </style>
+            </head>
+            <body>
+              ${card}
+              <script>
+                window.onload = function () {
+                  requestAnimationFrame(() => {
+                    window.print();
+                    setTimeout(() => window.close(), 800);
+                  });
+                };
+              <\/script>
+            </body>
+            </html>
+          `);
 
                 win.document.close();
                 win.focus();
@@ -1044,7 +1055,6 @@
             }
 
             function cetakQrMassal() {
-                const filterDate = document.getElementById('qrMassalDate').value;
                 if (!qrMassalRows.length) {
                     Swal.fire({ icon: 'info', title: 'Tidak ada data', confirmButtonColor: '#4f46e5' });
                     return;
@@ -1056,15 +1066,13 @@
                     try {
                         if (d.token) {
                             const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
                             JsBarcode(svg, d.token, {
                                 format: "CODE128",
-                                width: 2.5,
+                                width: 2.2,
                                 height: 60,
                                 displayValue: false,
                                 margin: 0
                             });
-
                             barcodeHtml = svg.outerHTML;
                         }
                     } catch (e) {
@@ -1072,124 +1080,119 @@
                     }
 
                     return `
-                                                                    <div class="ticket">
-                                                                        <div class="title">IZIN KEPULANGAN</div>
-
-                                                                        <div class="info-container">
-                                                                            <div class="col">
-                                                                                <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
-                                                                                <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
-                                                                                <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
-                                                                            </div>
-                                                                            <div class="col">
-                                                                                <div class="item"><span class="label">Asrama</span>: ${d.asrama || '-'}</div>
-                                                                                <div class="item"><span class="label">Izin</span>: ${d.izin || 'Perpulangan'}</div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="barcode-section">
-                                                                            ${barcodeHtml || '<i style="font-size:6px">Token Error</i>'}
-                                                                        </div>
-
-                                                                        <div class="time">
-                                                                            <div><b>Mulai:</b> ${d.start_at}</div>
-                                                                            <div style="text-align:right"><b>Sampai:</b> ${d.end_at}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                `;
+              <div class="ticket">
+                <div class="title">IZIN KEPULANGAN</div>
+                <div class="info-container">
+                  <div class="col">
+                    <div class="item"><span class="label">Nama</span>: ${escapeHtml(d.nama)}</div>
+                    <div class="item"><span class="label">NIS</span>: ${escapeHtml(d.nis)}</div>
+                    <div class="item"><span class="label">Kelas</span>: ${escapeHtml(d.kelas)}</div>
+                  </div>
+                  <div class="col">
+                    <div class="item"><span class="label">Asrama</span>: ${escapeHtml(d.asrama || '-')}</div>
+                    <div class="item"><span class="label">Izin</span>: ${escapeHtml(d.izin || 'Perpulangan')}</div>
+                  </div>
+                </div>
+                <div class="barcode-section">
+                  ${barcodeHtml || '<i style="font-size:6px">Token Error</i>'}
+                </div>
+                <div class="time">
+                  <div><b>Mulai:</b> ${escapeHtml(d.start_at)}</div>
+                  <div style="text-align:right"><b>Sampai:</b> ${escapeHtml(d.end_at)}</div>
+                </div>
+              </div>
+            `;
                 }).join('');
 
                 const win = window.open('', '_blank', 'width=400,height=600');
+                if (!win) return;
 
                 win.document.write(`
-                                                                <!DOCTYPE html>
-                                                                <html>
-                                                                <head>
-                                                                    <title>Cetak Massal Thermal</title>
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <title>Cetak Massal Thermal</title>
+              <style>
+                @page { size: 50mm 45mm; margin: 0; }
+                * { box-sizing: border-box; margin: 0; padding: 0; }
 
-                                                                    <style>
-                                                                        @page { size: 58mm 45mm; margin: 0; }
-                                                                        * { box-sizing: border-box; margin: 0; padding: 0; }
+                html, body {
+                  width: 50mm;
+                  font-family: 'Arial Narrow', Arial, sans-serif;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
 
-                                                                        html, body {
-                                                                            width: 58mm;
-                                                                            font-family: 'Arial Narrow', Arial, sans-serif;
-                                                                            -webkit-print-color-adjust: exact;
-                                                                            print-color-adjust: exact;
-                                                                        }
+                .ticket {
+                  width: 46mm;
+                  margin: 2mm;
+                  border: 1px solid #000;
+                  padding: 2mm;
+                  page-break-after: always;
+                }
 
-                                                                        .ticket {
-                                                                            width: 54mm;
-                                                                            margin: 2mm;
-                                                                            border: 1px solid #000;
-                                                                            padding: 2mm;
-                                                                            page-break-after: always;
-                                                                        }
+                .ticket:last-child {
+                  page-break-after: avoid;
+                }
 
-                                                                        .ticket:last-child {
-                                                                            page-break-after: avoid;
-                                                                        }
+                .title {
+                  text-align: center;
+                  font-weight: bold;
+                  font-size: 7px;
+                  border-bottom: 0.5px solid #000;
+                  margin-bottom: 1px;
+                  padding-bottom: 1px;
+                }
 
-                                                                        .title {
-                                                                            text-align: center;
-                                                                            font-weight: bold;
-                                                                            font-size: 7px;
-                                                                            border-bottom: 0.5px solid #000;
-                                                                            margin-bottom: 1px;
-                                                                            padding-bottom: 1px;
-                                                                        }
+                .info-container {
+                  display: grid;
+                  grid-template-columns: 1.5fr 1fr;
+                  font-size: 6px;
+                  line-height: 1.2;
+                  margin-bottom: 1px;
+                }
 
-                                                                        .info-container {
-                                                                            display: grid;
-                                                                            grid-template-columns: 1.5fr 1fr;
-                                                                            font-size: 6px;
-                                                                            line-height: 1.2;
-                                                                            margin-bottom: 1px;
-                                                                        }
+                .col { display: flex; flex-direction: column; }
+                .item { display: flex; margin-bottom: 0.5px; }
+                .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
 
-                                                                        .col { display: flex; flex-direction: column; }
-                                                                        .item { display: flex; margin-bottom: 0.5px; }
-                                                                        .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
+                .barcode-section {
+                  text-align: center;
+                  border-top: 0.5px dashed #000;
+                  padding-top: 1px;
+                }
 
-                                                                        .barcode-section {
-                                                                            text-align: center;
-                                                                            border-top: 0.5px dashed #000;
-                                                                            padding-top: 1px;
-                                                                        }
+                .barcode-section svg {
+                  width: 40mm;
+                  height: auto;
+                  display: block;
+                  margin: 0 auto;
+                }
 
-                                                                        /* SVG jangan di-scale aneh */
-                                                                        .barcode-section svg {
-                                                                            width: 48mm;
-                                                                            height: auto;
-                                                                            display: block;
-                                                                            margin: 0 auto;
-                                                                        }
-
-                                                                        .time {
-                                                                            display: flex;
-                                                                            justify-content: space-between;
-                                                                            font-size: 5px;
-                                                                            border-top: 0.5px solid #ccc;
-                                                                            padding-top: 1px;
-                                                                            margin-top: 1px;
-                                                                        }
-                                                                    </style>
-                                                                </head>
-
-                                                                <body>
-                                                                    ${cards}
-
-                                                                    <script>
-                                                                        window.onload = function () {
-                                                                            setTimeout(function() {
-                                                                                window.print();
-                                                                                setTimeout(() => window.close(), 800);
-                                                                            }, 500);
-                                                                        }
-                                                                    <\/script>
-                                                                </body>
-                                                                </html>
-                                                            `);
+                .time {
+                  display: flex;
+                  justify-content: space-between;
+                  font-size: 5px;
+                  border-top: 0.5px solid #ccc;
+                  padding-top: 1px;
+                  margin-top: 1px;
+                }
+              </style>
+            </head>
+            <body>
+              ${cards}
+              <script>
+                window.onload = function () {
+                  requestAnimationFrame(() => {
+                    window.print();
+                    setTimeout(() => window.close(), 800);
+                  });
+                };
+              <\/script>
+            </body>
+            </html>
+          `);
 
                 win.document.close();
                 win.focus();
