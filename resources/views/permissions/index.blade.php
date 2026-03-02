@@ -23,7 +23,7 @@
             @if (auth()->user()->role === 'wali_kelas')
                 <div class="flex gap-2 flex-shrink-0">
                     <button onclick="openCreateModal()" @disabled($activePermissionCount >= $maxActivePermissions) class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {{ $activePermissionCount >= $maxActivePermissions
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {{ $activePermissionCount >= $maxActivePermissions
                 ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                         <i class="fa-solid fa-plus text-xs"></i> Ajukan Izin
@@ -63,7 +63,7 @@
                     @php $isFull = $activePermissionCount >= $maxActivePermissions; @endphp
                     <div
                         class="mb-4 rounded-xl border px-4 py-3 flex flex-col sm:flex-row gap-3 items-start
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
                         <div class="flex-shrink-0">
                             <div
                                 class="w-9 h-9 rounded-full flex items-center justify-center {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
@@ -133,8 +133,8 @@
 
                         <select id="filterKelas" name="kelas"
                             class="w-full py-2 px-3 border rounded-lg text-sm 
-                                                                                                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                                                                                       {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
+                                                                                                                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                                                                                                   {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
                             {{ $isWalikelas ? 'disabled' : '' }}>
 
                             @if(!$isWalikelas)
@@ -841,27 +841,41 @@
                 });
             });
 
-            // ── Barcode & Print QR ────────────────────────────────────────────
-            let barcodeData = {};
-            let barcodeReady = false;
-
             function showBarcode(token, nama, nis, kelas, asrama, izin, startAt, endAt) {
                 barcodeReady = false;
                 barcodeData = { token, nama, nis, kelas, asrama, izin, startAt, endAt };
+
                 $('#qrModal').removeClass('hidden');
                 $('#qrLoader').removeClass('hidden');
                 $('#qrImage').addClass('hidden');
                 $('#qrText').text('');
-                $('#printQrBtn').prop('disabled', true).removeClass('bg-blue-600 hover:bg-blue-700 text-white').addClass('bg-slate-300 text-slate-500 cursor-not-allowed');
-                const canvas = document.createElement('canvas');
+                $('#printQrBtn')
+                    .prop('disabled', true)
+                    .removeClass('bg-blue-600 hover:bg-blue-700 text-white')
+                    .addClass('bg-slate-300 text-slate-500 cursor-not-allowed');
+
                 try {
-                    JsBarcode(canvas, token, { format: 'CODE128', width: 2, height: 50, displayValue: false, margin: 5 });
-                    const dataUrl = canvas.toDataURL('image/png');
-                    $('#qrImage').attr('src', dataUrl).removeClass('hidden');
+                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+                    JsBarcode(svg, token, {
+                        format: "CODE128",
+                        width: 2.5,
+                        height: 70,
+                        displayValue: false,
+                        margin: 0
+                    });
+
+                    // tampilkan SVG di modal
+                    document.getElementById('qrImage').outerHTML = svg.outerHTML;
                     $('#qrLoader').addClass('hidden');
                     $('#qrText').text(token);
+
                     barcodeReady = true;
-                    $('#printQrBtn').prop('disabled', false).removeClass('bg-slate-300 text-slate-500 cursor-not-allowed').addClass('bg-blue-600 hover:bg-blue-700 text-white');
+                    $('#printQrBtn')
+                        .prop('disabled', false)
+                        .removeClass('bg-slate-300 text-slate-500 cursor-not-allowed')
+                        .addClass('bg-blue-600 hover:bg-blue-700 text-white');
+
                 } catch (e) {
                     $('#qrLoader').addClass('hidden');
                     $('#qrText').text('Gagal generate barcode');
@@ -874,102 +888,127 @@
                     return;
                 }
 
-                const barcodeSrc = document.getElementById('qrImage').src;
                 const d = barcodeData;
+
+                // generate SVG khusus untuk print
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+                JsBarcode(svg, d.token, {
+                    format: "CODE128",
+                    width: 2.5,
+                    height: 60,
+                    displayValue: false,
+                    margin: 0
+                });
+
+                const barcodeHtml = svg.outerHTML;
+
                 const win = window.open('', '_blank', 'width=400,height=400');
 
                 win.document.write(`
-                                                        <!DOCTYPE html>
-                                                        <html>
-                                                        <head>
-                                                            <title>Tiket Izin</title>
-                                                            <style>
-                                                                @page { size: 58mm 45mm; margin: 0; }
-                                                                * { box-sizing: border-box; margin: 0; padding: 0; }
-                                                                html, body {
-                                                                    width: 58mm;
-                                                                    font-family: 'Arial Narrow', Arial, sans-serif;
-                                                                    -webkit-print-color-adjust: exact;
-                                                                    print-color-adjust: exact;
-                                                                }
-                                                                .ticket {
-                                                                    width: 54mm;
-                                                                    margin: 2mm;
-                                                                    border: 1px solid #000;
-                                                                    padding: 2mm;
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Tiket Izin</title>
+                    <style>
+                        @page { size: 58mm 45mm; margin: 0; }
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-                                                                }
-                                                                .title {
-                                                                    text-align: center;
-                                                                    font-weight: bold;
-                                                                    font-size: 7px;
-                                                                    border-bottom: 0.5px solid #000;
-                                                                    margin-bottom: 1px;
-                                                                    padding-bottom: 1px;
-                                                                }
-                                                                .info-container {
-                                                                    display: grid;
-                                                                    grid-template-columns: 1.5fr 1fr;
-                                                                    font-size: 6px;
-                                                                    line-height: 1.2;
-                                                                    margin-bottom: 1px;
-                                                                }
-                                                                .col { display: flex; flex-direction: column; }
-                                                                .item { display: flex; margin-bottom: 0.5px; }
-                                                                .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
-                                                                .barcode-section {
-                                                                    text-align: center;
-                                                                    border-top: 0.5px dashed #000;
-                                                                    padding-top: 1px;
-                                                                }
-                                                                .barcode-section img {
-                                                                    width: 48mm;
-                                                                    height: 12mm;
-                                                                    display: block;
-                                                                    margin: 0 auto;
-                                                                }
-                                                                .time {
-                                                                    display: flex;
-                                                                    justify-content: space-between;
-                                                                    font-size: 5px;
-                                                                    border-top: 0.5px solid #ccc;
-                                                                    padding-top: 1px;
-                                                                    margin-top: 1px;
-                                                                }
-                                                            </style>
-                                                        </head>
-                                                        <body>
-                                                            <div class="ticket">
-                                                                <div class="title">IZIN KEPULANGAN</div>
-                                                                <div class="info-container">
-                                                                    <div class="col">
-                                                                        <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
-                                                                        <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
-                                                                        <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
-                                                                    </div>
-                                                                    <div class="col">
-                                                                        <div class="item"><span class="label">Asrama</span>: ${d.asrama}</div>
-                                                                        <div class="item"><span class="label">Izin</span>: ${d.izin}</div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="barcode-section">
-                                                                    <img src="${barcodeSrc}">
-                                                                </div>
-                                                                <div class="time">
-                                                                    <div><b>Mulai:</b> ${d.startAt}</div>
-                                                                    <div style="text-align:right"><b>Sampai:</b> ${d.endAt}</div>
-                                                                </div>
-                                                            </div>
-                                                            <script>
-                                                                window.onload = function () {
-                                                                    setTimeout(function() {
-                                                                        window.print();
-                                                                        setTimeout(() => { window.close(); }, 800);
-                                                                    }, 300);
-                                                                }
-                                                            <\/script>
-                                                        </body>
-                                                        </html>`);
+                        html, body {
+                            width: 58mm;
+                            font-family: 'Arial Narrow', Arial, sans-serif;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+
+                        .ticket {
+                            width: 54mm;
+                            margin: 2mm;
+                            border: 1px solid #000;
+                            padding: 2mm;
+                        }
+
+                        .title {
+                            text-align: center;
+                            font-weight: bold;
+                            font-size: 7px;
+                            border-bottom: 0.5px solid #000;
+                            margin-bottom: 1px;
+                            padding-bottom: 1px;
+                        }
+
+                        .info-container {
+                            display: grid;
+                            grid-template-columns: 1.5fr 1fr;
+                            font-size: 6px;
+                            line-height: 1.2;
+                            margin-bottom: 1px;
+                        }
+
+                        .col { display: flex; flex-direction: column; }
+                        .item { display: flex; margin-bottom: 0.5px; }
+                        .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
+
+                        .barcode-section {
+                            text-align: center;
+                            border-top: 0.5px dashed #000;
+                            padding-top: 1px;
+                        }
+
+                        .barcode-section svg {
+                            width: 48mm;
+                            height: auto;
+                            display: block;
+                            margin: 0 auto;
+                        }
+
+                        .time {
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 5px;
+                            border-top: 0.5px solid #ccc;
+                            padding-top: 1px;
+                            margin-top: 1px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="ticket">
+                        <div class="title">IZIN KEPULANGAN</div>
+
+                        <div class="info-container">
+                            <div class="col">
+                                <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
+                                <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
+                                <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
+                            </div>
+                            <div class="col">
+                                <div class="item"><span class="label">Asrama</span>: ${d.asrama}</div>
+                                <div class="item"><span class="label">Izin</span>: ${d.izin}</div>
+                            </div>
+                        </div>
+
+                        <div class="barcode-section">
+                            ${barcodeHtml}
+                        </div>
+
+                        <div class="time">
+                            <div><b>Mulai:</b> ${d.startAt}</div>
+                            <div style="text-align:right"><b>Sampai:</b> ${d.endAt}</div>
+                        </div>
+                    </div>
+
+                    <script>
+                        window.onload = function () {
+                            setTimeout(function() {
+                                window.print();
+                                setTimeout(() => { window.close(); }, 800);
+                            }, 400);
+                        }
+                    <\/script>
+                </body>
+                </html>
+            `);
 
                 win.document.close();
                 win.focus();
@@ -1002,129 +1041,149 @@
                 }
 
                 const cards = qrMassalRows.map(d => {
-                    const canvas = document.createElement('canvas');
-                    let barcodeSrc = '';
+                    let barcodeHtml = '';
 
-                    try {
-                        if (d.token) {
-                            JsBarcode(canvas, d.token, {
-                                format: 'CODE128',
-                                width: 2,
-                                height: 60,
-                                displayValue: false,
-                                margin: 0
-                            });
-                            barcodeSrc = canvas.toDataURL('image/png');
+                try {
+                    if (d.token) {
+                        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+                        JsBarcode(svg, d.token, {
+                            format: "CODE128",
+                            width: 2.5,
+                            height: 60,
+                            displayValue: false,
+                            margin: 0
+                        });
+
+                        barcodeHtml = svg.outerHTML;
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+
+                return `
+                    <div class="ticket">
+                        <div class="title">IZIN KEPULANGAN</div>
+
+                        <div class="info-container">
+                            <div class="col">
+                                <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
+                                <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
+                                <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
+                            </div>
+                            <div class="col">
+                                <div class="item"><span class="label">Asrama</span>: ${d.asrama || '-'}</div>
+                                <div class="item"><span class="label">Izin</span>: ${d.izin || 'Perpulangan'}</div>
+                            </div>
+                        </div>
+
+                        <div class="barcode-section">
+                            ${barcodeHtml || '<i style="font-size:6px">Token Error</i>'}
+                        </div>
+
+                        <div class="time">
+                            <div><b>Mulai:</b> ${d.start_at}</div>
+                            <div style="text-align:right"><b>Sampai:</b> ${d.end_at}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const win = window.open('', '_blank', 'width=400,height=600');
+
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Cetak Massal Thermal</title>
+
+                    <style>
+                        @page { size: 58mm 45mm; margin: 0; }
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+                        html, body {
+                            width: 58mm;
+                            font-family: 'Arial Narrow', Arial, sans-serif;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                         }
-                    } catch (e) { console.error(e); }
 
-                    return `
-                                                    <div class="ticket">
-                                                        <div class="title">IZIN KEPULANGAN</div>
-                                                        <div class="info-container">
-                                                            <div class="col">
-                                                                <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
-                                                                <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
-                                                                <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
-                                                            </div>
-                                                            <div class="col">
-                                                                <div class="item"><span class="label">Asrama</span>: ${d.asrama || '-'}</div>
-                                                                <div class="item"><span class="label">Izin</span>: ${d.izin || 'Perpulangan'}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="barcode-section">
-                                                            ${barcodeSrc ? `<img src="${barcodeSrc}">` : '<i style="font-size:6px">Token Error</i>'}
-                                                        </div>
-                                                        <div class="time">
-                                                            <div><b>Mulai:</b> ${d.start_at}</div>
-                                                            <div style="text-align:right"><b>Sampai:</b> ${d.end_at}</div>
-                                                        </div>
-                                                    </div>
-                                                `;
-                }).join('');
+                        .ticket {
+                            width: 54mm;
+                            margin: 2mm;
+                            border: 1px solid #000;
+                            padding: 2mm;
+                            page-break-after: always;
+                        }
 
-                const win = window.open('', '_blank', 'width=400,height=600');
-                win.document.write(`
-                                                <!DOCTYPE html>
-                                                <html>
-                                                <head>
-                                                    <title>Cetak Massal Thermal</title>
-                                                    <style>
-                                                        @page { size: 58mm 45mm; margin: 0; }
-                                                        * { box-sizing: border-box; margin: 0; padding: 0; }
-                                                        html, body {
-                                                            width: 58mm;
-                                                            font-family: 'Arial Narrow', Arial, sans-serif;
-                                                            -webkit-print-color-adjust: exact;
-                                                            print-color-adjust: exact;
-                                                        }
-                                                        .ticket {
-                                                            width: 54mm;
-                                                            margin: 2mm;
-                                                            border: 1px solid #000;
-                                                            padding: 2mm;
-                                                            page-break-after: always;
-                                                            break-after: page;
-                                                        }
-                                                        .ticket:last-child {
-                                                            page-break-after: avoid;
-                                                            break-after: avoid;
-                                                        }
-                                                        .title {
-                                                            text-align: center;
-                                                            font-weight: bold;
-                                                            font-size: 7px;
-                                                            border-bottom: 0.5px solid #000;
-                                                            margin-bottom: 1px;
-                                                            padding-bottom: 1px;
-                                                        }
-                                                        .info-container {
-                                                            display: grid;
-                                                            grid-template-columns: 1.5fr 1fr;
-                                                            font-size: 6px;
-                                                            line-height: 1.2;
-                                                            margin-bottom: 1px;
-                                                        }
-                                                        .col { display: flex; flex-direction: column; }
-                                                        .item { display: flex; margin-bottom: 0.5px; }
-                                                        .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
-                                                        .barcode-section {
-                                                            text-align: center;
-                                                            border-top: 0.5px dashed #000;
-                                                            padding-top: 1px;
-                                                        }
-                                                        .barcode-section img {
-                                                            width: 48mm;
-                                                            height: 12mm;
-                                                            display: block;
-                                                            margin: 0 auto;
-                                                        }
-                                                        .time {
-                                                            display: flex;
-                                                            justify-content: space-between;
-                                                            font-size: 5px;
-                                                            border-top: 0.5px solid #ccc;
-                                                            padding-top: 1px;
-                                                            margin-top: 1px;
-                                                        }
-                                                    </style>
-                                                </head>
-                                                <body>
-                                                    ${cards}
-                                                    <script>
-                                                        window.onload = function () {
-                                                            setTimeout(function() {
-                                                                window.print();
-                                                                setTimeout(() => { window.close(); }, 800);
-                                                            }, 300);
-                                                        }
-                                                    <\/script>
-                                                </body>
-                                                </html>`);
+                        .ticket:last-child {
+                            page-break-after: avoid;
+                        }
 
-                win.document.close();
-                win.focus();
-            }
-        </script>
+                        .title {
+                            text-align: center;
+                            font-weight: bold;
+                            font-size: 7px;
+                            border-bottom: 0.5px solid #000;
+                            margin-bottom: 1px;
+                            padding-bottom: 1px;
+                        }
+
+                        .info-container {
+                            display: grid;
+                            grid-template-columns: 1.5fr 1fr;
+                            font-size: 6px;
+                            line-height: 1.2;
+                            margin-bottom: 1px;
+                        }
+
+                        .col { display: flex; flex-direction: column; }
+                        .item { display: flex; margin-bottom: 0.5px; }
+                        .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
+
+                        .barcode-section {
+                            text-align: center;
+                            border-top: 0.5px dashed #000;
+                            padding-top: 1px;
+                        }
+
+                        /* SVG jangan di-scale aneh */
+                        .barcode-section svg {
+                            width: 48mm;
+                            height: auto;
+                            display: block;
+                            margin: 0 auto;
+                        }
+
+                        .time {
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 5px;
+                            border-top: 0.5px solid #ccc;
+                            padding-top: 1px;
+                            margin-top: 1px;
+                        }
+                    </style>
+                </head>
+
+                <body>
+                    ${cards}
+
+                    <script>
+                        window.onload = function () {
+                            setTimeout(function() {
+                                window.print();
+                                setTimeout(() => window.close(), 800);
+                            }, 500);
+                        }
+                    <\/script>
+                </body>
+                </html>
+            `);
+
+            win.document.close();
+            win.focus();
+        }
+                </script>
     @endpush
 @endsection
