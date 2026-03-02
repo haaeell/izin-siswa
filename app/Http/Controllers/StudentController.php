@@ -148,7 +148,15 @@ class StudentController extends Controller
 
     public function destroy($id)
     {
-        Student::findOrFail($id)->delete();
+        $student = Student::findOrFail($id);
+
+        if ($student->permissions()->exists()) {
+            return redirect()->back()
+                ->with('error', 'Siswa tidak bisa dihapus karena masih memiliki data izin.');
+        }
+
+        $student->delete();
+
         return redirect()->back()->with('success', 'Siswa berhasil dihapus');
     }
 
