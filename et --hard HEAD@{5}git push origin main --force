@@ -1,0 +1,72 @@
+[33me40ab22[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: checkout: moving from 99a0b4850dbd28d6320ebc86611f2bf31fb596b4 to main
+[33m99a0b48[m HEAD@{1}: checkout: moving from main to 99a0b4850dbd28d6320ebc86611f2bf31fb596b4
+[33me40ab22[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{2}: commit: asdasdas
+[33meaca420[m HEAD@{3}: commit: fix: optimize database queries for faster response times
+[33m1e16688[m HEAD@{4}: commit: fix: enhance user interface for better accessibility
+[33m99a0b48[m HEAD@{5}: commit: fix: improve error handling in user authentication
+[33md4590bf[m HEAD@{6}: commit: fix: prevent deletion of student with existing permissions
+[33m82f9411[m HEAD@{7}: commit: fix: update functionality for improved performance
+[33mfc3203d[m HEAD@{8}: commit: fix: print qr
+[33mdc91597[m HEAD@{9}: commit: asdasd
+[33m98d34e7[m HEAD@{10}: commit: asdsad
+[33mf413326[m HEAD@{11}: commit: asddasd
+[33mc1a74b9[m HEAD@{12}: commit: asdasd
+[33m0ba8a48[m HEAD@{13}: commit: dsasd
+[33m7e28377[m HEAD@{14}: commit: fix: report
+[33m4f70b13[m HEAD@{15}: commit: fix: import students
+[33m9c97ed8[m HEAD@{16}: commit: fix: revisi terakhir harusnya
+[33m7fc15a1[m HEAD@{17}: commit: feat: add gender to students table
+[33mc8c9f26[m HEAD@{18}: commit: fix: update deploy.yml
+[33mdf882b1[m HEAD@{19}: commit: add github actions deploy
+[33mc8cff18[m HEAD@{20}: commit: fix: sedang pulang
+[33m323c454[m HEAD@{21}: commit: fix: hidden comments report
+[33me4ab8ec[m HEAD@{22}: commit: fix: sedang pulang
+[33m0fe520a[m HEAD@{23}: commit: fix: pemission perpulangan sekalian checkin
+[33m7014a6f[m HEAD@{24}: commit: delete: vendor
+[33m55f44fc[m HEAD@{25}: commit: fix: hidden surat jika type nya perpulangan
+[33m1364ec1[m HEAD@{26}: commit: feat: optimize use yajra datatables in students, permission and checkin checkout views
+[33mdccfb51[m HEAD@{27}: commit: feat: print qr all permission if type "perpulangan" , add classess input in violation views and optimize logic checkin checkout
+[33ma9b292b[m HEAD@{28}: commit: asdasd
+[33m87408c1[m HEAD@{29}: commit: dfg
+[33m07d635d[m HEAD@{30}: commit: dsas
+[33m949d296[m HEAD@{31}: commit: asdasdad
+[33m4cad8ff[m HEAD@{32}: commit: revisi
+[33m6b0edb9[m HEAD@{33}: commit: AX
+[33mf8f8207[m HEAD@{34}: commit: feat: add address field to student permissions, update validation and modify permission rejection letter template
+[33m7b64aec[m HEAD@{35}: pull origin main: Fast-forward
+[33mcbd71ae[m HEAD@{36}: commit: feat: implement user profile editing functionality, enhance validation for input fields, and update UI for better accessibility
+[33mbfe9435[m HEAD@{37}: commit: feat: add NIS and attendance percentage to reports, update table layout and PDF export settings
+[33m11936d7[m HEAD@{38}: commit: feat: require 'surat_ortu' file upload in student permissions, update validation messages
+[33mfafcd74[m HEAD@{39}: commit: feat: enhance student violation management with role-based access control, add violation description to reports, and update sidebar for violations
+[33mad24697[m HEAD@{40}: commit: feat: add PDF export functionality for student permissions, update sidebar with new icons and descriptions
+[33m90aeb7e[m HEAD@{41}: commit: feat: update login view with favicon and theme color, comment out password request link in sidebar
+[33md25acaa[m HEAD@{42}: commit: feat: enhance check-in view with nowrap formatting, add check-in and check-out links in admin sidebar
+[33m8ff65f5[m HEAD@{43}: commit: feat: enhance report views with DataTables integration and export buttons, improve table iteration handling
+[33mab09863[m HEAD@{44}: commit: feat: update login redirection based on user role, enhance report generation logic with improved data handling
+[33m87332c4[m HEAD@{45}: commit: feat: add user management routes and controller, update user role handling in the UserController
+[33mf1016dd[m HEAD@{46}: commit: feat: add security role and sidebar, enhance check-in view with filtering options
+[33m317cb76[m HEAD@{47}: commit: feat: enhance check-in and check-out logic with status updates and improved data retrieval
+[33mf064e63[m HEAD@{48}: commit: feat: add NIS column to check-in and check-out views for better student identification
+[33m43c0a31[m HEAD@{49}: commit: refactor: streamline student tracking response and enhance UI elements for better clarity
+[33mc386961[m HEAD@{50}: commit: feat: add student tracking routes and controller for check-in history retrieval
+[33m5fc48ea[m HEAD@{51}: commit: fix: correct check-in and check-out status display logic in checkin and checkout views
+[33m498ce2c[m HEAD@{52}: commit: fix: update QR code route in permission letters and remove unused rendering in approval controller
+[33me86db2f[m HEAD@{53}: commit: refactor: update student violation model and controller for improved handling and nullable fields
+[33m4ba0293[m HEAD@{54}: commit: feat: implement permission verification routes and views for valid and invalid permissions
+[33mf06b32c[m HEAD@{55}: commit: refactor: remove unused verification index view and update invalid verification page styles
+[33me75cf28[m HEAD@{56}: commit: feat: add permission verification functionality with views for valid and invalid permissions
+[33m8609eca[m HEAD@{57}: commit: feat: add functionality to generate and display student permission letters for approved and rejected requests
+[33m309ecc2[m HEAD@{58}: commit: feat: add violations submenu with toggle functionality in admin sidebar
+[33mecad9c0[m HEAD@{59}: commit: feat: update student permissions and check-in models, add checkout functionality, and enhance locale settings
+[33ma9107fe[m HEAD@{60}: pull origin main: Fast-forward
+[33me2f0d34[m HEAD@{61}: commit: feat: pelanggaran dan laporan
+[33mc6e4944[m HEAD@{62}: commit: feat: scan qr
+[33m37031f8[m HEAD@{63}: commit: fix: route clear
+[33m4bfa8e1[m HEAD@{64}: commit: fix: scan qr and responsive table
+[33m62a3d3c[m HEAD@{65}: commit: feat: permohonan dan scan barcode
+[33mfdc607d[m HEAD@{66}: commit: fix: optimize ui dashboard
+[33m4f92cab[m HEAD@{67}: commit: feat: crud master and dashboard
+[33m1b5743e[m HEAD@{68}: commit: feat: academic years crud
+[33m2d01ad6[m HEAD@{69}: commit: feat: setup auth
+[33m94312a6[m HEAD@{70}: Branch: renamed refs/heads/master to refs/heads/main
+[33m94312a6[m HEAD@{72}: commit (initial): setup database
