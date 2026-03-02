@@ -23,7 +23,7 @@
             @if (auth()->user()->role === 'wali_kelas')
                 <div class="flex gap-2 flex-shrink-0">
                     <button onclick="openCreateModal()" @disabled($activePermissionCount >= $maxActivePermissions) class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {{ $activePermissionCount >= $maxActivePermissions
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {{ $activePermissionCount >= $maxActivePermissions
                 ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                         <i class="fa-solid fa-plus text-xs"></i> Ajukan Izin
@@ -63,7 +63,7 @@
                     @php $isFull = $activePermissionCount >= $maxActivePermissions; @endphp
                     <div
                         class="mb-4 rounded-xl border px-4 py-3 flex flex-col sm:flex-row gap-3 items-start
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
                         <div class="flex-shrink-0">
                             <div
                                 class="w-9 h-9 rounded-full flex items-center justify-center {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
@@ -133,8 +133,8 @@
 
                         <select id="filterKelas" name="kelas"
                             class="w-full py-2 px-3 border rounded-lg text-sm 
-                                                                                                                                               focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                                                                                                                               {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
+                                                                                                                                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                                                                                                                   {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
                             {{ $isWalikelas ? 'disabled' : '' }}>
 
                             @if(!$isWalikelas)
@@ -895,301 +895,278 @@
                 JsBarcode(canvas, d.token, {
                     format: "CODE128",
                     width: 2,
-                    height: 50,
-                    displayValue: false,
-                    margin: 0
-                });
-
-                const barcodeImg = canvas.toDataURL("image/png");
-                const win = window.open('', '_blank', 'width=400,height=400');
-
-                win.document.write(`
-                                <!DOCTYPE html>
-                                <html>
-                                <head>
-                                    <title>Tiket Izin</title>
-                                    <style>
-                                        @page { size: 49mm auto; margin: 0; }
-                                        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-                                        html, body {
-                                            width: 49mm;
-                                            font-family: 'Arial Narrow', Arial, sans-serif;
-                                            -webkit-print-color-adjust: exact;
-                                            display: flex;
-                                            flex-direction: column;
-                                            align-items: center; /* Memastikan body konten di tengah */
-                                        }
-
-                                        .ticket {
-                                            width: 47mm;
-                                            margin: 1mm 0;
-                                            border: 1px solid #000;
-                                            padding: 1.5mm;
-                                            display: flex;
-                                            flex-direction: column;
-                                        }
-
-                                        .title {
-                                            text-align: center;
-                                            font-weight: bold;
-                                            font-size: 8px;
-                                            border-bottom: 0.8px solid #000;
-                                            margin-bottom: 2px;
-                                            padding-bottom: 1px;
-                                            width: 100%;
-                                        }
-
-                                        .info-container {
-                                            display: grid;
-                                            grid-template-columns: 1fr 1fr;
-                                            font-size: 7px;
-                                            line-height: 1.2;
-                                            margin-bottom: 2px;
-                                            width: 100%;
-                                        }
-
-                                        .col { display: flex; flex-direction: column; }
-                                        .item { display: flex; margin-bottom: 0.5px; }
-                                        .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
-
-                                        .barcode-section {
-                                            width: 100%;
-                                            display: flex;
-                                            justify-content: center; /* Paksa posisi tengah horizontal */
-                                            align-items: center;
-                                            border-top: 0.5px dashed #000;
-                                            padding: 2mm 0;
-                                            margin-top: 1px;
-                                        }
-
-                                        .barcode-section img {
-                                            max-width: 95%; /* Mencegah gambar menyentuh garis pinggir */
-                                            height: 12mm;
-                                            display: block;
-                                        }
-
-                                        .time {
-                                            display: flex;
-                                            justify-content: space-between;
-                                            font-size: 6px;
-                                            border-top: 0.5px solid #ccc;
-                                            padding-top: 1px;
-                                            margin-top: 1px;
-                                            width: 100%;
-                                        }
-                                    </style>
-                                </head>
-                                <body>
-                                    <div class="ticket">
-                                        <div class="title">IZIN KEPULANGAN</div>
-
-                                        <div class="info-container">
-                                            <div class="col">
-                                                <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
-                                                <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
-                                                <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="item"><span class="label">Asrama</span>: ${d.asrama}</div>
-                                                <div class="item"><span class="label">Izin</span>: ${d.izin}</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="barcode-section">
-                                            <img src="${barcodeImg}" />
-                                        </div>
-
-                                        <div class="time">
-                                            <div><b>Mulai:</b> ${d.startAt}</div>
-                                            <div style="text-align:right"><b>Sampai:</b> ${d.endAt}</div>
-                                        </div>
-                                    </div>
-
-                                    <script>
-                                        window.onload = function () {
-                                            window.print();
-                                            setTimeout(() => { window.close(); }, 500);
-                                        }
-                                    <\/script>
-                                </body>
-                                </html>
-                            `);
-
-                win.document.close();
-                win.focus();
-            }
-
-            // ── QR Massal ─────────────────────────────────────────────────────
-            let qrMassalRows = [];
-            document.addEventListener('DOMContentLoaded', function () {
-                document.getElementById('qrMassalDate')?.addEventListener('change', fetchQrMassal);
+                    height: 70, // lebih tinggi supaya mudah discan
+                displayValue: false,
+                margin: 0
             });
 
-            function fetchQrMassal() {
-                const tanggal = document.getElementById('qrMassalDate').value;
-                if (!tanggal) return;
-                $('#qrMassalPreview').removeClass('hidden');
-                $('#qrMassalLoader').removeClass('hidden');
-                $('#qrMassalCount').text('...');
-                $('#btnCetakQr').prop('disabled', true).addClass('opacity-60 cursor-not-allowed');
-                fetch(`/permissions/qr-massal?tanggal=${tanggal}`, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
-                    .then(r => { if (!r.ok) throw new Error('Gagal fetch data'); return r.json(); })
-                    .then(json => { qrMassalRows = json.data; $('#qrMassalCount').text(json.count); $('#qrMassalLoader').addClass('hidden'); $('#btnCetakQr').prop('disabled', false).removeClass('opacity-60 cursor-not-allowed'); })
-                    .catch(err => { $('#qrMassalLoader').addClass('hidden'); $('#qrMassalCount').text('Error'); Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: err.message, confirmButtonColor: '#4f46e5' }); });
-            }
+            const barcodeImg = canvas.toDataURL("image/png");
 
-            function cetakQrMassal() {
-                const filterDate = document.getElementById('qrMassalDate').value;
-                if (!qrMassalRows.length) {
-                    Swal.fire({ icon: 'info', title: 'Tidak ada data', confirmButtonColor: '#4f46e5' });
-                    return;
-                }
+            const win = window.open('', '_blank');
 
-                const cards = qrMassalRows.map(d => {
-                    let barcodeHtml = '';
-
-                    try {
-                        if (d.token) {
-                            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-                            JsBarcode(svg, d.token, {
-                                format: "CODE128",
-                                width: 2.5,
-                                height: 60,
-                                displayValue: false,
-                                margin: 0
-                            });
-
-                            barcodeHtml = svg.outerHTML;
-                        }
-                    } catch (e) {
-                        console.error(e);
+            win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Tiket Izin</title>
+                <style>
+                    @page {
+                        size: 58mm auto;
+                        margin: 0;
                     }
 
-                    return `
-                                            <div class="ticket">
-                                                <div class="title">IZIN KEPULANGAN</div>
+                    body {
+                        width: 58mm;
+                        font-family: monospace;
+                        font-size: 10px;
+                        text-align: center;
+                        margin: 0;
+                        padding: 5px;
+                    }
 
-                                                <div class="info-container">
-                                                    <div class="col">
-                                                        <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
-                                                        <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
-                                                        <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
+                    .title {
+                        font-weight: bold;
+                        font-size: 12px;
+                        margin-bottom: 5px;
+                    }
+
+                    .divider {
+                        border-top: 1px dashed #000;
+                        margin: 5px 0;
+                    }
+
+                    .text-left {
+                        text-align: left;
+                    }
+
+                    .barcode img {
+                        width: 100%;
+                        height: auto;
+                    }
+
+                    .small {
+                        font-size: 9px;
+                    }
+                </style>
+            </head>
+            <body>
+
+                <div class="title">IZIN KEPULANGAN</div>
+
+                <div class="divider"></div>
+
+                <div class="text-left">
+                    Nama   : ${d.nama}<br>
+                    NIS    : ${d.nis}<br>
+                    Kelas  : ${d.kelas}<br>
+                    Asrama : ${d.asrama}<br>
+                    Izin   : ${d.izin}
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="barcode">
+                    <img src="${barcodeImg}" />
+                </div>
+
+                <div class="small">
+                    ${d.token}
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="text-left small">
+                    Mulai  : ${d.startAt}<br>
+                    Sampai : ${d.endAt}
+                </div>
+
+                <div style="margin-top:5px;">Terima kasih</div>
+
+                <script>
+                    window.onload = function () {
+                        window.print();
+                        setTimeout(() => window.close(), 300);
+                    }
+                <\/script>
+
+            </body>
+            </html>
+            `);
+
+            win.document.close();
+            win.focus();
+        }
+
+                    // ── QR Massal ─────────────────────────────────────────────────────
+                    let qrMassalRows = [];
+                    document.addEventListener('DOMContentLoaded', function () {
+                        document.getElementById('qrMassalDate')?.addEventListener('change', fetchQrMassal);
+                    });
+
+                    function fetchQrMassal() {
+                        const tanggal = document.getElementById('qrMassalDate').value;
+                        if (!tanggal) return;
+                        $('#qrMassalPreview').removeClass('hidden');
+                        $('#qrMassalLoader').removeClass('hidden');
+                        $('#qrMassalCount').text('...');
+                        $('#btnCetakQr').prop('disabled', true).addClass('opacity-60 cursor-not-allowed');
+                        fetch(`/permissions/qr-massal?tanggal=${tanggal}`, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
+                            .then(r => { if (!r.ok) throw new Error('Gagal fetch data'); return r.json(); })
+                            .then(json => { qrMassalRows = json.data; $('#qrMassalCount').text(json.count); $('#qrMassalLoader').addClass('hidden'); $('#btnCetakQr').prop('disabled', false).removeClass('opacity-60 cursor-not-allowed'); })
+                            .catch(err => { $('#qrMassalLoader').addClass('hidden'); $('#qrMassalCount').text('Error'); Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: err.message, confirmButtonColor: '#4f46e5' }); });
+                    }
+
+                    function cetakQrMassal() {
+                        const filterDate = document.getElementById('qrMassalDate').value;
+                        if (!qrMassalRows.length) {
+                            Swal.fire({ icon: 'info', title: 'Tidak ada data', confirmButtonColor: '#4f46e5' });
+                            return;
+                        }
+
+                        const cards = qrMassalRows.map(d => {
+                            let barcodeHtml = '';
+
+                            try {
+                                if (d.token) {
+                                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+                                    JsBarcode(svg, d.token, {
+                                        format: "CODE128",
+                                        width: 2.5,
+                                        height: 60,
+                                        displayValue: false,
+                                        margin: 0
+                                    });
+
+                                    barcodeHtml = svg.outerHTML;
+                                }
+                            } catch (e) {
+                                console.error(e);
+                            }
+
+                            return `
+                                                    <div class="ticket">
+                                                        <div class="title">IZIN KEPULANGAN</div>
+
+                                                        <div class="info-container">
+                                                            <div class="col">
+                                                                <div class="item"><span class="label">Nama</span>: ${d.nama}</div>
+                                                                <div class="item"><span class="label">NIS</span>: ${d.nis}</div>
+                                                                <div class="item"><span class="label">Kelas</span>: ${d.kelas}</div>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="item"><span class="label">Asrama</span>: ${d.asrama || '-'}</div>
+                                                                <div class="item"><span class="label">Izin</span>: ${d.izin || 'Perpulangan'}</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="barcode-section">
+                                                            ${barcodeHtml || '<i style="font-size:6px">Token Error</i>'}
+                                                        </div>
+
+                                                        <div class="time">
+                                                            <div><b>Mulai:</b> ${d.start_at}</div>
+                                                            <div style="text-align:right"><b>Sampai:</b> ${d.end_at}</div>
+                                                        </div>
                                                     </div>
-                                                    <div class="col">
-                                                        <div class="item"><span class="label">Asrama</span>: ${d.asrama || '-'}</div>
-                                                        <div class="item"><span class="label">Izin</span>: ${d.izin || 'Perpulangan'}</div>
-                                                    </div>
-                                                </div>
+                                                `;
+                        }).join('');
 
-                                                <div class="barcode-section">
-                                                    ${barcodeHtml || '<i style="font-size:6px">Token Error</i>'}
-                                                </div>
+                        const win = window.open('', '_blank', 'width=400,height=600');
 
-                                                <div class="time">
-                                                    <div><b>Mulai:</b> ${d.start_at}</div>
-                                                    <div style="text-align:right"><b>Sampai:</b> ${d.end_at}</div>
-                                                </div>
-                                            </div>
-                                        `;
-                }).join('');
+                        win.document.write(`
+                                                <!DOCTYPE html>
+                                                <html>
+                                                <head>
+                                                    <title>Cetak Massal Thermal</title>
 
-                const win = window.open('', '_blank', 'width=400,height=600');
+                                                    <style>
+                                                        @page { size: 58mm 45mm; margin: 0; }
+                                                        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-                win.document.write(`
-                                        <!DOCTYPE html>
-                                        <html>
-                                        <head>
-                                            <title>Cetak Massal Thermal</title>
+                                                        html, body {
+                                                            width: 58mm;
+                                                            font-family: 'Arial Narrow', Arial, sans-serif;
+                                                            -webkit-print-color-adjust: exact;
+                                                            print-color-adjust: exact;
+                                                        }
 
-                                            <style>
-                                                @page { size: 58mm 45mm; margin: 0; }
-                                                * { box-sizing: border-box; margin: 0; padding: 0; }
+                                                        .ticket {
+                                                            width: 54mm;
+                                                            margin: 2mm;
+                                                            border: 1px solid #000;
+                                                            padding: 2mm;
+                                                            page-break-after: always;
+                                                        }
 
-                                                html, body {
-                                                    width: 58mm;
-                                                    font-family: 'Arial Narrow', Arial, sans-serif;
-                                                    -webkit-print-color-adjust: exact;
-                                                    print-color-adjust: exact;
-                                                }
+                                                        .ticket:last-child {
+                                                            page-break-after: avoid;
+                                                        }
 
-                                                .ticket {
-                                                    width: 54mm;
-                                                    margin: 2mm;
-                                                    border: 1px solid #000;
-                                                    padding: 2mm;
-                                                    page-break-after: always;
-                                                }
+                                                        .title {
+                                                            text-align: center;
+                                                            font-weight: bold;
+                                                            font-size: 7px;
+                                                            border-bottom: 0.5px solid #000;
+                                                            margin-bottom: 1px;
+                                                            padding-bottom: 1px;
+                                                        }
 
-                                                .ticket:last-child {
-                                                    page-break-after: avoid;
-                                                }
+                                                        .info-container {
+                                                            display: grid;
+                                                            grid-template-columns: 1.5fr 1fr;
+                                                            font-size: 6px;
+                                                            line-height: 1.2;
+                                                            margin-bottom: 1px;
+                                                        }
 
-                                                .title {
-                                                    text-align: center;
-                                                    font-weight: bold;
-                                                    font-size: 7px;
-                                                    border-bottom: 0.5px solid #000;
-                                                    margin-bottom: 1px;
-                                                    padding-bottom: 1px;
-                                                }
+                                                        .col { display: flex; flex-direction: column; }
+                                                        .item { display: flex; margin-bottom: 0.5px; }
+                                                        .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
 
-                                                .info-container {
-                                                    display: grid;
-                                                    grid-template-columns: 1.5fr 1fr;
-                                                    font-size: 6px;
-                                                    line-height: 1.2;
-                                                    margin-bottom: 1px;
-                                                }
+                                                        .barcode-section {
+                                                            text-align: center;
+                                                            border-top: 0.5px dashed #000;
+                                                            padding-top: 1px;
+                                                        }
 
-                                                .col { display: flex; flex-direction: column; }
-                                                .item { display: flex; margin-bottom: 0.5px; }
-                                                .label { font-weight: bold; width: 8mm; flex-shrink: 0; }
+                                                        /* SVG jangan di-scale aneh */
+                                                        .barcode-section svg {
+                                                            width: 48mm;
+                                                            height: auto;
+                                                            display: block;
+                                                            margin: 0 auto;
+                                                        }
 
-                                                .barcode-section {
-                                                    text-align: center;
-                                                    border-top: 0.5px dashed #000;
-                                                    padding-top: 1px;
-                                                }
+                                                        .time {
+                                                            display: flex;
+                                                            justify-content: space-between;
+                                                            font-size: 5px;
+                                                            border-top: 0.5px solid #ccc;
+                                                            padding-top: 1px;
+                                                            margin-top: 1px;
+                                                        }
+                                                    </style>
+                                                </head>
 
-                                                /* SVG jangan di-scale aneh */
-                                                .barcode-section svg {
-                                                    width: 48mm;
-                                                    height: auto;
-                                                    display: block;
-                                                    margin: 0 auto;
-                                                }
+                                                <body>
+                                                    ${cards}
 
-                                                .time {
-                                                    display: flex;
-                                                    justify-content: space-between;
-                                                    font-size: 5px;
-                                                    border-top: 0.5px solid #ccc;
-                                                    padding-top: 1px;
-                                                    margin-top: 1px;
-                                                }
-                                            </style>
-                                        </head>
+                                                    <script>
+                                                        window.onload = function () {
+                                                            setTimeout(function() {
+                                                                window.print();
+                                                                setTimeout(() => window.close(), 800);
+                                                            }, 500);
+                                                        }
+                                                    <\/script>
+                                                </body>
+                                                </html>
+                                            `);
 
-                                        <body>
-                                            ${cards}
-
-                                            <script>
-                                                window.onload = function () {
-                                                    setTimeout(function() {
-                                                        window.print();
-                                                        setTimeout(() => window.close(), 800);
-                                                    }, 500);
-                                                }
-                                            <\/script>
-                                        </body>
-                                        </html>
-                                    `);
-
-                win.document.close();
-                win.focus();
-            }
-        </script>
+                        win.document.close();
+                        win.focus();
+                    }
+                </script>
     @endpush
 @endsection
