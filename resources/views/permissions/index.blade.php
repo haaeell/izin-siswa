@@ -23,7 +23,7 @@
             @if (auth()->user()->role === 'wali_kelas')
                 <div class="flex gap-2 flex-shrink-0">
                     <button onclick="openCreateModal()" @disabled($activePermissionCount >= $maxActivePermissions) class="whitespace-nowrap px-3 py-2 rounded-lg flex items-center gap-1.5 text-sm transition
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {{ $activePermissionCount >= $maxActivePermissions
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {{ $activePermissionCount >= $maxActivePermissions
                 ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                         <i class="fa-solid fa-plus text-xs"></i> Ajukan Izin
@@ -63,7 +63,7 @@
                     @php $isFull = $activePermissionCount >= $maxActivePermissions; @endphp
                     <div
                         class="mb-4 rounded-xl border px-4 py-3 flex flex-col sm:flex-row gap-3 items-start
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {{ $isFull ? 'border-red-300 bg-red-50 text-red-800' : 'border-blue-300 bg-blue-50 text-blue-800' }}">
                         <div class="flex-shrink-0">
                             <div
                                 class="w-9 h-9 rounded-full flex items-center justify-center {{ $isFull ? 'bg-red-100' : 'bg-blue-100' }}">
@@ -133,8 +133,8 @@
 
                         <select id="filterKelas" name="kelas"
                             class="w-full py-2 px-3 border rounded-lg text-sm 
-                                                                                                                                                                                                                                                                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                                                                                                                                                                                                                                                       {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
+                                                                                                                                                                                                                                                                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                                                                                                                                                                                                                                                   {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
                             {{ $isWalikelas ? 'disabled' : '' }}>
 
                             @if(!$isWalikelas)
@@ -903,8 +903,8 @@
 
                         JsBarcode(canvas, d.token, {
                             format: "CODE128",
-                            width: 3.5,     // 🔥 diperbesar (tadinya 2.8)
-                            height: 100,     // 🔥 lebih tinggi
+                            width: 3.5,
+                            height: 100,
                             displayValue: false,
                             margin: 0
                         });
@@ -917,24 +917,25 @@
                 }
 
                 return `
-                                        <div class="ticket">
+                        <div class="ticket">
 
-                                            <div class="title">IZIN KEPULANGAN</div>
+                            <div class="title">‎ ‎ </div>
+                            <div class="title">IZIN KEPULANGAN</div>
 
-                                            <div class="biodata">
-                                                <div><b>Nama</b> : ${escapeHtml(d.nama)}</div>
-                                                <div><b>Kelas</b> : ${escapeHtml(d.kelas)}</div>
+                            <div class="biodata">
+                                <div><b>Nama</b> : ${escapeHtml(d.nama)}</div>
+                                <div><b>Kelas</b> : ${escapeHtml(d.kelas)}</div>
 
-                                                <div><b>NIS</b> : ${escapeHtml(d.nis)}</div>
-                                                <div><b>Izin</b> : ${escapeHtml(d.izin || 'Perpulangan')}</div>
-                                            </div>
+                                <div><b>NIS</b> : ${escapeHtml(d.nis)}</div>
+                                <div><b>Izin</b> : ${escapeHtml(d.izin || 'Perpulangan')}</div>
+                            </div>
 
-                                            <div class="barcode-section">
-                                                <img src="${barcodeImg}" />
-                                            </div>
+                            <div class="barcode-section">
+                                <img src="${barcodeImg}" />
+                            </div>
 
-                                        </div>
-                                    `;
+                        </div>
+                    `;
             }
 
             function buildPrintWindow(cardsHtml) {
@@ -942,91 +943,81 @@
                 if (!win) return null;
 
                 win.document.write(`
-                                                        <!DOCTYPE html>
-                                                        <html>
-                                                        <head>
-                                                            <meta charset="UTF-8">
-                                                            <title>Cetak Izin</title>
-                                                            <style>
-                                                               @page { 
-                            size: 58mm auto; 
-                            margin: 0; 
-                        }
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>Cetak Izin</title>
+                            <style>
+                                @page { 
+                                    size: 58mm auto; 
+                                    margin: 0; 
+                                }
 
-                        * {
-                            box-sizing: border-box;
-                            margin: 0;
-                            padding: 0;
-                        }
+                                html, body {
+                                    width: 58mm;
+                                    margin: 0;
+                                    padding: 0;
+                                    font-family: Arial, sans-serif;
+                                }
 
-                        html, body {
-                            width: 58mm;
-                            font-family: Arial, sans-serif;
-                        }
+                                .ticket {
+                                    width: 54mm;
+                                    margin: 2mm auto;
+                                    padding: 2mm;
+                                    break-inside: avoid;
+                                }
 
-                        body {
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                        }
+                                .title {
+                                    text-align: center;
+                                    font-weight: bold;
+                                    font-size: 13px;
+                                    border-bottom: 1px solid #000;
+                                    padding-bottom: 4px;
+                                    margin-bottom: 6px;
+                                }
 
-                        .ticket {
-                            width: 54mm;
-                            padding: 3mm 2mm;
-                        }
+                                .biodata {
+                                    display: grid;
+                                    grid-template-columns: 1fr 1fr;
+                                    font-size: 10px;
+                                    line-height: 1.6;
+                                    gap: 3px 6px;
+                                    margin-bottom: 8px;
+                                }
 
-                        .title {
-                            text-align: center;
-                            font-weight: bold;
-                            font-size: 13px;  /* 🔥 diperbesar */
-                            border-bottom: 1px solid #000;
-                            padding-bottom: 4px;
-                            margin-bottom: 6px;
-                        }
+                                .biodata div {
+                                    white-space: nowrap;
+                                }
 
-                        .biodata {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            font-size: 10px;  /* 🔥 diperbesar (tadinya 8px) */
-                            line-height: 1.6;
-                            gap: 4px 8px;
-                            margin-bottom: 10px;
-                        }
+                                .barcode-section {
+                                    text-align: center;
+                                    margin-top: 4px;
+                                }
 
-                        .biodata div {
-                            white-space: nowrap;
-                        }
+                                .barcode-section img {
+                                    width: 100%;
+                                    height: auto;
+                                    display: block;
+                                }
+                            </style>
+                        </head>
+                        <body>
 
-                        .barcode-section {
-                            text-align: center;
-                            margin-top: 6px;
-                        }
+                            ${cardsHtml}
 
-                        .barcode-section img {
-                            width: 100%;
-                            height: auto;
-                            display: block;
-                        }
-                                                            </style>
-                                                        </head>
-                                                        <body>
+                            <script>
+                                window.onload = function () {
+                                    setTimeout(function() {
+                                        window.print();
+                                        window.close();
+                                    }, 300);
+                                };
+                            <\/script>
 
-                                                            ${cardsHtml}
-
-                                                            <script>
-                                                                window.onload = function () {
-                                                                    setTimeout(function() {
-                                                                        window.print();
-                                                                        setTimeout(function() {
-                                                                            window.close();
-                                                                        }, 500);
-                                                                    }, 500);
-                                                                };
-                                                            <\/script>
-
-                                                        </body>
-                                                        </html>
-                                                    `);
+                        </body>
+                        </html>
+                    `);
 
                 win.document.close();
                 win.focus();
