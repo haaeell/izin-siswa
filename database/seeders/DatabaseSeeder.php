@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
         /* ===============================
          * TAHUN AKADEMIK
          * =============================== */
-        $academicYear = \App\Models\AcademicYear::create([
+        $academicYear = AcademicYear::create([
             'name' => '2024 / 2025',
             'is_active' => true,
         ]);
