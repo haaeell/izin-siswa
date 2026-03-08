@@ -436,7 +436,7 @@ class StudentPermissionController extends Controller
                         ? Carbon::parse($v->no_phone_until)->addDay()->format('d M Y')
                         : null,
                 ];
-            } elseif ($v->attendance_percentage < 80) {
+            } elseif ($v->attendance_percentage <= 15) {
                 $response['has_violation']  = true;
                 $response['details'][$type] = [
                     'attendance_percentage' => $v->attendance_percentage,
