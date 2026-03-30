@@ -132,7 +132,7 @@
                         <label class="block text-sm font-medium text-slate-700 mb-1">Kelas</label>
 
                         <select id="filterKelas" name="kelas"
-                            class="w-full py-2 px-3 border rounded-lg text-sm 
+                            class="w-full py-2 px-3 border rounded-lg text-sm
                                                                                                                                                                                                                                                                                                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                                                                                                                                                                                                                                                                                                                    {{ $isWalikelas ? 'bg-slate-100 cursor-not-allowed' : '' }}"
                             {{ $isWalikelas ? 'disabled' : '' }}>
@@ -917,25 +917,19 @@
                 }
 
                 return `
-                                                                                        <div class="ticket">
-
-                                                                                            <div class="title">‎ ‎ </div>
-                                                                                            <div class="title">IZIN KEPULANGAN</div>
-
-                                                                                            <div class="biodata">
-                                                                                                <div><b>Nama</b> : ${escapeHtml(d.nama)}</div>
-                                                                                                <div><b>Kelas</b> : ${escapeHtml(d.kelas)}</div>
-
-                                                                                                <div><b>NIS</b> : ${escapeHtml(d.nis)}</div>
-                                                                                                <div><b>Izin</b> : ${escapeHtml(d.izin || 'Perpulangan')}</div>
-                                                                                            </div>
-
-                                                                                            <div class="barcode-section">
-                                                                                                <img src="${barcodeImg}" />
-                                                                                            </div>
-
-                                                                                        </div>
-                                                                                    `;
+                        <div class="ticket">
+                            <div class="title">IZIN KEPULANGAN</div>
+                           <div class="biodata">
+    <div class="row"><span class="label">Nama</span><span class="colon">:</span><span class="value">${escapeHtml(d.nama)}</span></div>
+    <div class="row"><span class="label">NIS</span><span class="colon">:</span><span class="value">${escapeHtml(d.nis)}</span></div>
+    <div class="row"><span class="label">Kelas</span><span class="colon">:</span><span class="value">${escapeHtml(d.kelas)}</span></div>
+    <div class="row"><span class="label">Izin</span><span class="colon">:</span><span class="value">${escapeHtml(d.izin || 'Perpulangan')}</span></div>
+</div>
+                            <div class="barcode-section">
+                                <img src="${barcodeImg}" />
+                            </div>
+                        </div>
+                    `;
             }
 
             function buildPrintWindow(cardsHtml) {
@@ -949,24 +943,25 @@
                                                                                             <meta charset="UTF-8">
                                                                                             <title>Cetak Izin</title>
                                                                                             <style>
-                                                                                                @page { 
-                                                                                                    size: 58mm auto; 
-                                                                                                    margin: 0; 
+                                                                                                @page {
+                                                                                                    size: 45mm auto;
+                                                                                                    margin: 0;
                                                                                                 }
 
                                                                                                 html, body {
-                                                                                                    width: 58mm;
+                                                                                                    width: 45mm;
                                                                                                     margin: 0;
                                                                                                     padding: 0;
                                                                                                     font-family: Arial, sans-serif;
                                                                                                 }
 
                                                                                                 .ticket {
-                                                                                                    width: 54mm;
-                                                                                                    margin: 0 auto;
-                                                                                                    padding: 2mm 2mm;
+                                                                                                    width: 100%;
+                                                                                                    margin: 0;
+                                                                                                    padding: 2mm;
+                                                                                                    box-sizing: border-box;
                                                                                                     page-break-inside: avoid;
-                                                                                                     break-inside: avoid;
+                                                                                                    break-inside: avoid;
                                                                                                 }
 
                                                                                                 .ticket:last-child {
@@ -977,24 +972,34 @@
                                                                                                 .title {
                                                                                                     text-align: center;
                                                                                                     font-weight: bold;
-                                                                                                    font-size: 13px;
+                                                                                                    font-size: 12px;
                                                                                                     border-bottom: 1px solid #000;
-                                                                                                    padding-bottom: 4px;
-                                                                                                    margin-bottom: 6px;
+                                                                                                    padding-bottom: 3px;
+                                                                                                    margin-bottom: 5px;
                                                                                                     text-transform: uppercase;
                                                                                                 }
 
                                                                                                 .biodata {
-                                                                                                    display: grid;
-                                                                                                    grid-template-columns: 1fr 1fr;
                                                                                                     font-size: 10px;
-                                                                                                    line-height: 1.4;
-                                                                                                    gap: 2px 4px;
+                                                                                                    line-height: 1.6;
                                                                                                     margin-bottom: 5px;
                                                                                                 }
 
-                                                                                                .biodata div {
-                                                                                                    white-space: normal;      
+                                                                                                .biodata .row {
+                                                                                                    display: flex;
+                                                                                                }
+
+                                                                                                .biodata .label {
+                                                                                                    min-width: 32px;
+                                                                                                    font-weight: bold;
+                                                                                                }
+
+                                                                                                .biodata .colon {
+                                                                                                    margin-right: 4px;
+                                                                                                }
+
+                                                                                                .biodata .value {
+                                                                                                    flex: 1;
                                                                                                     word-break: break-word;
                                                                                                 }
 
@@ -1005,7 +1010,8 @@
 
                                                                                                 .barcode-section img {
                                                                                                     width: 100%;
-                                                                                                    height: 65px;
+                                                                                                    height: 60px;
+                                                                                                    display: block;
                                                                                                 }
                                                                                             </style>
                                                                                         </head>
