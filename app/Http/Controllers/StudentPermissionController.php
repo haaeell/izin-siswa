@@ -349,10 +349,13 @@ class StudentPermissionController extends Controller
         $year       = now()->year;
         $urut       = StudentPermission::whereYear('created_at', $year)->count() + 1;
         $nomorSurat = sprintf('421.5/%03d/WK-%s/%d', $urut, strtoupper(config('school.code', 'QR')), $year);
+        $student = Student::findOrFail($data['student_id']);
 
         $permission = StudentPermission::create([
             ...$data,
             'wali_kelas_id' => Auth::id(),
+            'student_name'  => $student->name,           // tambah ini
+            'student_class' => $student->class->name,
             'status'        => 'pending',
         ]);
 

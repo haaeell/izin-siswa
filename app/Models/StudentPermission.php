@@ -11,6 +11,8 @@ class StudentPermission extends Model
 
     protected $fillable = [
         'student_id',
+        'student_name',
+        'student_class',
         'wali_kelas_id',
         'approved_by',
         'type',
